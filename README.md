@@ -12,8 +12,8 @@
 [![Linux Build Status](https://secure.travis-ci.org/hapijs/hapi.svg?branch=master)](https://travis-ci.org/hapijs/hapi)
 [![Windows Build Status](https://ci.appveyor.com/api/projects/status/github/hapijs/hapi?branch=master&svg=true)](https://ci.appveyor.com/project/hueniverse/hapi)
 
-了解最新动态, [change log](https://hapijs.com/updates), 和发布信息访问 [hapijs.com](https://hapijs.com) 并在 twitter 关注 [@hapijs](https://twitter.com/hapijs). 如果您有任何疑问，请在中开启一个问题
-[discussion forum](https://github.com/hapijs/discuss).
+了解最新动态, [change log](https://hapijs.com/updates), 和发布信息访问 [hapijs.com](https://hapijs.com) 也可以在 twitter 关注 [@hapijs](https://twitter.com/hapijs)。 如果您有任何疑问，请在 [discussion forum](https://github.com/hapijs/discuss) 中开启一个问题
+.
 
 # 赞助
 
