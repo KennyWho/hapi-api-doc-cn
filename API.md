@@ -280,8 +280,6 @@ options 控制服务器对象的行为。注意 options 对象是深拷贝的（
 
 默认值: `{}`.
 
-提供应用个例【specific】
-
 提供特定于【specific】应用程序的配置，以后可以通过【via】它进行访问 [`server.settings.app`](#server.settings)。框架不与此对象交互【interact】。它只是提供一个随处可用的 `server` 的引用。
 
 注意与 `server.settings.app` 的区别，它用于存储静态的配置值。[`server.app`](#server.app) 用于存储运行时的状态。
@@ -300,7 +298,7 @@ options 控制服务器对象的行为。注意 options 对象是深拷贝的（
 
 设置服务端缓存的提供者程序。每个服务器包含一个默认用于存储应用程序状态的缓存。默认情况下，会创建一个容量【capacity】和功能【capability】有限，基于内存的缓存，
 
-**hapi** 使用 [**catbox**](https://github.com/hapijs/catbox) 为其缓存实现【implementation】，包括对常见存储解决方案的支持（例如 Redis, MongoDB, Memcached, Riak 等等）。仅当[methods](#server.methods)）和 [plugins](#plugins) 明确存储状态在缓存中时才使用缓存。
+**hapi** 使用 [**catbox**](https://github.com/hapijs/catbox) 为其缓存实现【implementation】，包括对常见存储解决方案的支持（例如 Redis, MongoDB, Memcached, Riak 等等）。仅当 [methods](#server.methods) 和 [plugins](#plugins) 明确存储状态在缓存中时才使用缓存。
 
 服务器缓存配置仅定义存储容器本身。配置可以指定一个或多个（数组）：
 
