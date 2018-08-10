@@ -247,7 +247,9 @@
 
 <!-- tocstop -->
 
-## Server
+## Server 服务
+
+服务器对象是主应用程序的容器。服务器管理所有传入的请求以及框架提供的所有设备[facilities]。每个服务支持一个单独的连接（例如 监听到 80 端口）。
 
 The server object is the main application container. The server manages all incoming requests
 along with all the facilities provided by the framework. Each server supports a single connection
@@ -255,8 +257,10 @@ along with all the facilities provided by the framework. Each server supports a 
 
 ### <a name="server()" /> `server([options])`
 
+创建一个新的 server 对象：
+
 Creates a new server object where:
-- `options` - (optional) a [server configuration object](#server.options).
+- `options` - (可选的) 一个 [server 可配置对象](#server.options).
 
 ```js
 const Hapi = require('hapi');
@@ -265,6 +269,8 @@ const server = Hapi.server({ load: { sampleInterval: 1000 } });
 ```
 
 ### <a name="server.options" /> Server options
+
+options 控制服务对象的行为。注意 options 对象是深拷贝的（除了 listener 属性是浅拷贝）并且任何不安全的值来执行[perform]深拷贝
 
 The server options control the behavior of the server object. Note that the options object is
 deeply cloned (with the exception of [`listener`](#server.options.listener) which is shallowly
