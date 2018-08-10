@@ -247,13 +247,9 @@
 
 <!-- tocstop -->
 
-## Server 服务
+## Server 服务器
 
-服务器对象是主应用程序的容器。服务器管理所有传入的请求以及框架提供的所有设备[facilities]。每个服务支持一个单独的连接（例如 监听到 80 端口）。
-
-The server object is the main application container. The server manages all incoming requests
-along with all the facilities provided by the framework. Each server supports a single connection
-(e.g. listen to port `80`).
+服务器对象是主应用程序的容器。服务器管理所有传入的请求以及框架提供的所有设备【facilities】。每个服务器支持一个单独的连接（例如 监听到 80 端口）。
 
 ### <a name="server()" /> `server([options])`
 
@@ -270,76 +266,55 @@ const server = Hapi.server({ load: { sampleInterval: 1000 } });
 
 ### <a name="server.options" /> Server options
 
-options 控制服务对象的行为。注意 options 对象是深拷贝的（除了 listener 属性是浅拷贝）并且任何不安全的值来执行[perform]深拷贝
+options 控制服务器对象的行为。注意 options 对象是深拷贝的（除了 [`listener`](#server.options.listener) 属性是浅拷贝）并且不能包含任何不安全的值来执行【perform】深拷贝
 
-The server options control the behavior of the server object. Note that the options object is
-deeply cloned (with the exception of [`listener`](#server.options.listener) which is shallowly
-copied) and should not contain any values that are unsafe to perform deep copy on.
-
-All options are optionals.
+所有的选项都是可选的。
 
 #### <a name="server.options.address" /> `server.options.address`
 
-Default value: `'0.0.0.0'` (all available network interfaces).
+默认值：`'0.0.0.0'` （所有可用的网络接口）
 
-Sets the hostname or IP address the server will listen on. If not configured, defaults to
-[`host`](#server.options.host) if present, otherwise to all available network interfaces. Set to
-`'127.0.0.1'` or `'localhost'` to restrict the server to only those coming from the same host.
+设置服务器所要监听的主机名或者 IP 地址。如果没有配置，默认会为已提供的 [`host`](#server.options.host) 选项，否则为所有可用的网络接口。设置 `'127.0.0.1'` 或 `'localhost'` 限制服务器仅来自同一主机。
 
 #### <a name="server.options.app" /> `server.options.app`
 
-Default value: `{}`.
+默认值: `{}`.
 
-Provides application-specific configuration which can later be accessed via
-[`server.settings.app`](#server.settings). The framework does not interact with this object. It is
-simply a reference made available anywhere a `server` reference is provided.
+提供应用个例【specific】
 
-Note the difference between `server.settings.app` which is used to store static configuration
-values and [`server.app`](#server.app) which is meant for storing run-time state.
+提供特定于【specific】应用程序的配置，以后可以通过【via】它进行访问 [`server.settings.app`](#server.settings)。框架不与此对象交互【interact】。它只是提供一个随处可用的 `server` 的引用。
+
+注意与 `server.settings.app` 的区别，它用于存储静态的配置值。[`server.app`](#server.app) 用于存储运行时的状态。
 
 #### <a name="server.options.autolisten" /> `server.options.autoListen`
 
-Default value: `true`.
+默认值: `true`.
 
-Used to disable the automatic initialization of the [`listener`](#server.options.listener). When
-`false`, indicates that the [`listener`](#server.options.listener) will be started manually outside
-the framework.
+用于禁用 [`listener`](#server.options.listener) 的自动初始化。值为 `false` 时，表示【indicates】框架外将手动开启 [`listener`](#server.options.listener)
 
-Cannot be set to `false` along with a [`port`](#server.options.port) value.
+不能与 [`port`](#server.options.port) 一起设置为 `false`
 
 #### <a name="server.options.cache" /> `server.options.cache`
 
-Default value: `{ engine: require('catbox-memory') }`.
+默认值: `{ engine: require('catbox-memory') }`.
 
-Sets up server-side caching providers. Every server includes a default cache for storing
-application state. By default, a simple memory-based cache is created which has limited capacity
-and capabilities.
+设置服务端缓存的提供者程序。每个服务器包含一个默认用于存储应用程序状态的缓存。默认情况下，会创建一个容量【capacity】和功能【capability】有限，基于内存的缓存，
 
-**hapi** uses [**catbox**](https://github.com/hapijs/catbox) for its cache implementation which
-includes support for common storage solutions (e.g. Redis, MongoDB, Memcached, Riak, among others).
-Caching is only utilized if [methods](#server.methods) and [plugins](#plugins) explicitly store
-their state in the cache.
+**hapi** 使用 [**catbox**](https://github.com/hapijs/catbox) 为其缓存实现【implementation】，包括对常见存储解决方案的支持（例如 Redis, MongoDB, Memcached, Riak 等等）。仅当[methods](#server.methods)）和 [plugins](#plugins) 明确存储状态在缓存中时才使用缓存。
 
-The server cache configuration only defines the storage container itself. The configuration can be
-assigned one or more (array):
+服务器缓存配置仅定义存储容器本身。配置可以指定一个或多个（数组）：
 
-- a class or prototype function (usually obtained by calling `require()` on a **catbox** strategy
-    such as `require('catbox-redis')`). A new **catbox** [client](https://github.com/hapijs/catbox#client)
-    will be created internally using this function.
+- 一个类或者原型方法（通常通过在 **catbox** 策略上调用 `require()` 来获得，例如 `require('catbox-redis')`）。一个新的  **catbox** [client](https://github.com/hapijs/catbox#client) 将使用此函数在内部【internally】创建。
 
-- a configuration object with the following:
+- 配置对象具有以下内容：
 
-    - `engine` - a class, a prototype function, or a **catbox** engine object.
+    - `engine` - 一个类, 原型方法, 或 **catbox** 对象.
+    
+    - `name` - 稍后为 [server methods](#server.methods) 或 [plugins](#plugins) 提供或配置缓存时使用的标识符。每个缓存名称必须是惟一的。单一项可以省略定义默认缓存的 `name` 选项。如果每个缓存都包含 `name`，还会配置默认的内存缓存。
 
-    - `name` - an identifier used later when provisioning or configuring caching for
-        [server methods](#server.methods) or [plugins](#plugins). Each cache name must be unique.
-        A single item may omit the `name` option which defines the default cache. If every cache
-        includes a `name`, a default memory cache is provisioned as well.
+    - `shared` - 如果为 `true`, 允许多个缓存用户共享同一个片段【segment】 (例如多个方法使用相同的缓存存储容器). 默认为 `false`.
 
-    - `shared` - if `true`, allows multiple cache users to share the same segment (e.g.
-        multiple methods using the same cache storage container). Default to `false`.
-
-    - `partition` - (optional) string used to isolate cached data. Defaults to `'hapi-cache'`.
+    - `partition` - (可选的) 字符串用于隔离缓存的数据. 默认为 `'hapi-cache'`.
 
     - other options passed to the **catbox** strategy used. Other options are only passed to
       **catbox** when `engine` above is a class or function and ignored if `engine` is a **catbox**
@@ -347,21 +322,20 @@ assigned one or more (array):
 
 #### <a name="server.options.compression" /> `server.options.compression`
 
-Default value: `{ minBytes: 1024 }`.
+默认值: `{ minBytes: 1024 }`.
 
-Defines server handling of content encoding requests. If `false`, response content encoding is
-disabled and no compression is performed by the server.
+定义服务端控制的内容编码请求。如果 `false`，相应内容编码被禁用，并且服务器不执行【perform】压缩
 
 ##### <a name="server.options.compression.minBytes" /> `server.options.compression.minBytes`
 
-Default value: '1024'.
+默认值: '1024'.
 
-Sets the minimum response payload size in bytes that is required for content encoding compression.
-If the payload size is under the limit, no compression is performed.
+设置最小响应有效负荷大小（以字节为单位），它是内容编码压缩所必须的。
+如果有效负载大小低于限制，则不执行压缩。
 
 #### <a name="server.options.debug" /> `server.options.debug`
 
-Default value: `{ request: ['implementation'] }`.
+默认值: `{ request: ['implementation'] }`.
 
 Determines which logged events are sent to the console. This should only be used for development
 and does not affect which events are actually logged internally and recorded. Set to `false` to
@@ -386,14 +360,14 @@ output set the `log` or `request` to `false`. To display all server logs, set th
 
 #### <a name="server.options.host" /> `server.options.host`
 
-Default value: the operating system hostname and if not available, to `'localhost'`.
+默认值: the operating system hostname and if not available, to `'localhost'`.
 
 The public hostname or IP address. Used to set [`server.info.host`](#server.info) and
 [`server.info.uri`](#server.info) and as [`address`](#server.options.address) is none provided.
 
 #### <a name="server.options.listener" /> `server.options.listener`
 
-Default value: none.
+默认值: none.
 
 An optional node HTTP (or HTTPS) [`http.Server`](https://nodejs.org/api/http.html#http_class_http_server)
 object (or an object with a compatible interface).
@@ -405,7 +379,7 @@ If the `listener` uses TLS, set [`tls`](#server.options.tls) to `true`.
 
 #### <a name="server.options.load" /> `server.options.load`
 
-Default value: `{ sampleInterval: 0, concurrent: 0 }`.
+默认值: `{ sampleInterval: 0, concurrent: 0 }`.
 
 Server excessive load handling limits where:
 
@@ -431,10 +405,9 @@ Server excessive load handling limits where:
 
 #### <a name="server.options.mime" /> `server.options.mime`
 
-Default value: none.
+默认值: none.
 
-Options passed to the [**mimos**](https://github.com/hapijs/mimos) module when generating the mime
-database used by the server (and accessed via [`server.mime`](#server.mime)):
+生成服务器使用的 mime 数据库时传递给 [**mimos**](https://github.com/hapijs/mimos) 模块的选项 (并通过 [`server.mime`](#server.mime) 访问)：
 
 - `override` - an object hash that is merged into the built in mime information specified
   [here](https://github.com/jshttp/mime-db). Each key value pair represents a single mime object.
@@ -485,7 +458,7 @@ const options = {
 
 #### <a name="server.options.plugins" /> `server.options.plugins`
 
-Default value: `{}`.
+默认值: `{}`.
 
 Plugin-specific configuration which can later be accessed via [`server.settings.plugins`](#server.settings).
 `plugins` is an object where each key is a plugin name and the value is the configuration.
@@ -495,34 +468,32 @@ run-time state.
 
 #### <a name="server.options.port" /> `server.options.port`
 
-Default value: `0` (an ephemeral port).
+默认值: `0` (一个无常【ephemeral】的端口).
 
-The TCP port the server will listen to. Defaults the next available port when the server is started
-(and assigned to [`server.info.port`](#server.info)).
+服务器要监听的 TCP 端口. 默认为服务器启动后的下一个可用端口。Defaults the next available port when the server is started (并分配给 [`server.info.port`](#server.info)).
 
-If `port` is a string containing a '/' character, it is used as a UNIX domain socket path.
-If it starts with '\\.\pipe', it is used as a Windows named pipe.
+如果 `port` 是一个包含 '/' 的字符串，它用作 UNIX 域的 socket 路径。
+如果以 '\\.\pipe' 开头，它用作 Windows 命名管道。
 
 #### <a name="server.options.router" /> `server.options.router`
 
-Default value: `{ isCaseSensitive: true, stripTrailingSlash: false }`.
+默认值: `{ isCaseSensitive: true, stripTrailingSlash: false }`.
 
-Controls how incoming request URIs are matched against the routing table:
+控制传入请求URI与路由表的匹配方式：
 
-- `isCaseSensitive` - determines whether the paths '/example' and '/EXAMPLE' are considered
-  different resources. Defaults to `true`.
+- `isCaseSensitive` - 确定【determines】路径 '/example' 和 '/EXAMPLE' 是否被视为不同的资源。默认为 `true`.
 
-- `stripTrailingSlash` - removes trailing slashes on incoming paths. Defaults to `false`.
+- `stripTrailingSlash` - 删除传入路径上的尾部斜杠。默认为 `false`.
 
 #### <a name="server.options.routes" /> `server.options.routes`
 
-Default value: none.
+默认值: none.
 
-A [route options](#route-options) object used as the default configuration for every route.
+一个 [route options](#route-options) 对象用于每个路由的默认配置。
 
 #### <a name="server.options.state" /> `server.options.state`
 
-Default value:
+默认值:
 ```js
 {
     strictHeader: true,
@@ -534,26 +505,21 @@ Default value:
 }
 ```
 
-Sets the default configuration for every state (cookie) set explicitly via
-[`server.state()`](#server.state()) or implicitly (without definition) using the
-[state configuration](#server.state()) object.
+为每个状态（cookie）显式【explicitly】设置默认配置通过 `server.state()`](#server.state()) 或者 隐式(没有定义)使用 [state configuration](#server.state()) 对象
 
 #### <a name="server.options.tls" /> `server.options.tls`
 
-Default value: none.
+默认值: none.
 
-Used to create an HTTPS connection. The `tls` object is passed unchanged to the node
-HTTPS server as described in the [node HTTPS documentation](https://nodejs.org/api/https.html#https_https_createserver_options_requestlistener).
+用于创建 HTTPS 连接. `tls` 对象不变传递到 node HTTPS 服务器，如下所示 [node HTTPS documentation](https://nodejs.org/api/https.html#https_https_createserver_options_requestlistener)。
 
-Set to `true` when passing a [`listener`](#server.options.listener) object that has been configured
-to use TLS directly.
+当传入一个已配置 [`listener`](#server.options.listener) 对象为 `true` 时，直接使用 TLS
 
 #### <a name="server.options.uri" /> `server.options.uri`
 
-Default value: constructed from runtime server information.
+默认值: 由运行时的服务器信息构建
 
-The full public URI without the path (e.g. 'http://example.com:8080'). If present, used as the
-server [`server.info.uri`](#server.info), otherwise constructed from the server settings.
+没有路径的完整公共 URI (例如 'http://example.com:8080'). 如果存在, 用作服务器的 [`server.info.uri`](#server.info), 否则由服务器设置构造.
 
 ### Server properties
 
@@ -2589,7 +2555,7 @@ across multiple requests. Registers a cookie definitions where:
     - `isSameSite` - sets the ['SameSite' flag](https://www.owasp.org/index.php/SameSite).  The value must be one of:
 
         - `false` - no flag.
-        - `'Strict'` - sets the value to `'Strict'` (this is the default value).
+        - `'Strict'` - sets the value to `'Strict'` (this is the 默认值).
         - `'Lax'` - sets the value to `'Lax'`.
 
     - `path` - the path scope. Defaults to `null` (no path).
@@ -2787,7 +2753,7 @@ Route authentication configuration. Value can be:
 
 #### <a name="route.options.auth.access" /> `route.options.auth.access`
 
-Default value: none.
+默认值: none.
 
 An object or array of objects specifying the route access rules. Each rule is evaluated against an
 incoming request and access is granted if at least one of the rules matches. Each rule object must
@@ -2796,7 +2762,7 @@ include at least one of [`scope`](#route.options.auth.access.scope) or
 
 #### <a name="route.options.auth.access.scope" /> `route.options.auth.access.scope`
 
-Default value: `false` (no scope requirements).
+默认值: `false` (no scope requirements).
 
 The application scope required to access the route. Value can be a scope string or an
 array of scope strings. When authenticated, the credentials object `scope` property must contain
@@ -2813,7 +2779,7 @@ name, such as `'user-{params.id}'`.
 
 #### <a name="route.options.auth.access.entity" /> `route.options.auth.access.entity`
 
-Default value: `'any'`.
+默认值: `'any'`.
 
 The required authenticated entity type. If set, must match the `entity` value of the request
 authenticated credentials. Available values:
@@ -2827,7 +2793,7 @@ authenticated credentials. Available values:
 
 #### <a name="route.options.auth.mode" /> `route.options.auth.mode`
 
-Default value: `'required'`.
+默认值: `'required'`.
 
 The authentication mode. Available values:
 
@@ -2839,7 +2805,7 @@ The authentication mode. Available values:
 
 #### <a name="route.options.auth.payload" /> `route.options.auth.payload`
 
-Default value: `false`, unless the scheme requires payload authentication.
+默认值: `false`, unless the scheme requires payload authentication.
 
 If set, the incoming request payload is authenticated after it is processed. Requires a strategy
 with payload authentication support (e.g. [Hawk](#https://github.com/hueniverse/hawk)). Cannot be
@@ -2855,27 +2821,27 @@ Available values:
 
 #### <a name="route.options.auth.strategies" /> `route.options.auth.strategies`
 
-Default value: the default strategy set via [`server.auth.default()`](#server.auth.default()).
+默认值: the default strategy set via [`server.auth.default()`](#server.auth.default()).
 
 An array of string strategy names in the order they should be attempted. Cannot be used together
 with [`strategy`](#route.options.auth.strategy).
 
 #### <a name="route.options.auth.strategy" /> `route.options.auth.strategy`
 
-Default value: the default strategy set via [`server.auth.default()`](#server.auth.default()).
+默认值: the default strategy set via [`server.auth.default()`](#server.auth.default()).
 
 A string strategy names. Cannot be used together with [`strategies`](#route.options.auth.strategies).
 
 ### <a name="route.options.bind" /> `route.options.bind`
 
-Default value: `null`.
+默认值: `null`.
 
 An object passed back to the provided `handler` (via `this`) when called. Ignored if the method is
 an arrow function.
 
 ### <a name="route.options.cache" /> `route.options.cache`
 
-Default value: `{ privacy: 'default', statuses: [200], otherwise: 'no-cache' }`.
+默认值: `{ privacy: 'default', statuses: [200], otherwise: 'no-cache' }`.
 
 If the route method is 'GET', the route can be configured to include HTTP caching directives in the
 response. Caching can be customized using an object with the following options:
@@ -2907,7 +2873,7 @@ encoder settings. Note that decoder settings are set in [`compression`](#route.o
 
 ### <a name="route.options.cors" /> `route.options.cors`
 
-Default value: `false` (no CORS headers).
+默认值: `false` (no CORS headers).
 
 The [Cross-Origin Resource Sharing](https://www.w3.org/TR/cors/) protocol allows browsers to make
 cross-origin API calls. CORS is required by web applications running inside a browser which are
@@ -2941,7 +2907,7 @@ object with the following options:
 
 ### <a name="route.options.description" /> `route.options.description`
 
-Default value: none.
+默认值: none.
 
 Route description used for generating documentation (string).
 
@@ -2950,7 +2916,7 @@ This setting is not available when setting server route defaults using
 
 ### <a name="route.options.ext" /> `route.options.ext`
 
-Default value: none.
+默认值: none.
 
 Route-level [request extension points](#request-lifecycle) by setting the option to an object with
 a key for each of the desired extension points (`'onRequest'` is not allowed), and the value is the
@@ -2958,7 +2924,7 @@ same as the [`server.ext(events)`](#server.ext()) `event` argument.
 
 ### <a name="route.options.files" /> `route.options.files`
 
-Default value: `{ relativeTo: '.' }`.
+默认值: `{ relativeTo: '.' }`.
 
 Defines the behavior for accessing files:
 
@@ -2966,7 +2932,7 @@ Defines the behavior for accessing files:
 
 ### <a name="route.options.handler" /> `route.options.handler`
 
-Default value: none.
+默认值: none.
 
 The route handler function performs the main business logic of the route and sets the response.
 `handler` can be assigned:
@@ -2989,14 +2955,14 @@ the bound context is available under [`h.context`](#h.context).
 
 ### <a name="route.options.id" /> `route.options.id`
 
-Default value: none.
+默认值: none.
 
 An optional unique identifier used to look up the route using [`server.lookup()`](#server.lookup()).
 Cannot be assigned to routes added with an array of methods.
 
 ### <a name="route.options.isInternal" /> `route.options.isInternal`
 
-Default value: `false`.
+默认值: `false`.
 
 If `true`, the route cannot be accessed through the HTTP listener but only through the
 [`server.inject()`](#server.inject()) interface with the `allowInternals` option set to `true`.
@@ -3004,7 +2970,7 @@ Used for internal routes that should not be accessible to the outside world.
 
 ### <a name="route.options.json" /> `route.options.json`
 
-Default value: none.
+默认值: none.
 
 Optional arguments passed to `JSON.stringify()` when converting an object or error response to a
 string payload or escaping it after stringification. Supports the following:
@@ -3020,7 +2986,7 @@ string payload or escaping it after stringification. Supports the following:
 
 ### <a name="route.options.jsonp" /> `route.options.jsonp`
 
-Default value: none.
+默认值: none.
 
 Enables JSONP support by setting the value to the query parameter name containing the function name
 used to wrap the response payload.
@@ -3035,7 +3001,7 @@ response header is set to `'nosniff'`, and will override those headers even if e
 
 ### <a name="route.options.log" /> `route.options.log`
 
-Default value: `{ collect: false }`.
+默认值: `{ collect: false }`.
 
 Request logging options:
 
@@ -3044,7 +3010,7 @@ Request logging options:
 
 ### <a name="route.options.notes" /> `route.options.notes`
 
-Default value: none.
+默认值: none.
 
 Route notes used for generating documentation (string or array of strings).
 
@@ -3057,7 +3023,7 @@ Determines how the request payload is processed.
 
 #### <a name="route.options.payload.allow" /> `route.options.payload.allow`
 
-Default value: allows parsing of the following mime types:
+默认值: allows parsing of the following mime types:
 - application/json
 - application/*+json
 - application/octet-stream
@@ -3072,34 +3038,34 @@ will result in an error response.
 
 #### <a name="route.options.payload.compression" /> `route.options.payload.compression`
 
-Default value: none.
+默认值: none.
 
 An object where each key is a content-encoding name and each value is an object with the desired
 decoder settings. Note that encoder settings are set in [`compression`](#server.options.compression).
 
 #### <a name="route.options.payload.defaultContentType" /> `route.options.payload.defaultContentType`
 
-Default value: `'application/json'`.
+默认值: `'application/json'`.
 
 The default content type if the 'Content-Type' request header is missing.
 
 #### <a name="route.options.payload.failAction" /> `route.options.payload.failAction`
 
-Default value: `'error'` (return a Bad Request (400) error response).
+默认值: `'error'` (return a Bad Request (400) error response).
 
 A [`failAction` value](#lifecycle-failAction) which determines how to handle payload parsing
 errors.
 
 #### <a name="route.options.payload.maxBytes" /> `route.options.payload.maxBytes`
 
-Default value: `1048576` (1MB).
+默认值: `1048576` (1MB).
 
 Limits the size of incoming payloads to the specified byte count. Allowing very large payloads may
 cause the server to run out of memory.
 
 #### <a name="route.options.payload.multipart" /> `route.options.payload.multipart`
 
-Default value: none.
+默认值: none.
 
 Overrides payload processing for multipart requests. Value can be one of:
 
@@ -3117,7 +3083,7 @@ Overrides payload processing for multipart requests. Value can be one of:
 
 #### <a name="route.options.payload.output" /> `route.options.payload.output`
 
-Default value: `'data'`.
+默认值: `'data'`.
 
 The processed payload format. The value must be one of:
 
@@ -3144,13 +3110,13 @@ The processed payload format. The value must be one of:
 
 #### <a name="route.options.payload.override" /> `route.options.payload.override`
 
-Default value: none.
+默认值: none.
 
 A mime type string overriding the 'Content-Type' header value received.
 
 #### <a name="route.options.payload.parse" /> `route.options.payload.parse`
 
-Default value: `true`.
+默认值: `true`.
 
 Determines if the incoming payload is processed or presented raw. Available values:
 
@@ -3165,7 +3131,7 @@ Determines if the incoming payload is processed or presented raw. Available valu
 
 #### <a name="route.options.payload.timeout" /> `route.options.payload.timeout`
 
-Default value: to `10000` (10 seconds).
+默认值: to `10000` (10 seconds).
 
 Payload reception timeout in milliseconds. Sets the maximum time allowed for the client to transmit
 the request payload (body) before giving up and responding with a Request Timeout (408) error
@@ -3175,20 +3141,20 @@ Set to `false` to disable.
 
 #### <a name="route.options.payload.uploads" /> `route.options.payload.uploads`
 
-Default value: `os.tmpdir()`.
+默认值: `os.tmpdir()`.
 
 The directory used for writing file uploads.
 
 ### <a name="route.options.plugins" /> `route.options.plugins`
 
-Default value: `{}`.
+默认值: `{}`.
 
 Plugin-specific configuration. `plugins` is an object where each key is a plugin name and the value
 is the plugin configuration.
 
 ### <a name="route.options.pre" /> `route.options.pre`
 
-Default value: none.
+默认值: none.
 
 The `pre` option allows defining methods for performing actions before the handler is called. These
 methods allow breaking the handler logic into smaller, reusable components that can be shared
@@ -3267,7 +3233,7 @@ Processing rules for the outgoing response.
 
 #### <a name="route.options.response.emptyStatusCode" /> `route.options.response.emptyStatusCode`
 
- Default value: `200`.
+ 默认值: `200`.
 
 The default HTTP status code when the payload is considered empty. Value can be `200` or `204`.
 Note that a `200` status code is converted to a `204` only at the time of response transmission
@@ -3275,20 +3241,20 @@ Note that a `200` status code is converted to a `204` only at the time of respon
 
 #### <a name="route.options.response.failAction" /> `route.options.response.failAction`
 
-Default value: `'error'` (return an Internal Server Error (500) error response).
+默认值: `'error'` (return an Internal Server Error (500) error response).
 
 A [`failAction` value](#lifecycle-failAction) which defines what to do when a response fails
 payload validation.
 
 #### <a name="route.options.response.modify" /> `route.options.response.modify`
 
-Default value: `false`.
+默认值: `false`.
 
 If `true`, applies the validation rule changes to the response payload.
 
 #### <a name="route.options.response.options" /> `route.options.response.options`
 
-Default value: none.
+默认值: none.
 
 [**joi**](https://github.com/hapijs/joi) options object pass to the validation function. Useful to
 set global options such as `stripUnknown` or `abortEarly` (the complete list is available
@@ -3299,19 +3265,19 @@ passed to this function as the second argument.
 
 #### <a name="route.options.response.ranges" /> `route.options.response.ranges`
 
-Default value: `true`.
+默认值: `true`.
 
 If `false`, payload [range](https://tools.ietf.org/html/rfc7233#section-3) support is disabled.
 
 #### <a name="route.options.response.sample" /> `route.options.response.sample`
 
-Default value: `100` (all responses).
+默认值: `100` (all responses).
 
 The percent of response payloads validated (0 - 100). Set to `0` to disable all validation.
 
 #### <a name="route.options.response.schema" /> `route.options.response.schema`
 
-Default value: `true` (no validation).
+默认值: `true` (no validation).
 
 The default response payload validation rules (for all non-error responses) expressed as one of:
 
@@ -3336,7 +3302,7 @@ The default response payload validation rules (for all non-error responses) expr
 
 #### <a name="route.options.response.status" /> `route.options.response.status`
 
-Default value: none.
+默认值: none.
 
 Validation schemas for specific HTTP status codes. Responses (excluding errors) not matching the
 listed status codes are validated using the default [`schema`](#route.options.response.schema).
@@ -3346,20 +3312,20 @@ same definition as [`schema`](#route.options.response.schema).
 
 ### <a name="route.options.rules" /> `route.options.rules`
 
-Default value: none.
+默认值: none.
 
 A custom rules object passed to each rules processor registered with [`server.rules()`](#server.rules()).
 
 ### <a name="route.options.security" /> `route.options.security`
 
-Default value: `false` (security headers disabled).
+默认值: `false` (security headers disabled).
 
 Sets common security headers. To enable, set `security` to `true` or to an object with the
 following options:
 
 - `hsts` - controls the 'Strict-Transport-Security' header, where:
 
-    - `true` - the header will be set to `max-age=15768000`. This is the default value.
+    - `true` - the header will be set to `max-age=15768000`. This is the 默认值.
     - a number - the maxAge parameter will be set to the provided value.
 
     - an object with the following fields:
@@ -3372,7 +3338,7 @@ following options:
 
 - `xframe` - controls the 'X-Frame-Options' header, where:
 
-    - `true` - the header will be set to `'DENY'`. This is the default value.
+    - `true` - the header will be set to `'DENY'`. This is the 默认值.
     - `'deny'` - the headers will be set to `'DENY'`.
     - `'sameorigin'` - the headers will be set to `'SAMEORIGIN'`.
 
@@ -3400,7 +3366,7 @@ following options:
   the header to its only and default option, `'nosniff'`.
 
 - `referrer` - controls the ['Referrer-Policy'](https://www.w3.org/TR/referrer-policy/) header, which has the following possible values.
-    - `false` - the 'Referrer-Policy' header will not be sent to clients with responses. This is the default value.
+    - `false` - the 'Referrer-Policy' header will not be sent to clients with responses. This is the 默认值.
     - `''` - instructs clients that the Referrer-Policy will be [defined elsewhere](https://www.w3.org/TR/referrer-policy/#referrer-policy-empty-string), such as in a meta html tag.
     - `'no-referrer'` - instructs clients to never include the referrer header when making requests.
     - `'no-referrer-when-downgrade'` - instructs clients to never include the referrer when navigating from HTTPS to HTTP.
@@ -3413,7 +3379,7 @@ following options:
 
 ### <a name="route.options.state" /> `route.options.state`
 
-Default value: `{ parse: true, failAction: 'error' }`.
+默认值: `{ parse: true, failAction: 'error' }`.
 
 HTTP state management (cookies) allows the server to store information on the client which is sent
 back to the server with every request (as defined in [RFC 6265](https://tools.ietf.org/html/rfc6265)).
@@ -3427,7 +3393,7 @@ back to the server with every request (as defined in [RFC 6265](https://tools.ie
 
 ### <a name="route.options.tags" /> `route.options.tags`
 
-Default value: none.
+默认值: none.
 
 Route tags used for generating documentation (array of strings).
 
@@ -3436,39 +3402,39 @@ This setting is not available when setting server route defaults using
 
 ### <a name="route.options.timeout" /> `route.options.timeout`
 
-Default value: `{ server: false }`.
+默认值: `{ server: false }`.
 
 Timeouts for processing durations.
 
 #### <a name="route.options.timeout.server" /> `route.options.timeout.server`
 
-Default value: `false`.
+默认值: `false`.
 
 Response timeout in milliseconds. Sets the maximum time allowed for the server to respond to an
 incoming request before giving up and responding with a Service Unavailable (503) error response.
 
 #### <a name="route.options.timeout.socket" /> `route.options.timeout.socket`
 
-Default value: none (use node default of 2 minutes).
+默认值: none (use node default of 2 minutes).
 
 By default, node sockets automatically timeout after 2 minutes. Use this option to override this
 behavior. Set to `false` to disable socket timeouts.
 
 ### <a name="route.options.validate" /> `route.options.validate`
 
-Default value: `{ headers: true, params: true, query: true, payload: true, failAction: 'error' }`.
+默认值: `{ headers: true, params: true, query: true, payload: true, failAction: 'error' }`.
 
 Request input validation rules for various request components.
 
 #### <a name="route.options.validate.errorFields" /> `route.options.validate.errorFields`
 
-Default value: none.
+默认值: none.
 
 An optional object with error fields copied into every validation error response.
 
 #### <a name="route.options.validate.failAction" /> `route.options.validate.failAction`
 
-Default value: `'error'` (return a Bad Request (400) error response).
+默认值: `'error'` (return a Bad Request (400) error response).
 
 A [`failAction` value](#lifecycle-failAction) which determines how to handle failed validations.
 When set to a function, the `err` argument includes the type of validation error under
@@ -3476,7 +3442,7 @@ When set to a function, the `err` argument includes the type of validation error
 
 #### <a name="route.options.validate.headers" /> `route.options.validate.headers`
 
-Default value: `true` (no validation).
+默认值: `true` (no validation).
 
 Validation rules for incoming request headers:
 
@@ -3497,7 +3463,7 @@ Note that all header field names must be in lowercase to match the headers norma
 
 #### <a name="route.options.validate.options" /> `route.options.validate.options`
 
-Default value: none.
+默认值: none.
 
 An options object passed to the [**joi**](https://github.com/hapijs/joi) rules or the custom
 validation methods. Used for setting global options such as `stripUnknown` or `abortEarly` (the
@@ -3521,7 +3487,7 @@ settings override the routes defaults (the rules are not merged).
 
 #### <a name="route.options.validate.params" /> `route.options.validate.params`
 
-Default value: `true` (no validation).
+默认值: `true` (no validation).
 
 Validation rules for incoming request path parameters, after matching the path against the route,
 extracting any parameters, and storing them in [`request.params`](#request.params), where:
@@ -3545,7 +3511,7 @@ all requests to fail.
 
 #### <a name="route.options.validate.payload" /> `route.options.validate.payload`
 
-Default value: `true` (no validation).
+默认值: `true` (no validation).
 
 Validation rules for incoming request payload (request body), where:
 
@@ -3573,7 +3539,7 @@ amounts of data.
 
 #### <a name="route.options.validate.query" /> `route.options.validate.query`
 
-Default value: `true` (no validation).
+默认值: `true` (no validation).
 
 Validation rules for incoming request URI query component (the key-value part of the URI between
 '?' and '#'). The query is parsed into its individual key-value pairs, decoded, and stored in
@@ -4163,7 +4129,7 @@ before it is returned, the [`h.response()`](#h.response()) method is provided.
 
 Access: read / write.
 
-Default value: `{}`.
+默认值: `{}`.
 
 Application-specific state. Provides a safe place to store application data without potential
 conflicts with the framework. Should not be used by [plugins](#plugins) which should use
@@ -4214,7 +4180,7 @@ server.ext('onPreResponse', preResponse);
 
 Access: read only.
 
-Default value: `{}`.
+默认值: `{}`.
 
 An object containing the response headers where each key is a header field name and the value is
 the string header value or array of string.
@@ -4226,7 +4192,7 @@ headers will be added once the response is prepared for transmission.
 
 Access: read / write.
 
-Default value: `{}`.
+默认值: `{}`.
 
 Plugin-specific state. Provides a place to store and pass request-level plugin data. `plugins` is
 an object where each key is a plugin name and the value is the state.
@@ -4250,7 +4216,7 @@ properties of the stream object to the outbound response.
 
 Access: read only.
 
-Default value: `null` (use route defaults).
+默认值: `null` (use route defaults).
 
 Override the route [`json`](#route.options.json) options used when [`source`](#response.source)
 value requires stringification.
@@ -4259,14 +4225,14 @@ value requires stringification.
 
 Access: read only.
 
-Default value: `null` (use route defaults).
+默认值: `null` (use route defaults).
 
 If set, overrides the route [`cache`](#route.options.cache) with an expiration value in
 milliseconds.
 
 ###### <a name="response.settings.varyEtag" /> `response.settings.varyEtag`
 
-Default value: `false`.
+默认值: `false`.
 
 If `true`, a suffix will be automatically added to the 'ETag' header at transmission time
 (separated by a `'-'` character) when the HTTP 'Vary' header is present.
@@ -4281,7 +4247,7 @@ The raw value returned by the [lifecycle method](#lifecycle-methods).
 
 Access: read only.
 
-Default value: `200`.
+默认值: `200`.
 
 The HTTP response status code.
 
