@@ -32,7 +32,7 @@ Eran Hammer's [Patreon 主页](https://www.patreon.com/eranhammer) 或者通过[
 - The product development team at **Creative Artists Agency**
 - **[First + Third](https://firstandthird.com)**
 
-## 遗留的支持者
+## 过往的支持者
 
 该项目过去的主要财政支持由提供:
 - Benjamin Flesch and [StriveWire](https://strivewire.com/)

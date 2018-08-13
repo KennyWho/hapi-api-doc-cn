@@ -335,9 +335,7 @@ options 控制服务器对象的行为。注意 options 对象是深拷贝的（
 
 默认值: `{ request: ['implementation'] }`.
 
-Determines which logged events are sent to the console. This should only be used for development
-and does not affect which events are actually logged internally and recorded. Set to `false` to
-disable all console logging, or to an object with:
+确定【Determines】将哪些日志事件发送到控制台。仅用于开发模式并且不影响【affect】记录实际内部和收录的事件。设置 `false` 去关闭所有输出日志，或者传入一个对象：
 
 - `log` - a string array of server log tags to be displayed via `console.error()` when
     the events are logged via [`server.log()`](#server.log()) as well as
@@ -352,34 +350,32 @@ disable all console logging, or to an object with:
     automatically and result in an Internal Server Error response) or runtime errors due to
     developer error.
 
-For example, to display all errors, set the `log` or `request` to `['error']`. To turn off all
-output set the `log` or `request` to `false`. To display all server logs, set the `log` or
-`request` to `'*'`. To disable all debug information, set `debug` to `false`.
+举个例子, 为了展示所有错误, 设置 `log` or `request` 为 `['error']`. 关闭所有输出，设置 `log` or `request` 为 `false`. 展示所有服务器日志, 设置 `log` or
+`request` 为 `'*'`. 关闭所有服务器日志, 设置 `debug` 为 `false`.
 
 #### <a name="server.options.host" /> `server.options.host`
 
-默认值: the operating system hostname and if not available, to `'localhost'`.
+默认值: 操作系统的主机名，如果不可用默认为 `'localhost'`。
 
-The public hostname or IP address. Used to set [`server.info.host`](#server.info) and
-[`server.info.uri`](#server.info) and as [`address`](#server.options.address) is none provided.
+公共主机名或 IP 。 用于设置 [`server.info.host`](#server.info) ，
+[`server.info.uri`](#server.info) 和 [`address`](#server.options.address) 没有指定.
 
 #### <a name="server.options.listener" /> `server.options.listener`
 
 默认值: none.
 
-An optional node HTTP (or HTTPS) [`http.Server`](https://nodejs.org/api/http.html#http_class_http_server)
-object (or an object with a compatible interface).
+可选的 node HTTP (或 HTTPS) [`http.Server`](https://nodejs.org/api/http.html#http_class_http_server)
+对象 (或具有兼容【compatible】接口的对象).
 
-If the `listener` needs to be manually started, set [`autoListen`](#server.options.autolisten) to
-`false`.
+如果 `listener` 需要手动启动，设置 [`autoListen`](#server.options.autolisten) 为 `false`。
 
-If the `listener` uses TLS, set [`tls`](#server.options.tls) to `true`.
+如果 `listener` 使用 TLS， 设置 [`tls`](#server.options.tls) 为 `true`。
 
 #### <a name="server.options.load" /> `server.options.load`
 
 默认值: `{ sampleInterval: 0, concurrent: 0 }`.
 
-Server excessive load handling limits where:
+服务器过载【excessive】处理的限制，其中：
 
 - `sampleInterval` - the frequency of sampling in milliseconds. When set to `0`, the other load
   options are ignored. Defaults to `0` (no sampling).
@@ -407,19 +403,19 @@ Server excessive load handling limits where:
 
 生成服务器使用的 mime 数据库时传递给 [**mimos**](https://github.com/hapijs/mimos) 模块的选项 (并通过 [`server.mime`](#server.mime) 访问)：
 
-- `override` - an object hash that is merged into the built in mime information specified
-  [here](https://github.com/jshttp/mime-db). Each key value pair represents a single mime object.
-  Each override value must contain:
+- 一个对象哈希，被合并到指定 [here](https://github.com/jshttp/mime-db) 的内置 mime 信息中
 
-    - `key` - the lower-cased mime-type string (e.g. `'application/javascript'`).
+- `override` - 一个对象哈希，被合并到指定 [here](https://github.com/jshttp/mime-db) 的内置 mime 信息中。 每个键值对代表一个单独的 mime 对象。
+  每个覆盖值必须包含:
 
-    - `value` - an object following the specifications outlined [here](https://github.com/jshttp/mime-db#data-structure).
-      Additional values include:
+    - `key` - 小写的 mime-type 字符串 (例如 `'application/javascript'`).
 
-        - `type` - specify the `type` value of result objects, defaults to `key`.
+    - `value` - 符合规范【specifications】的对象 [here](https://github.com/jshttp/mime-db#data-structure)。
+      其他值包含:
 
-        - `predicate` - method with signature `function(mime)` when this mime type is found in the
-          database, this function will execute to allows customizations.
+        - `type` - 指定 `type` 的结果， 默认为 `key`。
+
+        - `predicate` - 带签名的方法 `function(mime)` 当 mime 的类型在数据库中, 此函数执行以允许自定义
 
 ```js
 const options = {
@@ -458,17 +454,13 @@ const options = {
 
 默认值: `{}`.
 
-Plugin-specific configuration which can later be accessed via [`server.settings.plugins`](#server.settings).
-`plugins` is an object where each key is a plugin name and the value is the configuration.
-Note the difference between [`server.settings.plugins`](#server.settings) which is used to store
-static configuration values and [`server.plugins`](#server.plugins) which is meant for storing
-run-time state.
+特定于插件的配置，以后可以通过 [`server.settings.plugins`](#server.settings) 访问。`plugins` 是一个对象，其中每个键是插件名称，值是配置。注意它与 [`server.settings.plugins`](#server.settings) 和 [`server.plugins`](#server.plugins) 的不同，前者用于存储静态配置值，后者用于存储运行时的状态。
 
 #### <a name="server.options.port" /> `server.options.port`
 
 默认值: `0` (一个无常【ephemeral】的端口).
 
-服务器要监听的 TCP 端口. 默认为服务器启动后的下一个可用端口。Defaults the next available port when the server is started (并分配给 [`server.info.port`](#server.info)).
+服务器要监听的 TCP 端口. 默认为服务器启动后的下一个可用端口。(并分配给 [`server.info.port`](#server.info)).
 
 如果 `port` 是一个包含 '/' 的字符串，它用作 UNIX 域的 socket 路径。
 如果以 '\\.\pipe' 开头，它用作 Windows 命名管道。
@@ -519,15 +511,13 @@ run-time state.
 
 没有路径的完整公共 URI (例如 'http://example.com:8080'). 如果存在, 用作服务器的 [`server.info.uri`](#server.info), 否则由服务器设置构造.
 
-### Server properties
+### 服务器属性
 
 #### <a name="server.app" /> `server.app`
 
-Access: read / write.
+访问: 读 / 写.
 
-Provides a safe place to store server-specific run-time application data without potential
-conflicts with the framework internals. The data can be accessed whenever the server is
-accessible. Initialized with an empty object.
+提供了一个安全的地方来存储特定于服务器的运行时应用程序数据，而不与框架内部潜在【potential】冲突。数据可以在任何服务器可用状态下被访问。初始化为空对象。
 
 ```js
 const server = Hapi.server();
@@ -542,11 +532,9 @@ const handler = function (request, h) {
 
 #### <a name="server.auth.api" /> `server.auth.api`
 
-Access: authentication strategy specific.
+访问: 指定的认证策略【strategy】。
 
-An object where each key is an authentication strategy name and the value is the exposed strategy
-API. Available only when the authentication scheme exposes an API by returning an `api` key in the
-object returned from its implementation function.
+一个对象，其中每个键都是一个身份验证策略名称，值是公开【exposed】的策略 API。仅当身份验证方案【scheme】通过实现函数返回对象中的 `api` 键来公开 API 时才可用。
 
 ```js
 const server = Hapi.server({ port: 80 });
@@ -579,22 +567,21 @@ console.log(server.auth.api.default.settings.x);    // 5
 
 #### <a name="server.auth.settings.default" /> `server.auth.settings.default`
 
-Access: read only.
+访问: 只读。
 
-Contains the default authentication configuration if a default strategy was set via
-[`server.auth.default()`](#server.auth.default()).
+包含默认的身份认证配置，如果是默认的策略设置请通过 [`server.auth.default()`](#server.auth.default())
 
 #### <a name="server.decorations" /> `server.decorations`
 
-Access: read only.
+访问: 只读。
 
-Provides access to the decorations already applied to various framework interfaces. The object must
-not be modified directly, but only through [`server.decorate`](#server.decorate()).
-Contains:
+提供对已应用于各种框架接口修饰符的访问。对象不能直接被修改，但只能通过 [`server.decorate`](#server.decorate())。
 
-- `request` - decorations on the [request object](#request).
-- `toolkit` - decorations on the [response toolkit](#response-toolkit).
-- `server` - decorations on the [server](#server) object.
+包含：
+
+- `request` - 装饰 [request object](#request).
+- `toolkit` - 装饰 [response toolkit](#response-toolkit).
+- `server` -装饰 [server](#server) 对象.
 
 ```js
 const Hapi = require('hapi');
@@ -611,12 +598,11 @@ console.log(server.decorations.toolkit);            // ['success']
 
 #### <a name="server.events" /> `server.events`
 
-Access: **podium** public interface.
+访问: **podium** 公共接口.
 
-The server events emitter. Utilizes the [**podium**](https://github.com/hapijs/podium) with support
-for event criteria validation, channels, and filters.
+服务器的事件触发器. 利用【Utilizes】 [**podium**](https://github.com/hapijs/podium) 支持的事件标准验证, 频道和过滤器。
 
-Use the following methods to interact with `server.events`:
+使用下面方法与 `server.events` 进行交互：
 
 - [`server.event(events)`](#server.event()) - register application events.
 - [`server.events.emit(criteria, data)`](#server.events.emit()) - emit server events.
