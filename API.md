@@ -1,4 +1,4 @@
-# v17.5.x API Reference
+# hapijs 中文文档【v17.5.x API Reference】
 
 <!-- toc -->
 
@@ -256,7 +256,7 @@
 创建一个新的 server 对象：
 
 Creates a new server object where:
-- `options` - (可选的) 一个 [server 可配置对象](#server.options).
+- `options` - (可选) 一个 [server 可配置对象](#server.options).
 
 ```js
 const Hapi = require('hapi');
@@ -312,7 +312,7 @@ options 控制服务器对象的行为。注意 options 对象是深拷贝的（
 
     - `shared` - 如果为 `true`, 允许多个缓存用户共享同一个片段【segment】 (例如多个方法使用相同的缓存存储容器). 默认为 `false`.
 
-    - `partition` - (可选的) 字符串用于隔离缓存的数据. 默认为 `'hapi-cache'`.
+    - `partition` - (可选) 字符串用于隔离缓存的数据. 默认为 `'hapi-cache'`.
 
     - other options passed to the **catbox** strategy used. Other options are only passed to
       **catbox** when `engine` above is a class or function and ignored if `engine` is a **catbox**
@@ -826,9 +826,9 @@ console.log(server.info.port);            // 80
 
 #### <a name="server.listener" /> `server.listener`
 
-访问： read only and listener public interface.
+访问： 只读和监听器公共接口
 
-The node HTTP server object.
+node HTTP 服务器对象。
 
 ```js
 const Hapi = require('hapi');
@@ -847,12 +847,11 @@ io.sockets.on('connection', (socket) => {
 
 访问： 只读。
 
-An object containing the process load metrics (when [`load.sampleInterval`](#server.options.load)
-is enabled):
+包含流程负载指标的对象 (当 [`load.sampleInterval`](#server.options.load) 已启用):
 
-- `eventLoopDelay` - event loop delay milliseconds.
-- `heapUsed` - V8 heap usage.
-- `rss` - RSS memory usage.
+- `eventLoopDelay` - 时间循环延迟毫秒.
+- `heapUsed` - V8 堆使用情况.
+- `rss` - RSS 内存使用情况.
 
 ```js
 const Hapi = require('hapi');
@@ -883,7 +882,7 @@ const result = server.methods.add(1, 2);    // 3
 
 #### <a name="server.mime" /> `server.mime`
 
-访问： read only and **mimos** public interface.
+访问： 只读且 **mimos** 公共接口。
 
 Provides access to the server MIME database used for setting content-type information. The object
 must not be modified directly but only through the [`mime`](#server.options.mime) server setting.
@@ -913,10 +912,7 @@ console.log(server.mime.path('file.npm').type)        // 'node/module'
 
 访问： read / write.
 
-An object containing the values exposed by each registered plugin where each key is a plugin name
-and the values are the exposed properties by each plugin using
-[`server.expose()`](#server.expose()). Plugins may set the value of the
-`server.plugins[name]` object directly or via the `server.expose()` method.
+包含每个注册插件公开的值的对象，其中每个键是一个插件名称，值是每个插件使用 [`server.expose()`](#server.expose()) 公开的属性. 插件可以直接或通过 `server.expose()` 方法设置 `server.plugins[name]` 对象的值
 
 ```js
 exports.plugin = {
@@ -989,18 +985,17 @@ exports.register = function (server, options) {
 
 访问： 只读。
 
-An object of the currently registered plugins where each key is a registered plugin name and the
-value is an object containing:
+当前注册的插件的对象，其中每个键是注册的插件名称，值是包含的对象：
 
-- `version` - the plugin version.
-- `name` - the plugin name.
-- `options` - (optional) options passed to the plugin during registration.
+- `version` - 插件版本.
+- `name` - 插件名称.
+- `options` - (可选) 注册期间传递给插件的选项。
 
 #### <a name="server.settings" /> `server.settings`
 
 访问： 只读。
 
-The server configuration object after defaults applied.
+应用默认值后的服务器配置对象。
 
 ```js
 const Hapi = require('hapi');
@@ -1015,35 +1010,34 @@ console.log(server.settings.app);   // { key: 'value' }
 
 #### <a name="server.states" /> `server.states`
 
-访问： read only and **statehood** public interface.
+访问： 只读并且 **statehood** 公共接口.
 
-The server cookies manager.
+服务器 cookies 管理器。
 
 #### <a name="server.states.settings" /> `server.states.settings`
 
 访问： 只读。
 
-The server cookies manager settings. The settings are based on the values configured in
-[`server.options.state`](#server.options.state).
+服务器 cookies 管理器设置. 设置基于 [`server.options.state`](#server.options.state) 中配置的值.
 
 #### <a name="server.states.cookies" /> `server.states.cookies`
 
 访问： 只读。
 
-An object containing the configuration of each cookie added via [`server.state()`](#server.state())
-where each key is the cookie name and value is the configuration object.
+包含通过 [`server.state()`](#server.state()) 添加的每个 cookie 的配置对象
+其中每个键是 cookie 名称，值是配置对象。
 
 #### <a name="server.states.names" /> `server.states.names`
 
 访问： 只读。
 
-An array containing the names of all configued cookies.
+包含所有已配置【configured】 cookie 的名称的数组。
 
 #### <a name="server.type" /> `server.type`
 
 访问： 只读。
 
-A string indicating the listener type where:
+一个字符串，标明【indicating】监听类型，其中：
 - `'socket'` - UNIX domain socket or Windows named pipe.
 - `'tcp'` - an HTTP listener.
 
@@ -1051,7 +1045,7 @@ A string indicating the listener type where:
 
 访问： 只读。
 
-The **hapi** module version number.
+**hapi** 版本号
 
 ```js
 const Hapi = require('hapi');
@@ -1062,20 +1056,16 @@ console.log(server.version);        // '17.0.0'
 
 ### <a name="server.auth.default()" /> `server.auth.default(options)`
 
-Sets a default strategy which is applied to every route where:
+设置应用于每个路由的默认认证策略【strategy】，其中：
 
-- `options` - one of:
+- `options` - 其中之一:
 
-    - a string with the default strategy name
-    - an authentication configuration object using the same format as the
-      [route `auth` handler options](#route.options.auth).
+    - 具有默认策略名称的字符串
+    - 使用与 [route `auth` handler options](#route.options.auth) 相同格式的身份验证配置对象.
 
-Return value: none.
+返回值: none.
 
-The default does not apply when a route config specifies `auth` as `false`, or has an
-authentication strategy configured (contains the [`strategy`](#route.options.auth.strategy) or
-[`strategies`](#route.options.auth.strategies) authentication settings). Otherwise, the route
-authentication config is applied to the defaults.
+当路由配置指定 `auth` 为 `false` 时，默认值不适用，或已配置身份验证策略 (包含 [`strategy`](#route.options.auth.strategy) 或 [`strategies`](#route.options.auth.strategies) 身份认证设置。否则，路由验证配置将应用于默认值。
 
 Note that if the route has authentication configured, the default only applies at the time of
 adding the route, not at runtime. This means that calling `server.auth.default()` after adding a
@@ -1083,8 +1073,8 @@ route with some authentication config will have no impact on the routes added pr
 default will apply to routes added before `server.auth.default()` is called if those routes lack
 any authentication config.
 
-The default auth strategy configuration can be accessed via [`server.auth.settings.default`](#server.auth.settings.default).
-To obtain the active authentication configuration of a route, use `server.auth.lookup(request.route)`.
+可以通过 [`server.auth.settings.default`](#server.auth.settings.default) 访问默认的 auth 策略配置。
+要获【obtain】取路由的主动身份验证配置，请使用 `server.auth.lookup(request.route)`.
 
 ```js
 const Hapi = require('hapi');
@@ -1106,41 +1096,33 @@ server.route({
 
 ### <a name="server.auth.scheme()" /> `server.auth.scheme(name, scheme)`
 
-Registers an authentication scheme where:
+注册身份验证方案:
 
-- `name` - the scheme name.
-- `scheme` - the method implementing the scheme with signature `function(server, options)` where:
-    - `server` - a reference to the server object the scheme is added to.
-    - `options` - (optional) the scheme `options` argument passed to
-      [`server.auth.strategy()`](#server.auth.strategy()) when instantiation a strategy.
+- `name` - 方案名称。
+- `scheme` - 用签名 `function(server, options)` 实现该方案 其中:
+    - `server` - 一个参考方案被添加到服务器对象。
+    - `options` - (可选的) 当实例一个策略时， 传给 [`server.auth.strategy()`](#server.auth.strategy()) 的 `options` 参数.
 
-Return value: none.
+返回值: none.
 
-The `scheme` function must return an [authentication scheme object](#authentication-scheme) when
-invoked.
+当调用时，`scheme` 函数必须返回一个 [authentication scheme object](#authentication-scheme)
 
-#### Authentication scheme
+#### 身份验证方案
 
-An authentication scheme is an object with the following properties:
+身份验证方案是具有以下属性的对象：
 
-- `api` - (optional) object which is exposed via the [`server.auth.api`](#server.auth.api) object.
+- `api` - (可选) 通过 [`server.auth.api`](#server.auth.api) 公开的对象.
 
-- `async authenticate(request, h)` - (required) a [lifecycle method](#lifecycle-methods) function
-  called for each incoming request configured with the authentication scheme. The method is
-  provided with two special toolkit methods for returning an authenticated or an unauthenticate
-  result:
-    - [`h.authenticated()`](#h.authenticated()) - indicate request authenticated successfully.
-    - [`h.unauthenticated()`](#h.unauthenticated()) - indicate request failed to authenticate.
+- `async authenticate(request, h)` - (必要) 为使用身份验证方案配置的每个传入请求调用 [lifecycle method](#lifecycle-methods) 函数。 方法提供了两个特殊的工具包方法，用于返回经过身份验证或未经身份验证的方法结果:
+    - [`h.authenticated()`](#h.authenticated()) - 表示【indicate】请求已成功验证。
+    - [`h.unauthenticated()`](#h.unauthenticated()) - 表示请求验证失败.
 
-- `async payload(request, h)` - (optional) a [lifecycle method](#lifecycle-methods) to authenticate
-  the request payload.
+- `async payload(request, h)` - (可选) 用于验证请求有效负载的 [lifecycle method](#lifecycle-methods)。
 
-- `async response(request, h)` - (optional) a [lifecycle method](#lifecycle-methods) to decorate
-  the response with authentication headers before the response headers or payload is written.
+- `async response(request, h)` - (可选) 一个 [lifecycle method](#lifecycle-methods) 用于写入响应头或有效负荷之前描述带有身份认证头的响应。
 
-- `options` - (optional) an object with the following keys:
-    - `payload` - if `true`, requires payload validation as part of the scheme and forbids routes
-      from disabling payload auth validation. Defaults to `false`.
+- `options` - (可选) 具有以下键的对象：
+    - `payload` - 如果为 `true`, 要求有效负载验证作为方案的一部分，并禁止【forbids】路由禁用有效负载验证. 默认为 `false`。
 
 When the scheme `authenticate()` method implementation throws an error or calls
 [`h.unauthenticated()`](#h.unauthenticated()), the specifics of the error affect whether additional
@@ -1180,14 +1162,13 @@ server.auth.scheme('custom', scheme);
 
 ### <a name="server.auth.strategy()" /> `server.auth.strategy(name, scheme, [options])`
 
-Registers an authentication strategy where:
+注册身份验证策略:
 
-- `name` - the strategy name.
-- `scheme` - the scheme name (must be previously registered using
-  [`server.auth.scheme()`](#server.auth.scheme())).
-- `options` - scheme options based on the scheme requirements.
+- `name` - 策略名称。
+- `scheme` - 方案名称 (必须事先使用 [`server.auth.scheme()`](#server.auth.scheme())) 注册。
+- `options` - 基于方案要求的方案选项。
 
-Return value: none.
+返回值: none.
 
 ```js
 const Hapi = require('hapi');
@@ -1211,17 +1192,14 @@ server.route({
 
 ### <a name="server.auth.test()" /> `await server.auth.test(strategy, request)`
 
-Tests a request against an authentication strategy where:
+针对身份验证策略测试请求：
 
-- `strategy` - the strategy name registered with [`server.auth.strategy()`](#server.auth.strategy()).
+- `strategy` - 使用 [`server.auth.strategy()`](#server.auth.strategy()) 注册的策略名称.
 - `request` - the [request object](#request).
 
-Return value: the authentication credentials object if authentication was successful, otherwise
-throws an error.
+返回值: 验证成功时的身份验证凭据对象，否则抛出错误。
 
-Note that the `test()` method does not take into account the route authentication configuration. It
-also does not perform payload authentication. It is limited to the basic strategy authentication
-execution. It does not include verifying scope, entity, or other route properties.
+请注意，`test()` 方法不考虑【take into account】路由验证配置。它也不执行【perform】有效负载认证。它仅限于【limited to】基本策略身份验证执行【execution】。它不包括验证范围，入口或其他路由属性。
 
 ```js
 const Hapi = require('hapi');
@@ -1248,17 +1226,15 @@ server.route({
 
 ### <a name="server.bind()" /> `server.bind(context)`
 
-Sets a global context used as the default bind object when adding a route or an extension where:
+在添加路由或扩展时，设置用作默认绑定对象的全局上下文:
 
 - `context` - the object used to bind `this` in [lifecycle methods](#lifecycle-methods) such as
   the [route handler](#route.options.handler) and [extension methods](#server.ext()). The context
   is also made available as [`h.context`](#h.context).
 
-Return value: none.
+返回值: none.
 
-When setting a context inside a plugin, the context is applied only to methods set up by the
-plugin. Note that the context applies only to routes and extensions added after it has been set.
-Ignored if the method being bound is an arrow function.
+在插件中设置上下文时，上下文仅应用于插件设置的方法。 请注意，上下文仅适用于设置后添加的路由和扩展。如果绑定的方法是箭头函数，则忽略。
 
 ```js
 const handler = function (request, h) {
@@ -1354,7 +1330,7 @@ Provisions a server cache as described in [`server.cache`](#server.config.cache)
 
 - `options` - same as the server [`cache`](#server.options.cache) configuration options.
 
-Return value: none.
+返回值: none.
 
 Note that if the server has been initialized or started, the cache will be automatically started
 to match the state of any other provisioned server cache.
@@ -1391,10 +1367,10 @@ Registers a custom content decoding compressor to extend the built-in support fo
 
 - `decoder` - a function using the signature `function(options)` where `options` are the encoding
   specific options configured in the route [`payload.compression`](#route.options.payload.compression)
-  configuration option, and the return value is an object compatible with the output of node's
+  configuration option, and the 返回值 is an object compatible with the output of node's
   [`zlib.createGunzip()`](https://nodejs.org/api/zlib.html#zlib_zlib_creategunzip_options).
 
-Return value: none.
+返回值: none.
 
 ```js
 const Zlib = require('zlib');
@@ -1419,7 +1395,7 @@ Extends various framework interfaces with custom methods where:
 
 - `method` - the extension function or other value.
 
-- `options` - (optional) supports the following optional settings:
+- `options` - (可选) supports the following optional settings:
     - `apply` - when the `type` is `'request'`, if `true`, the `method` function is invoked using
       the signature `function(request)` where `request` is the current request object and the
       returned value is assigned as the decoration.
@@ -1429,7 +1405,7 @@ Extends various framework interfaces with custom methods where:
         - must return the new decoration function or value.
         - cannot be used to extend handler decorations.
 
-Return value: none.
+返回值: none.
 
 ```js
 const Hapi = require('hapi');
@@ -1518,27 +1494,21 @@ server.decorate('handler', 'test', handler);
 
 ### <a name="server.dependency()" /> `server.dependency(dependencies, [after])`
 
-Used within a plugin to declare a required dependency on other [plugins](#plugins) where:
+在插件中用于声明【declare】对其他 [plugins](#plugins) 所需的依赖：
 
-- `dependencies` - a single string or an array of plugin name strings which must be registered in
-  order for this plugin to operate. Plugins listed must be registered before the server is
-  initialized or started.
+- `dependencies` - 单个字符串或插件名称字符串数组，必须注册才能使此插件运行【operate】。 列出的插件必须在初始化或启动服务器之前注册。
 
-- `after` - (optional) a function that is called after all the specified dependencies have been
-registered and before the server starts. The function is only called if the server is initialized
-or started. The function signature is `async function(server)` where:
+- `after` - (可选) 在注册了所有指定的依赖项之后且在服务器启动之前调用的函数。仅在初始化或启动服务器时才调用该函数。 函数签名是 `async function(server)` 其中：
 
-    - `server` - the server the `dependency()` method was called on.
+    - `server` - 服务器调用 `dependency()` 方法
 
-Return value: none.
+返回值: none.
 
-The `after` method is identical to setting a server extension point on `'onPreStart'`.
+`after` 方法与在 `'onPreStart'` 上设置服务器扩展点相同【identical】。
 
-If a circular  dependency is detected, an exception is thrown (e.g. two plugins each has an `after`
-function to be called after the other).
+如果检测【detected】到循环依赖关系，, 异常【exception】将会被抛出 (例如 两个插件各有一个可以在另一个之后调用的 `after` 函数)。
 
-The method does not provide version dependency which should be implemented using
-[npm peer dependencies](https://nodejs.org/en/blog/npm/peer-dependencies/).
+该方法不提供应使用 [npm peer dependencies](https://nodejs.org/en/blog/npm/peer-dependencies/) 实现的版本依赖性。
 
 ```js
 const after = function (server) {
@@ -1555,8 +1525,7 @@ exports.plugin = {
 };
 ```
 
-Dependencies can also be set via the plugin `dependencies` property (does not support setting
-`after`):
+依赖关系也可以通过插件 `dependencies` 属性设置(不支持设置 `after`)：
 
 ```js
 exports.plugin = {
@@ -1569,17 +1538,13 @@ exports.plugin = {
 
 ### <a name="server.encoder()" /> `server.encoder(encoding, encoder)`
 
-Registers a custom content encoding compressor to extend the built-in support for `'gzip'` and
-'`deflate`' where:
+注册一个自定义内容编码压缩器，以扩展对  `'gzip'` and `'deflate'` 的支持，其中：
 
-- `encoding` - the encoder name string.
+- `encoding` - 编码器名称的字符串。
 
-- `encoder` - a function using the signature `function(options)` where `options` are the encoding
-  specific options configured in the route [`compression`](#route.options.compression) option, and
-  the return value is an object compatible with the output of node's
-  [`zlib.createGzip()`](https://nodejs.org/api/zlib.html#zlib_zlib_creategzip_options).
+- `encoder` - 使用签名 `function(options)` 的函数，其中 `options` 是路由 [`compression`](#route.options.compression) 选项中配置的编码特定选项， 返回值为与 node 的[`zlib.createGzip()`](https://nodejs.org/api/zlib.html#zlib_zlib_creategzip_options) 输出兼容的对象。
 
-Return value: none.
+返回值: none.
 
 ```js
 const Zlib = require('zlib');
@@ -1595,11 +1560,11 @@ Register custom application events where:
 
 - `events` - must be one of:
 
-    - an event name string.
+    - 一个事件名称字符串.
 
-    - an event options object with the following optional keys (unless noted otherwise):
+    - 带有以下可选键的事件选项对象 (除非另有说明):
 
-        - `name` - the event name string (required).
+        - `name` - 事件名称字符串 (必须).
 
         - `channels` - a string or array of strings specifying the event channels available.
           Defaults to no channel restrictions (event updates can specify a channel or not).
@@ -1624,11 +1589,11 @@ Register custom application events where:
           registrations, only the first configuration is used. Defaults to `false` (a duplicate
           registration will throw an error).
 
-    - a [**podium**](https://github.com/hapijs/podium) emitter object.
+    - 一个 [**podium**](https://github.com/hapijs/podium) 触发器对象。
 
-    - an array containing any of the above.
+    - 包含上述任何内容的数组
 
-Return value: none.
+返回值: none.
 
 ```js
 const Hapi = require('hapi');
@@ -1655,10 +1620,10 @@ Emits a custom application event to all the subscribed listeners where:
         - `tags` - a tag string or array of tag strings.
 
 - `data` - the value emitted to the subscribers. If `data` is a function, the function signature
-  is `function()` and it called once to generate (return value) the actual data emitted to the
+  is `function()` and it called once to generate (返回值) the actual data emitted to the
   listeners. If no listeners match the event, the `data` function is not invoked.
 
-Return value: none.
+返回值: none.
 
 Note that events must be registered before they can be emitted or subscribed to by calling
 [`server.event(events)`](#server.event()). This is done to detect event name misspelling and
@@ -1726,7 +1691,7 @@ Subscribe to an event where:
 - `listener` - the handler method set to receive event updates. The function signature depends on
   the event argument, and the `spread` and `tags` options.
 
-Return value: none.
+返回值: none.
 
 ```js
 const Hapi = require('hapi');
@@ -1744,7 +1709,7 @@ async function example() {
 
 Same as calling [`server.events.on()`](#server.events.on()) with the `count` option set to `1`.
 
-Return value: none.
+返回值: none.
 
 ```js
 const Hapi = require('hapi');
@@ -1763,7 +1728,7 @@ async function example() {
 
 Same as calling [`server.events.on()`](#server.events.on()) with the `count` option set to `1`.
 
- Return value: a promise that resolves when the event is emitted.
+ 返回值: a promise that resolves when the event is emitted.
 
 ```js
 const Hapi = require('hapi');
@@ -1785,7 +1750,7 @@ Used within a plugin to expose a property via [`server.plugins[name]`](#server.p
 - `key` - the key assigned ([`server.plugins[name][key]`](#server.plugins)).
 - `value` - the value assigned.
 
-Return value: none.
+返回值: none.
 
 ```js
 exports.plugin =
@@ -1803,7 +1768,7 @@ Merges an object into to the existing content of [`server.plugins[name]`](#serve
 
 - `obj` - the object merged into the exposed properties container.
 
-Return value: none.
+返回值: none.
 
 ```js
 exports.plugin = {
@@ -1847,7 +1812,7 @@ points where:
 
         - request extension points: a [lifecycle method](#lifecycle-methods).
 
-    - `options` - (optional) an object with the following:
+    - `options` - (可选) an object with the following:
 
         - `before` - a string or array of strings of plugin names this method must execute before
           (on the same event). Otherwise, extension methods are executed in the order added.
@@ -1863,7 +1828,7 @@ points where:
           configuring route-level extensions, or when adding server extensions. Defaults to
           `'server'` which applies to any route added to the server the extension is added to.
 
-Return value: none.
+返回值: none.
 
 ```js
 const Hapi = require('hapi');
@@ -1895,7 +1860,7 @@ async function example() {
 Registers a single extension event using the same properties as used in
 [`server.ext(events)`](#server.ext()), but passed as arguments.
 
-Return value: none.
+返回值: none.
 
 ```js
 const Hapi = require('hapi');
@@ -1924,7 +1889,7 @@ async function example() {
 Initializes the server (starts the caches, finalizes plugin registration) but does not start
 listening on the connection port.
 
-Return value: none.
+返回值: none.
 
 Note that if the method fails and throws an error, the server is considered to be in an undefined
 state and should be shut down. In most cases it would be impossible to fully recover as the various
@@ -1955,39 +1920,39 @@ injections, with some additional options and response properties:
 
 - `options` - can be assigned a string with the requested URI, or an object with:
 
-    - `method` - (optional) the request HTTP method (e.g. `'POST'`). Defaults to `'GET'`.
+    - `method` - (可选) the request HTTP method (e.g. `'POST'`). Defaults to `'GET'`.
 
     - `url` - (required) the request URL. If the URI includes an authority
       (e.g. `'example.com:8080'`), it is used to automatically set an HTTP 'Host' header, unless
       one was specified in `headers`.
 
-    - `headers` - (optional) an object with optional request headers where each key is the header
+    - `headers` - (可选) an object with optional request headers where each key is the header
       name and the value is the header content. Defaults to no additions to the default **shot**
       headers.
 
-    - `payload` - (optional) an string, buffer or object containing the request payload. In case of
+    - `payload` - (可选) an string, buffer or object containing the request payload. In case of
       an object it will be converted to a string for you. Defaults to no payload. Note that payload
       processing defaults to `'application/json'` if no 'Content-Type' header provided.
 
-    - `credentials` - (optional) an credentials object containing authentication information. The
+    - `credentials` - (可选) an credentials object containing authentication information. The
       `credentials` are used to bypass the default authentication strategies, and are validated
       directly as if they were received via an authentication scheme. Defaults to no credentials.
 
-    - `artifacts` - (optional) an artifacts object containing authentication artifact information.
+    - `artifacts` - (可选) an artifacts object containing authentication artifact information.
       The `artifacts` are used to bypass the default authentication strategies, and are validated
       directly as if they were received via an authentication scheme. Ignored if set without
       `credentials`. Defaults to no artifacts.
 
-    - `app` - (optional) sets the initial value of `request.app`, defaults to `{}`.
+    - `app` - (可选) sets the initial value of `request.app`, defaults to `{}`.
 
-    - `plugins` - (optional) sets the initial value of `request.plugins`, defaults to `{}`.
+    - `plugins` - (可选) sets the initial value of `request.plugins`, defaults to `{}`.
 
-    - `allowInternals` - (optional) allows access to routes with `config.isInternal` set to `true`.
+    - `allowInternals` - (可选) allows access to routes with `config.isInternal` set to `true`.
       Defaults to `false`.
 
-    - `remoteAddress` - (optional) sets the remote address for the incoming connection.
+    - `remoteAddress` - (可选) sets the remote address for the incoming connection.
 
-    - `simulate` - (optional) an object with options used to simulate client request stream
+    - `simulate` - (可选) an object with options used to simulate client request stream
       conditions for testing:
 
         - `error` - if `true`, emits an `'error'` event after payload transmission (if any).
@@ -2001,11 +1966,11 @@ injections, with some additional options and response properties:
         - `split` - indicates whether the request payload will be split into chunks. Defaults to
           `undefined`, meaning payload will not be chunked.
 
-    - `validate` - (optional) if `false`, the `options` inputs are not validated. This is
+    - `validate` - (可选) if `false`, the `options` inputs are not validated. This is
       recommended for run-time usage of `inject()` to make it perform faster where input validation
       can be tested separately.
 
-Return value: a response object with the following properties:
+返回值: a response object with the following properties:
 
 - `statusCode` - the HTTP status code.
 
@@ -2042,23 +2007,15 @@ async function example() {
 
 ### <a name="server.log()" /> `server.log(tags, [data, [timestamp]])`
 
-Logs server events that cannot be associated with a specific request. When called the server emits
-a `'log'` event which can be used by other listeners or [plugins](#plugins) to record the
-information or output to the console. The arguments are:
+记录无法与特定请求关联【associated】的服务器事件。当被调用时，服务器发出一个 `'log'` 事件，可以被其他侦听器或 [plugins](#plugins) 用来将信息或输出记录到控制台。参数有：
 
-- `tags` - (required) a string or an array of strings (e.g. `['error', 'database', 'read']`) used
-  to identify the event. Tags are used instead of log levels and provide a much more expressive
-  mechanism for describing and filtering events. Any logs generated by the server internally
-  include the `'hapi'` tag along with event-specific information.
+- `tags` - (必须) 字符串或字符串数组 (例如 `['error', 'database', 'read']`) 用于识别事件. 使用标签代替日志级别，并为描述和过滤事件提供更具表现力的机制【mechanism】。服务器内部生成的任何日志都包含 `'hapi'` 标签以及特定于事件的信息。
 
-- `data` - (optional) an message string or object with the application data being logged. If `data`
-  is a function, the function signature is `function()` and it called once to generate (return
-  value) the actual data emitted to the listeners. If no listeners match the event, the `data`
-  function is not invoked.
+- `data` - (可选) 记录应用程序数据的消息字符串或对象。 如果 `data` 为一个函数, 函数签名为 `function()` 并且它调用一次来生成 (返回值) 发送给侦听器的实际数据。 如果没有侦听器匹配该事件，则不会调用 `data` 函数。
 
-- `timestamp` - (optional) an timestamp expressed in milliseconds. Defaults to `Date.now()` (now).
+- `timestamp` - (可选) 以毫秒表示的时间戳。 默认为 `Date.now()` (当前).
 
-Return value: none.
+返回值: none.
 
 ```js
 const Hapi = require('hapi');
@@ -2076,11 +2033,11 @@ server.log(['test', 'error'], 'Test event');
 
 ### <a name="server.lookup()" /> `server.lookup(id)`
 
-Looks up a route configuration where:
+查找路径配置 其中：
 
 - `id` - the [route identifier](#route.options.id).
 
-Return value: the [route information](#request.route) if found, otherwise `null`.
+返回值: 找到的 [route information](#request.route), 否则为 `null`。
 
 ```js
 const Hapi = require('hapi');
@@ -2099,13 +2056,13 @@ const route = server.lookup('root');
 
 ### <a name="server.match()" /> `server.match(method, path, [host])`
 
-Looks up a route configuration where:
+查找路径配置 其中：
 
-- `method` - the HTTP method (e.g. 'GET', 'POST').
-- `path` - the requested path (must begin with '/').
-- `host` - (optional) hostname (to match against routes with `vhost`).
+- `method` - HTTP 方法 (e.g. 'GET', 'POST')。
+- `path` - 请求的路径 (必须以 '/' 开头)。
+- `host` - (可选) hostname (匹配针对带有 `vhost` 的路由).
 
-Return value: the [route information](#request.route) if found, otherwise `null`.
+返回值: 找到的 [route information](#request.route), 否则为 `null`。
 
 ```js
 const Hapi = require('hapi');
@@ -2124,7 +2081,7 @@ const route = server.match('get', '/');
 
 ### <a name="server.method()" /> `server.method(name, method, [options])`
 
-Registers a [server method](#server.methods) where:
+注册一个 [server method](#server.methods) 其中：
 
 - `name` - a unique method name used to invoke the method via [`server.methods[name]`](#server.method).
 
@@ -2133,7 +2090,7 @@ Registers a [server method](#server.methods) where:
     - `flags` - when caching is enabled, an object used to set optional method result flags:
         - `ttl` - `0` if result is valid but cannot be cached. Defaults to cache policy.
 
-- `options` - (optional) configuration object:
+- `options` - (可选) configuration object:
 
     - `bind` - a context object passed back to the method function (via `this`) when called.
       Defaults to active context (set via [`server.bind()`](#server.bind()) when the method is
@@ -2149,17 +2106,15 @@ Registers a [server method](#server.methods) where:
       a key generation function must be provided which takes the same arguments as the function and
       returns a unique string (or `null` if no key can be generated).
 
-Return value: none.
+返回值: none.
 
-Method names can be nested (e.g. `utils.users.get`) which will automatically create the full path
-under [`server.methods`](#server.methods) (e.g. accessed via `server.methods.utils.users.get`).
+方法名称可以嵌套 (举例 `utils.users.get`) 它将自动在 [`server.methods`](#server.methods) (举例 通过 `server.methods.utils.users.get` 访问) 下创建完整路径.
 
-When configured with caching enabled, `server.methods[name].cache` is assigned an object with the
-following properties and methods:
-    - `await drop(...args)` - a function that can be used to clear the cache for a given key.
-    - `stats` - an object with cache statistics, see **catbox** for stats documentation.
+配置启用缓存时, `server.methods[name].cache` 被赋予一个具有以下属性和方法的对象:
+    - `await drop(...args)` - 一个函数，可用于清除给定键的缓存。
+    - `stats` - 具有缓存统计信息的对象, 请参阅 **catbox** 获取统计文档。
 
-Simple arguments example:
+单个参数的例子:
 
 ```js
 const Hapi = require('hapi');
@@ -2175,7 +2130,7 @@ async function example() {
 }
 ```
 
-Object argument example:
+对象参数的例子:
 
 ```js
 const Hapi = require('hapi');
@@ -2208,16 +2163,15 @@ async function example() {
 
 ### <a name="server.method.array()" /> `server.method(methods)`
 
-Registers a server method function as described in [`server.method()`](#server.method()) using a
-configuration object where:
+使用配置对象注册服务器方法函数，如 [`server.method()`](#server.method()) 中所述，其中：
 
-- `methods` - an object or an array of objects where each one contains:
+- `methods` - 对象或对象数组，其中每个对象包含：
 
-    - `name` - the method name.
-    - `method` - the method function.
-    - `options` - (optional) settings.
+    - `name` - 方法名称.
+    - `method` - 方法函数.
+    - `options` - (可选) 设置.
 
-Return value: none.
+返回值: none.
 
 ```js
 const add = function (a, b) {
@@ -2239,17 +2193,14 @@ server.method({
 
 ### <a name="server.path()" /> `server.path(relativeTo)`
 
-Sets the path prefix used to locate static resources (files and view templates) when relative paths
-are used where:
+设置用于在使用相对路径时定位静态资源（文件和视图模板）的路径前缀：
 
-- `relativeTo` - the path prefix added to any relative file path starting with `'.'`.
+- `relativeTo` - 路径前缀，附加到任意带有 `'.'` 的相对文件路径。
 
-Return value: none.
+返回值: none.
 
-Note that setting a path within a plugin only applies to resources accessed by plugin methods.
-If no path is set, the server default [route configuration](#server.options.routes)
-[`files.relativeTo`](#route.options.files) settings is used. The path only applies to routes added
-after it has been set.
+请注意，在插件中设置路径仅适用于插件方法访问的资源。如果未设置路径，则服务器默认为 [route configuration](#server.options.routes) 使用
+[`files.relativeTo`](#route.options.files) 设置. 该路径仅适用于设置后添加的路径。
 
 ```js
 exports.plugin = {
@@ -2274,10 +2225,10 @@ Registers a plugin where:
 
     - an object with the following:
         - `plugin` - a [plugin object](#plugins).
-        - `options` - (optional) options passed to the plugin during registration.
-        - `once`, `routes` - (optional) plugin-specific registration options as defined below.
+        - `options` - (可选) options passed to the plugin during registration.
+        - `once`, `routes` - (可选) plugin-specific registration options as defined below.
 
-- `options` - (optional) registration options (different from the options passed to the
+- `options` - (可选) registration options (different from the options passed to the
   registration function):
 
     - `once` - if `true`, subsequent registrations of the same plugin are skipped without error.
@@ -2292,7 +2243,7 @@ Registers a plugin where:
         - `vhost` - virtual host string (or array of strings) applied to every route. The
           outer-most `vhost` overrides the any nested configuration.
 
-Return value: none.
+返回值: none.
 
 ```js
 async function example() {
@@ -2321,7 +2272,7 @@ Adds a route where:
       array of methods which has the same result as adding the same route with different methods
       manually.
 
-    - `vhost` - (optional) a domain string or an array of domain strings for limiting the route to
+    - `vhost` - (可选) a domain string or an array of domain strings for limiting the route to
       only requests with a matching host header field. Matching is done against the hostname part
       of the header only (excluding the port). Defaults to all hosts.
 
@@ -2338,7 +2289,7 @@ Adds a route where:
       with [`server.rules()`](#server.rules()). Cannot be used if
       [`route.options.rules`](#route.options.rules) is defined.
 
-Return value: none.
+返回值: none.
 
 Note that the `options` object is deeply cloned (with the exception of `bind` which is shallowly
 copied) and cannot contain any values that are unsafe to perform deep copy on.
@@ -2490,7 +2441,7 @@ processor if they overlap. The route `config` overrides the rules config if the 
 Starts the server by listening for incoming requests on the configured port (unless the connection
 was configured with [`autoListen`](#server.options.autoListen) set to `false`).
 
-Return value: none.
+返回值: none.
 
 Note that if the method fails and throws an error, the server is considered to be in an undefined
 state and should be shut down. In most cases it would be impossible to fully recover as the various
@@ -2578,7 +2529,7 @@ across multiple requests. Registers a cookie definitions where:
 
     - `passThrough` - used by proxy plugins (e.g. [**h2o2**](https://github.com/hapijs/h2o2)).
 
-Return value: none.
+返回值: none.
 
 State defaults can be modified via the [server.options.state](#server.options.state) configuration
 option.
@@ -2647,7 +2598,7 @@ where:
     - `value` - the cookie value.
     - `options` - cookie configuration to override the server settings.
 
-Return value: a header string.
+返回值: a header string.
 
 Note that this utility uses the server configuration but does not change the server state. It is
 provided for manual cookie formating (e.g. when headers are set manually).
@@ -2658,7 +2609,7 @@ Parses an HTTP 'Cookies' header based on the [`server.options.state`](#server.op
 
 - `header` - the HTTP header.
 
-Return value: an object where each key is a cookie name and value is the parsed cookie.
+返回值: an object where each key is a cookie name and value is the parsed cookie.
 
 Note that this utility uses the server configuration but does not change the server state. It is
 provided for manual cookie parsing (e.g. when server parsing is disabled).
@@ -2668,12 +2619,12 @@ provided for manual cookie parsing (e.g. when server parsing is disabled).
 Stops the server's listener by refusing to accept any new connections or requests (existing
 connections will continue until closed or timeout), where:
 
-- `options` - (optional) object with:
+- `options` - (可选) object with:
 
     - `timeout` - overrides the timeout in millisecond before forcefully terminating a connection.
       Defaults to `5000` (5 seconds).
 
-Return value: none.
+返回值: none.
 
 ```js
 const Hapi = require('hapi');
@@ -2691,10 +2642,10 @@ async function example() {
 
 Returns a copy of the routing table where:
 
-- `host` - (optional) host to filter routes matching a specific virtual host. Defaults to all
+- `host` - (可选) host to filter routes matching a specific virtual host. Defaults to all
   virtual hosts.
 
-Return value: an array of routes where each route contains:
+返回值: an array of routes where each route contains:
 - `settings` - the route config with defaults applied.
 - `method` - the HTTP method in lower case.
 - `path` - the route path.
@@ -2765,39 +2716,31 @@ const table = server.table();
 
 默认值: `false`, 除非该方案需要有效 payload 认证。
 
-如果设置，则在处理传入请求有效 payload 后对其进行身份验证。需要具有有效 payload 身份验证支持的策略 (例如 [Hawk](#https://github.com/hueniverse/hawk))。
+如果设置，则在处理传入请求有效 payload 后对其进行身份验证。需要具有有效 payload 身份验证支持的策略 (例如 [Hawk](#https://github.com/hueniverse/hawk))。当方案将认证 `options.payload` 设置为 `true` 时，不能将其设置为 `'required'` 以外的值。
 
-If set, the incoming request payload is authenticated after it is processed. Requires a strategy
-with payload authentication support (e.g. [Hawk](#https://github.com/hueniverse/hawk)). Cannot be
-set to a value other than `'required'` when the scheme sets the authentication `options.payload` to
-`true`.
+可用值：
 
-Available values:
-
-- `false` - no payload authentication.
-- `'required'` - payload authentication required.
-- `'optional'` - payload authentication performed only when the client includes payload
-  authentication information (e.g. `hash` attribute in Hawk).
+- `false` - 没有 payload 身份认证.
+- `'required'` - 需要有效的 payload 身份认证.
+- `'optional'` - 仅在客户端包含有效 payload 认证信息时执行有效 payload 认证 （例如在 Hawk 中带有 `hash` 属性）。
 
 #### <a name="route.options.auth.strategies" /> `route.options.auth.strategies`
 
-默认值: the default strategy set via [`server.auth.default()`](#server.auth.default()).
+默认值: 默认的策略，通过设置 [`server.auth.default()`](#server.auth.default()).
 
-An array of string strategy names in the order they should be attempted. Cannot be used together
-with [`strategy`](#route.options.auth.strategy).
+包含策略名称字符串的数组，它们会被按顺序尝试认证。不能与 [`strategy`](#route.options.auth.strategy) 一同使用
 
 #### <a name="route.options.auth.strategy" /> `route.options.auth.strategy`
 
-默认值: the default strategy set via [`server.auth.default()`](#server.auth.default()).
+默认值: 默认的策略，通过设置 [`server.auth.default()`](#server.auth.default()).
 
-A string strategy names. Cannot be used together with [`strategies`](#route.options.auth.strategies).
+策略名称 - 字符串。不能与 [`strategies`](#route.options.auth.strategies) 一同使用
 
 ### <a name="route.options.bind" /> `route.options.bind`
 
 默认值: `null`.
 
-An object passed back to the provided `handler` (via `this`) when called. Ignored if the method is
-an arrow function.
+一个对象在被调用时传递回提供的 `handler`（通过 `this` ）。 如果方法是箭头函数，则忽略。
 
 ### <a name="route.options.cache" /> `route.options.cache`
 
@@ -2869,10 +2812,9 @@ object with the following options:
 
 默认值: none.
 
-Route description used for generating documentation (string).
+用于生成文档的路由描述（字符串）。
 
-This setting is not available when setting server route defaults using
-[`server.options.routes`](#server.options.routes).
+使用 [`server.options.routes`](#server.options.routes) 设置服务器路由默认值时，此设置不可用。
 
 ### <a name="route.options.ext" /> `route.options.ext`
 
@@ -2972,10 +2914,9 @@ Request logging options:
 
 默认值: none.
 
-Route notes used for generating documentation (string or array of strings).
+用于生成文档的路由注释（字符串或字符串数组）。
 
-This setting is not available when setting server route defaults using
-[`server.options.routes`](#server.options.routes).
+使用 [`server.options.routes`](#server.options.routes) 设置服务器路由默认值时，此设置不可用。
 
 ### <a name="route.options.payload" /> `route.options.payload`
 
@@ -3142,7 +3083,7 @@ to execute but will be ignored once completed.
 - a method function - same as including an object with a single `method` key.
 
 Note that pre-handler methods do not behave the same way other [lifecycle methods](#lifecycle-methods)
-do when a value is returned. Instead of the return value becoming the new response payload, the
+do when a value is returned. Instead of the 返回值 becoming the new response payload, the
 value is used to assign the corresponding [`request.pre`](#request.pre) and
 [`request.preResponses`](#request.preResponses) properties. Otherwise, the handling of errors,
 [takeover response](#takeover-response) response, or abort signal behave the same as any other
@@ -3642,7 +3583,7 @@ Each lifecycle method must return a value or a promise that resolves into a valu
 method returns without a value or resolves to an `undefined` value, an Internal Server Error (500)
 error response is sent.
 
-The return value must be one of:
+The 返回值 must be one of:
 - Plain value:
     - `null`
     - string
@@ -3727,7 +3668,7 @@ follows:
       lifecycle.
     - cannot be returned from any step prior to the _**Pre-handler methods**_ step.
 
-The [`authenticate()`](#authentication-scheme) method has access to two additional return values:
+The [`authenticate()`](#authentication-scheme) method has access to two additional 返回值s:
     - [`h.authenticated()`](#h.authenticated()) - indicate request authenticated successfully.
     - [`h.unauthenticated()`](#h.unauthenticated()) - indicate request failed to authenticate.
 
@@ -3736,7 +3677,7 @@ Note that these rules apply somewhat differently when used in a [pre-handler met
 #### Takeover response
 
 A takeover response is a [`response object`](#response-object) on which [`response.takeover()`](#response.takever())
-was called to signal that the [lifecycle method](#lifecycle-methods) return value should be set as
+was called to signal that the [lifecycle method](#lifecycle-methods) 返回值 should be set as
 the response and skip to immediately validate and trasmit the value, bypassing other lifecycle
 steps.
 
@@ -3940,10 +3881,10 @@ Used by the [authentication] method to pass back valid credentials where:
 - `data` - an object with:
 
     - `credentials` - (required) object representing the authenticated entity.
-    - `artifacts` - (optional) authentication artifacts object specific to the authentication
+    - `artifacts` - (可选) authentication artifacts object specific to the authentication
       scheme.
 
-Return value: an internal authentication object.
+返回值: an internal authentication object.
 
 #### <a name="h.entity()" /> `h.entity(options)`
 
@@ -3959,12 +3900,12 @@ and returns `undefined`. The method argumetns are:
       no header.
     - `vary` - same as the [`response.etag()`](#response.etag()) option. Defaults to `true`.
 
-Return value:
+返回值:
     - a [response object](#response-object) if the response is unmodified.
     - `undefined` if the response has changed.
 
 If `undefined` is returned, the developer must return a valid lifecycle method value. If a response
-is returned, it should be used as the return value (but may be customize using the response
+is returned, it should be used as the 返回值 (but may be customize using the response
 methods).
 
 ```js
@@ -4008,7 +3949,7 @@ const handler = function (request, h) {
 Wraps the provided value and returns a [`response`](#response-object) object which allows
 customizing the response (e.g. setting the HTTP status code, custom headers, etc.), where:
 
-- `value` - (optional) return value. Defaults to `null`.
+- `value` - (可选) 返回值. Defaults to `null`.
 
 Returns a [response object](#response-object).
 
@@ -4037,7 +3978,7 @@ const handler = function (request, h) {
 
 Sets a response cookie using the same arguments as [`response.state()`](#response.state()).
 
-Return value: none.
+返回值: none.
 
 ```js
 const ext = function (request, h) {
@@ -4052,9 +3993,9 @@ const ext = function (request, h) {
 Used by the [authentication] method to indicate authentication failed and pass back the credentials
 received where:
 - `error` - (required) the authentication error.
-- `data` - (optional) an object with:
+- `data` - (可选) an object with:
     - `credentials` - (required) object representing the authenticated entity.
-    - `artifacts` - (optional) authentication artifacts object specific to the authentication
+    - `artifacts` - (可选) authentication artifacts object specific to the authentication
       scheme.
 
 The method is used to pass both the authentication error and the credentials. For example, if a
@@ -4227,7 +4168,7 @@ Sets the HTTP 'Content-Length' header (to avoid chunked transfer encoding) where
 
 - `length` - the header value. Must match the actual payload size.
 
-Return value: the current response object.
+返回值: the current response object.
 
 #### <a name="response.charset()" /> `response.charset(charset)`
 
@@ -4235,7 +4176,7 @@ Sets the 'Content-Type' HTTP header 'charset' property where:
 
 - `charset` - the charset property value.
 
-Return value: the current response object.
+返回值: the current response object.
 
 #### <a name="response.code()" /> `response.code(statusCode)`
 
@@ -4243,7 +4184,7 @@ Sets the HTTP status code where:
 
 - `statusCode` - the HTTP status code (e.g. 200).
 
-Return value: the current response object.
+返回值: the current response object.
 
 #### <a name="response.message()" /> `response.message(httpMessage)`
 
@@ -4251,7 +4192,7 @@ Sets the HTTP status message where:
 
 - `httpMessage` - the HTTP status message (e.g. 'Ok' for status code 200).
 
-Return value: the current response object.
+返回值: the current response object.
 
 #### <a name="response.created()" /> `response.created(uri)`
 
@@ -4259,14 +4200,14 @@ Sets the HTTP status code to Created (201) and the HTTP 'Location' header where:
 
 - `uri` - an absolute or relative URI used as the 'Location' header value.
 
-Return value: the current response object.
+返回值: the current response object.
 
 #### <a name="response.encoding()" /> `response.encoding(encoding)`
 
 Sets the string encoding scheme used to serial data into the HTTP payload where:
 - `encoding` - the encoding property value (see [node Buffer encoding](https://nodejs.org/api/buffer.html#buffer_buffers_and_character_encodings)).
 
-Return value: the current response object.
+返回值: the current response object.
 
 #### <a name="response.etag()" /> `response.etag(tag, options)`
 
@@ -4274,7 +4215,7 @@ Sets the representation [entity tag](https://tools.ietf.org/html/rfc7232#section
 
 - `tag` - the entity tag string without the double-quote.
 
-- `options` - (optional) settings where:
+- `options` - (可选) settings where:
 
     - `weak` - if `true`, the tag will be prefixed with the `'W/'` weak signifier. Weak tags will
       fail to match identical tags for the purpose of determining 304 response status. Defaults to
@@ -4284,7 +4225,7 @@ Sets the representation [entity tag](https://tools.ietf.org/html/rfc7232#section
       'deflate'), the encoding name will be automatically added to the tag at transmission time
       (separated by a `'-'` character). Ignored when `weak` is `true`. Defaults to `true`.
 
-Return value: the current response object.
+返回值: the current response object.
 
 #### <a name="response.header()" /> `response.header(name, value, options)`
 
@@ -4294,7 +4235,7 @@ Sets an HTTP header where:
 
 - `value` - the header value.
 
-- `options` - (optional) object where:
+- `options` - (可选) object where:
 
     - `append` - if `true`, the value is appended to any existing header value using `separator`.
       Defaults to `false`.
@@ -4308,7 +4249,7 @@ Sets an HTTP header where:
       included. Does not apply when `append` is `false` or if the `name` is `'set-cookie'`.
       Defaults to `true`.
 
-Return value: the current response object.
+返回值: the current response object.
 
 #### <a name="response.location()" /> `response.location(uri)`
 
@@ -4316,7 +4257,7 @@ Sets the HTTP 'Location' header where:
 
 - `uri` - an absolute or relative URI used as the 'Location' header value.
 
-Return value: the current response object.
+返回值: the current response object.
 
 #### <a name="response.redirect()" /> `response.redirect(uri)`
 
@@ -4324,7 +4265,7 @@ Sets an HTTP redirection response (302) and decorates the response with addition
 
 - `uri` - an absolute or relative URI used to redirect the client to another resource.
 
-Return value: the current response object.
+返回值: the current response object.
 
 Decorates the response object with the [`response.temporary()`](#response.temporary()),
 [`response.permanent()`](#response.permanent()), and [`response.rewritable()`](#response.rewritable())
@@ -4341,7 +4282,7 @@ Sets the `JSON.stringify()` `replacer` argument where:
 
 - `method` - the replacer function or array. Defaults to none.
 
-Return value: the current response object.
+返回值: the current response object.
 
 #### <a name="response.spaces()" /> `response.spaces(count)`
 
@@ -4349,7 +4290,7 @@ Sets the `JSON.stringify()` `space` argument where:
 
 - `count` - the number of spaces to indent nested object keys. Defaults to no indentation.
 
-Return value: the current response object.
+返回值: the current response object.
 
 #### <a name="response.state()" /> `response.state(name, value, [options])`
 
@@ -4360,11 +4301,11 @@ Sets an HTTP cookie where:
 - `value` - the cookie value. If no `options.encoding` is defined, must be a string. See
   [`server.state()`](#server.state()) for supported `encoding` values.
 
-- `options` - (optional) configuration. If the state was previously registered with the server
+- `options` - (可选) configuration. If the state was previously registered with the server
   using [`server.state()`](#server.state()), the specified keys in `options` are merged with the
   default server definition.
 
-Return value: the current response object.
+返回值: the current response object.
 
 #### <a name="response.suffix()" /> `response.suffix(suffix)`
 
@@ -4372,7 +4313,7 @@ Sets a string suffix when the response is process via `JSON.stringify()` where:
 
 - `suffix` - the string suffix.
 
-Return value: the current response object.
+返回值: the current response object.
 
 #### <a name="response.ttl()" /> `response.ttl(msec)`
 
@@ -4380,7 +4321,7 @@ Overrides the default route cache expiration rule for this response instance whe
 
 - `msec` - the time-to-live value in milliseconds.
 
-Return value: the current response object.
+返回值: the current response object.
 
 #### <a name="response.type()" /> `response.type(mimeType)`
 
@@ -4388,7 +4329,7 @@ Sets the HTTP 'Content-Type' header where:
 
 - `value` - is the mime type.
 
-Return value: the current response object.
+返回值: the current response object.
 
 Should only be used to override the built-in default for each response type.
 
@@ -4396,11 +4337,11 @@ Should only be used to override the built-in default for each response type.
 
 Clears the HTTP cookie by setting an expired value where:
 - `name` - the cookie name.
-- `options` - (optional) configuration for expiring cookie. If the state was previously registered
+- `options` - (可选) configuration for expiring cookie. If the state was previously registered
   with the server using [`server.state()`](#serverstatename-options), the specified `options` are
   merged with the server definition.
 
-Return value: the current response object.
+返回值: the current response object.
 
 #### <a name="response.vary()" /> `response.vary(header)`
 
@@ -4409,13 +4350,13 @@ header where:
 
 - `header` - the HTTP request header name.
 
-Return value: the current response object.
+返回值: the current response object.
 
 #### <a name="response.takeover()" /> `response.takeover()`
 
 Marks the response object as a [takeover response](#takeover-response).
 
-Return value: the current response object.
+返回值: the current response object.
 
 #### <a name="response.temporary()" /> `response.temporary(isTemporary)`
 
@@ -4424,7 +4365,7 @@ setting) where:
 
 - `isTemporary` - if `false`, sets status to permanent. Defaults to `true`.
 
-Return value: the current response object.
+返回值: the current response object.
 
 Only available after calling the [`response.redirect()`](#response.redirect()) method.
 
@@ -4435,7 +4376,7 @@ setting) where:
 
 - `isPermanent` - if `false`, sets status to temporary. Defaults to `true`.
 
-Return value: the current response object.
+返回值: the current response object.
 
 Only available after calling the [`response.redirect()`](#response.redirect()) method.
 
@@ -4448,7 +4389,7 @@ to 'GET'). Exact code based on the [`response.temporary()`](#response.temporary(
 
 - `isRewritable` - if `false`, sets to non-rewritable. Defaults to `true`.
 
-Return value: the current response object.
+返回值: the current response object.
 
 Only available after calling the [`response.redirect()`](#response.redirect()) method.
 
@@ -4734,7 +4675,7 @@ are:
 - `tags` - a string or an array of strings (e.g. `['error', 'database', 'read']`) used to identify
   the event. Tags are used instead of log levels and provide a much more expressive mechanism for
   describing and filtering events.
-- `data` - (optional) an message string or object with the application data being logged. If `data`
+- `data` - (可选) an message string or object with the application data being logged. If `data`
   is a function, the function signature is `function()` and it called once to generate (return
   value) the actual data emitted to the listeners.
 
@@ -4772,7 +4713,7 @@ configuration, where:
 
 - `request` - the [request object](#request).
 
-Return value: `true` if the `request` would have passed the route's access requirements.
+返回值: `true` if the `request` would have passed the route's access requirements.
 
 Note that the route's authentication mode and strategies are ignored. The only match is made
 between the `request.auth.credentials` scope and entity information and the route
@@ -4872,17 +4813,17 @@ A plugin is an object with the following properties:
   (e.g. published in the npm registry) should  use the same name as the name field in their
   'package.json' file. Names must be unique within each application.
 
-- `version` - (optional) plugin version string. The version is only used informatively to enable
+- `version` - (可选) plugin version string. The version is only used informatively to enable
   other plugins to find out the versions loaded. The version should be the same as the one
   specified in the plugin's 'package.json' file.
 
-- `multiple` - (optional) if `true`, allows the plugin to be registered multiple times with the same server.
+- `multiple` - (可选) if `true`, allows the plugin to be registered multiple times with the same server.
   Defaults to `false`.
 
-- `dependencies` - (optional) a string or an array of strings indicating a plugin dependency. Same
+- `dependencies` - (可选) a string or an array of strings indicating a plugin dependency. Same
   as setting dependencies via [`server.dependency()`](#server.dependency()).
 
-- `once` - (optional) if `true`, will only register the plugin once per server. If set, overrides
+- `once` - (可选) if `true`, will only register the plugin once per server. If set, overrides
   the `once` option passed to [`server.register()`](#server.register()). Defaults to no override.
 
 ```js
@@ -4922,3 +4863,10 @@ const plugin = {
     }
 };
 ```
+
+
+## WARNING
+
+本文档使用`Google 翻译`并由个人整理，并不具有专业性，如有异议，请以原文为主。
+
+目前进度 1/5
