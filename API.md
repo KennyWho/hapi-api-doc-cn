@@ -1254,59 +1254,40 @@ exports.plugin = {
 
 ### <a name="server.cache()" /> `server.cache(options)`
 
-Provisions a cache segment within the server cache facility where:
+规定[provision]服务器缓存设施中的缓存段：
 
-- `options` - [**catbox** policy](https://github.com/hapijs/catbox#policy) configuration where:
+- `options` - [**catbox** policy](https://github.com/hapijs/catbox#policy) 配置如下:
 
-    - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was
-      saved in the cache. Cannot be used together with `expiresAt`.
+    - `expiresIn` - 自项目保存在缓存中，用毫秒表示的相对过期时间。 不能和 `expiresAt` 一起使用.
 
-    - `expiresAt` - time of day expressed in 24h notation using the 'HH:MM' format, at which point
-      all cache records expire. Uses local time. Cannot be used together with `expiresIn`.
+    - `expiresAt` - 使用 'HH:MM' 格式表示的时间, 此时所有缓存记录都将过期. 使用本地时间. 不能和 `expiresIn` 一起使用.
 
-    - `generateFunc` - a function used to generate a new cache item if one is not found in the
-      cache when calling `get()`. The method's signature is `async function(id, flags)` where:
+    - `generateFunc` - 如果在调用 `get()` 时未在缓存中找到一个缓存项，用于生成新缓存项的函数. 该方法的签名是 `async function(id, flags)` 其中:
 
-          - `id` - the `id` string or object provided to the `get()` method.
-          - `flags` - an object used to pass back additional flags to the cache where:
-              - `ttl` - the cache ttl value in milliseconds. Set to `0` to skip storing in the
-                cache. Defaults to the cache global policy.
+          - `id` - 提供给 `get()` 方法的 `id` 字符串或对象。
+          - `flags` - 用于将其他标志传递回缓存的对象，其中：
+              - `ttl` - 缓存 ttl 值，以毫秒为单位。设置为 `0` 以跳过存储在缓存中。 默认为缓存全局策略。
 
-    - `staleIn` - number of milliseconds to mark an item stored in cache as stale and attempt to
-      regenerate it when `generateFunc` is provided. Must be less than `expiresIn`.
+    - `staleIn` - 当提供 `generateFunc` 时，存储在缓存中的项目标记为失效【stale】并尝试【attempt】重新生成它的毫秒数。 必须小于 `expiresIn`。
 
-    - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
+    - `staleTimeout` - 检查项目是否过时之前要等待的毫秒数.
 
-    - `generateTimeout` - number of milliseconds to wait before returning a timeout error when the
-      `generateFunc` function takes too long to return a value. When the value is eventually
-      returned, it is stored in the cache for future requests. Required if `generateFunc` is
-      present. Set to `false` to disable timeouts which may cause all `get()` requests to get stuck
-      forever.
+    - `generateTimeout` - 当 `generateFunc` 函数超时毫秒数。最终返回值时, 它存储在缓存中以供将来请求使用. 当 `generateFunc` 指定是，该值是必要的。 设置 `false` 将禁用可能导致所有 `get()` 请求永远被卡住的超时。
 
-    - `generateOnReadError` - if `false`, an upstream cache read error will stop the `cache.get()`
-      method from calling the generate function and will instead pass back the cache error. Defaults
-      to `true`.
+    - `generateOnReadError` - 如果为 `false`, 上游缓存读取错误将停止 `cache.get()` 方法调用 generate 函数，而是传回缓存错误。默认为 `true`.
 
-    - `generateIgnoreWriteError` - if `false`, an upstream cache write error when calling
-      `cache.get()` will be passed back with the generated value when calling. Defaults to `true`.
+    - `generateIgnoreWriteError` - 如果为 `false`, 调用 `cache.get()` 时出现的上游缓存写入错误会被调用时返回. 默认为 `true`.
 
-    - `dropOnError` - if `true`, an error or timeout in the `generateFunc` causes the stale value
-      to be evicted from the cache.  Defaults  to `true`.
+    - `dropOnError` - 如果为 `true`, `generateFunc` 中的错误或超时导致超时的值会从缓存中逐出。默认为 `true`.
 
-    - `pendingGenerateTimeout` - number of milliseconds while `generateFunc` call is in progress
-      for a given id, before a subsequent `generateFunc` call is allowed. Defaults to `0` (no
+    - `pendingGenerateTimeout` - 当指定 id 进程调用 `generateFunc` 时的毫秒数, 后续的 `generateFunc` 会被允许. 默认为 `0` (no
       blocking of concurrent `generateFunc` calls beyond `staleTimeout`).
 
-    - `cache` - the cache name configured in [`server.cache`](#server.config.cache). Defaults to
-      the default cache.
+    - `cache` - 配置在 [`server.cache`](#server.config.cache) 的缓存名称. 默认为默认的缓存名。
 
-    - `segment` - string segment name, used to isolate cached items within the cache partition.
-      When called within a plugin, defaults to '!name' where 'name' is the plugin name. When called
-      within a server method, defaults to '#name' where 'name' is the server method name. Required
-      when called outside of a plugin.
+    - `segment` - segment 字符串名, 用于隔离【isolate】缓存分区【partition】中的缓存项目。在插件中调用时，默认为插件名称 '!name'。在服务器方法中, 默认为服务器方法名 '#name'。在插件外部调用时，该值是必要的。
 
-    - `shared` - if `true`, allows multiple cache provisions to share the same segment. Default to
-      `false`.
+    - `shared` - 如果为 `true`, 允许多个缓存共享同一个 segment。 默认为`false`.
 
 ```js
 const Hapi = require('hapi');
@@ -1424,11 +1405,10 @@ server.route({
 });
 ```
 
-When registering a handler decoration, the `method` must be a function using the signature
-`function(route, options)` where:
+注册处理程序装饰时, `method` 必须使用签名的函数 `function(route, options)` 其中:
 
-- `route` - the [route information](#request.route).
-- `options` - the configuration object provided in the handler config.
+- `route` - [route information](#request.route).
+- `options` - 处理程序配置中提供的配置对象。
 
 ```js
 const Hapi = require('hapi');
@@ -2411,26 +2391,25 @@ server.route({ method: '*', path: '/{p*}', handler });
 
 ### <a name="server.rules()" /> `server.rules(processor, [options])`
 
-Defines a route rules processor for converting route rules object into route configuration where:
+定义路由规则处理器，用于将路由规则对象转换为路由配置：
 
-- `processor` - a function using the signature `function(rules, info)` where:
+- `processor` - 一个函数签名 `function(rules, info)` 其中:
     - `rules` -
-    - `info` - an object with the following properties:
-        - `method` - the route method.
-        - `path` - the route path.
-        - `vhost` - the route virtual host (if any defined).
-    - returns a route config object.
+    - `info` - 具有以下属性的对象：
+        - `method` - 路由方法.
+        - `path` - 路由路径.
+        - `vhost` - 路由虚拟 host (如果有定义).
+    - 返回一个路由配置对象.
 
-- `options` - optional settings:
+- `options` - 可选设置:
     - `validate` - rules object validation:
         - `schema` - **joi** schema.
         - `options` - optional **joi** validation options. Defaults to `{ allowUnknown: true }`.
 
-Note that the root server and each plugin server instance can only register one rules processor.
-If a route is added after the rules are configured, it will not include the rules config. Routes
-added by plugins apply the rules to each of the parent realms' rules from the root to the route's
-realm. This means the processor defined by the plugin override the config generated by the root
-processor if they overlap. The route `config` overrides the rules config if the overlap.
+请注意，根服务器和每个插件服务器实例只能注册一个规则处理器。如果在配置规则后添加路由，则不会包含规则配置。插件添加的路由将规则应用于从根到路由域的每个父域规则。
+这意味着如果它们重叠【overlap】，插件定义的处理器会覆盖根处理器生成的配置。
+如果重叠，路由 `config` 会覆盖规则配置。
+
 
 ### <a name="server.start()" /> `await server.start()`
 
@@ -2767,12 +2746,11 @@ The default `Cache-Control: no-cache` header can be disabled by setting `cache` 
 
 ### <a name="route.options.compression" /> `route.options.compression`
 
-An object where each key is a content-encoding name and each value is an object with the desired
-encoder settings. Note that decoder settings are set in [`compression`](#route.options.payload.compression).
+一个对象，其中每个键是内容编码名称，每个值是具有所需【desired】编码器设置的对象。注意，解码器设置是在 [`compression`](#route.options.payload.compression) 中设置。
 
 ### <a name="route.options.cors" /> `route.options.cors`
 
-默认值: `false` (no CORS headers).
+默认值: `false` (无跨域头).
 
 The [Cross-Origin Resource Sharing](https://www.w3.org/TR/cors/) protocol allows browsers to make
 cross-origin API calls. CORS is required by web applications running inside a browser which are
@@ -2832,14 +2810,12 @@ Defines the behavior for accessing files:
 
 默认值: none.
 
-The route handler function performs the main business logic of the route and sets the response.
-`handler` can be assigned:
+路由处理函数执行【performs】路由的主要业务逻辑并设置响应。
+`handler` 可以被指定为:
 
-- a [lifecycle method](#lifecycle-methods).
+- [lifecycle method](#lifecycle-methods).
 
-- an object with a single property using the name of a handler type registred with the
-  [`server.decorate()`](#server.decorate()) method. The matching property value is passed
-  as options to the registered handler generator.
+- 一个具有单个属性的对象，使用 [`server.decorate()`](#server.decorate()) 方法注册的处理程序类型名称。匹配的属性值作为选项传递给已注册的处理程序生成器。
 
 ```js
 const handler = function (request, h) {
@@ -2848,63 +2824,53 @@ const handler = function (request, h) {
 };
 ```
 
-Note: handlers using a fat arrow style function cannot be bound to any `bind` property. Instead,
-the bound context is available under [`h.context`](#h.context).
+注意：使用箭头函数的处理程序不能绑定到任何 `bind` 属性。相反，绑定上下文在 [`h.context`](#h.context) 下可用。
 
 ### <a name="route.options.id" /> `route.options.id`
 
 默认值: none.
 
-An optional unique identifier used to look up the route using [`server.lookup()`](#server.lookup()).
-Cannot be assigned to routes added with an array of methods.
+用于使用 [`server.lookup()`](#server.lookup()) 查找路由的可选唯一标识符。
+无法分配给添加了方法数组的路由。
 
 ### <a name="route.options.isInternal" /> `route.options.isInternal`
 
 默认值: `false`.
 
-If `true`, the route cannot be accessed through the HTTP listener but only through the
-[`server.inject()`](#server.inject()) interface with the `allowInternals` option set to `true`.
-Used for internal routes that should not be accessible to the outside world.
+如果为 `true`, 路由不能通过 HTTP 侦听器访问，而只能通过 [`server.inject()`](#server.inject()) 接口访问，并且 `allowInternals` 选项设置为 `true`。
+用于外部世界无法访问的内部路由。
 
 ### <a name="route.options.json" /> `route.options.json`
 
 默认值: none.
 
-Optional arguments passed to `JSON.stringify()` when converting an object or error response to a
-string payload or escaping it after stringification. Supports the following:
+在将对象或错误响应转换为字符串有效内容或在字符串化后转义它时，可选参数传递给  `JSON.stringify()` 。支持以下内容：
 
-- `replacer` - the replacer function or array. Defaults to no action.
+- `replacer` - replacer 函数或数组。 默认为无操作。
 
-- `space` - number of spaces to indent nested object keys. Defaults to no indentation.
+- `space` - 缩进嵌套对象 key 的空格数。 默认为无缩进。
 
-- `suffix` - string suffix added after conversion to JSON string. Defaults to no suffix.
+- `suffix` - 转换为JSON字符串后添加字符串后缀。 默认为无后缀。
 
-- `escape` - calls [`Hoek.jsonEscape()`](https://github.com/hapijs/hoek/blob/master/API.md#escapejsonstring)
-  after conversion to JSON string. Defaults to `false`.
+- `escape` - 转换为 JSON 字符串后调用 [`Hoek.jsonEscape()`](https://github.com/hapijs/hoek/blob/master/API.md#escapejsonstring)。 默认为 `false`.
 
 ### <a name="route.options.jsonp" /> `route.options.jsonp`
 
 默认值: none.
 
-Enables JSONP support by setting the value to the query parameter name containing the function name
-used to wrap the response payload.
+启用 JSONP 支持，通过将值设置为包含用于包装相应有效内容的函数名称的查询参数名称。
 
-For example, if the value is `'callback'`, a request comes in with `'callback=me'`, and the JSON
-response is `'{ "a":"b" }'`, the payload will be `'me({ "a":"b" });'`. Cannot be used with stream
-responses.
+举个例子，如果值为 `'callback'`，请求过来带着 `'callback=me'`，那么 JSON 相应是 `'{ "a":"b" }'`，有效内容将为 `'me({ "a":"b" });'`。不能用于流相应。
 
-The 'Content-Type' response header is set to `'text/javascript'` and the 'X-Content-Type-Options'
-response header is set to `'nosniff'`, and will override those headers even if explicitly set by
-[`response.type()`](#response.type()).
+'Content-Type' 响应头设置为 `'text/javascript'` 和 'X-Content-Type-Options' 相应头设置为 `'nosniff'`，并且即使由 [`response.type()`](#response.type()) 显式设置，也会覆盖这些头。
 
 ### <a name="route.options.log" /> `route.options.log`
 
 默认值: `{ collect: false }`.
 
-Request logging options:
+请求日志选项：
 
-- `collect` - if `true`, request-level logs (both internal and application) are collected and
-  accessible via [`request.logs`](#request.logs).
+- `collect` - 如果为 `true`, 请求级别 日志 (内部和应用) 会通过 [`request.logs`](#request.logs) 收集.
 
 ### <a name="route.options.notes" /> `route.options.notes`
 
@@ -2916,11 +2882,11 @@ Request logging options:
 
 ### <a name="route.options.payload" /> `route.options.payload`
 
-Determines how the request payload is processed.
+确定【Determines】如何处理请求有效内容。
 
 #### <a name="route.options.payload.allow" /> `route.options.payload.allow`
 
-默认值: allows parsing of the following mime types:
+默认值:允许解析以下 mime 类型：
 - application/json
 - application/*+json
 - application/octet-stream
@@ -2937,28 +2903,25 @@ will result in an error response.
 
 默认值: none.
 
-An object where each key is a content-encoding name and each value is an object with the desired
-decoder settings. Note that encoder settings are set in [`compression`](#server.options.compression).
+一个对象，其中每个键是内容编码名称，每个值是具有所需解码器设置的对象。请注意编码器在 [`compression`](#server.options.compression) 中设置。
 
 #### <a name="route.options.payload.defaultContentType" /> `route.options.payload.defaultContentType`
 
 默认值: `'application/json'`.
 
-The default content type if the 'Content-Type' request header is missing.
+如果缺少 'Content-Type' 请求头，则为默认内容类型。
 
 #### <a name="route.options.payload.failAction" /> `route.options.payload.failAction`
 
-默认值: `'error'` (return a Bad Request (400) error response).
+默认值: `'error'` (返回错误请求（400）错误响应)。
 
-A [`failAction` value](#lifecycle-failAction) which determines how to handle payload parsing
-errors.
+[`failAction` value](#lifecycle-failAction) 它确定如何处理有效负载解析错误。
 
 #### <a name="route.options.payload.maxBytes" /> `route.options.payload.maxBytes`
 
 默认值: `1048576` (1MB).
 
-Limits the size of incoming payloads to the specified byte count. Allowing very large payloads may
-cause the server to run out of memory.
+将传入有效负载的大小限制为指定的字节数。 允许非常大的有效负载可能导致服务器内存不足。
 
 #### <a name="route.options.payload.multipart" /> `route.options.payload.multipart`
 
