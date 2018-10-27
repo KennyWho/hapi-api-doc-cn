@@ -2193,31 +2193,26 @@ exports.plugin = {
 
 ### <a name="server.register()" /> `await server.register(plugins, [options])`
 
-Registers a plugin where:
+注册一个插件 其中:
 
-- `plugins` - one or an array of:
+- `plugins` - 一个或多个数组：
 
-    - a [plugin object](#plugins).
+    - 一个 [plugin object](#plugins).
 
-    - an object with the following:
-        - `plugin` - a [plugin object](#plugins).
-        - `options` - (可选) options passed to the plugin during registration.
-        - `once`, `routes` - (可选) plugin-specific registration options as defined below.
+    - 一个对象 如下：
+        - `plugin` - 一个 [plugin object](#plugins)。
+        - `options` - (可选) 注册期间传递给插件的选项。
+        - `once`, `routes` - (可选) 特定于插件的注册选项，如下所述。
 
-- `options` - (可选) registration options (different from the options passed to the
-  registration function):
+- `options` - (可选) 注册选项（与传递给注册功能的选项不同）：
 
-    - `once` - if `true`, subsequent registrations of the same plugin are skipped without error.
-      Cannot be used with plugin options. Defaults to `false`.
-      If not set to `true`, an error will be thrown the second time a plugin is registered on the server.
+    - `once` - 如果 `true`, 在没有错误时，跳过相同插件的后续注册。不能与插件选项一起使用。默认为 `false`。
+      如果未设置为 `false` ，则第二次在服务器上注册插件时将引发错误。
 
-    - `routes` - modifiers applied to each route added by the plugin:
+    - `routes` - 应用于插件添加的每个路由的修饰符：
 
-        - `prefix` - string added as prefix to any route path (must begin with `'/'`). If a plugin
-          registers a child plugin the `prefix` is passed on to the child or is added in front of
-          the child-specific prefix.
-        - `vhost` - virtual host string (or array of strings) applied to every route. The
-          outer-most `vhost` overrides the any nested configuration.
+        - `prefix` - 字符串作为前缀添加到任何路由路径 (必须以 `'/'` 开头)。如果插件注册子插件，则 `prefix`  将传递给子节点或添加到子节点前缀前面。
+        - `vhost` - 添加到每个路由的虚拟 host 字符串 (或字符串数组). 最外层的 `vhost` 覆盖任意的嵌套配置.
 
 返回值: none.
 
@@ -2374,8 +2369,7 @@ routing table node.
 
 #### Catch all route
 
-If the application needs to override the default Not Found (404) error response, it can add a
-catch-all route for a specific method or all methods. Only one catch-all route can be defined.
+如果应用程序需要覆盖默认的 Not Found（404）错误响应，它可以为特定方法或所有方法添加 catch-all 路由。只能定义一个 catch-all 路由。
 
 ```js
 const Hapi = require('hapi');
@@ -2413,20 +2407,14 @@ server.route({ method: '*', path: '/{p*}', handler });
 
 ### <a name="server.start()" /> `await server.start()`
 
-Starts the server by listening for incoming requests on the configured port (unless the connection
-was configured with [`autoListen`](#server.options.autoListen) set to `false`).
+通过监听已配置端口上的传入请求来启动服务器（除非连接配置了 [`autoListen`](#server.options.autoListen) 为 `false`）。
 
 返回值: none.
 
-Note that if the method fails and throws an error, the server is considered to be in an undefined
-state and should be shut down. In most cases it would be impossible to fully recover as the various
-plugins, caches, and other event listeners will get confused by repeated attempts to start the
-server or make assumptions about the healthy state of the environment. It is recommended to abort
-the process when the server fails to start properly. If you must try to resume after an error, call
-[`server.stop()`](#server.stop()) first to reset the server state.
+请注意，如果方法失败并引发错误, 服务器被认为处于未定义状态，应该关闭。 在大多数情况下，不可能像各种插件一样完全恢复，缓存，和其他事件监听器会因重复尝试启动服务器或对环境的健康状态做出假设而感到困惑
+建议在服务器无法正常启动时中止该过程。 如果您在发生错误后必须尝试恢复，首先调用 [`server.stop()`](#server.stop()) 来重置服务器状态。
 
-If a started server is started again, the second call to `server.start()` is ignored. No events
-will be emitted and no extension points invoked.
+如果再次启动已启动的服务器, 第二次调用 `server.start()` 会被忽略。不会发出任何事件，也不会调用任何扩展点。
 
 ```js
 const Hapi = require('hapi');
@@ -2537,13 +2525,10 @@ const handler = function (request, h) {
 };
 ```
 
-Registered cookies are automatically parsed when received. Parsing rules depends on the route
-[`state.parse`](#route.options.state) configuration. If an incoming registered cookie fails parsing,
-it is not included in [`request.state`](#request.state), regardless of the
-[`state.failAction`](#route.options.state.failAction) setting. When [`state.failAction`](#route.options.state.failAction)
-is set to `'log'` and an invalid cookie value is received, the server will emit a
-[`'request'` event](#server.events.request). To capture these errors subscribe to the `'request'`
-event on the `'internal'` channel and filter on `'error'` and `'state'` tags:
+注册的 cookie 在收到时会自动解析。 解析规则取决于路由
+[`state.parse`](#route.options.state) 配置。 如果传入的已注册cookie无法解析，它不会包含在 [`request.state`](#request.state) 中, 无论
+[`state.failAction`](#route.options.state.failAction) 的设置. 当 [`state.failAction`](#route.options.state.failAction)
+设置为 `'log'` 并且接收到不可用的 cookies 时, 服务器将触发 [`'request'` event](#server.events.request). 要捕获这些错误，请在 channels `'internal'` 上注册 `'request'` 事件，并过滤 `'error'` 和 `'state'` 标签：
 
 ```js
 const Hapi = require('hapi');
@@ -2561,7 +2546,7 @@ server.events.on({ name: 'request', channels: 'internal' }, (request, event, tag
 
 访问： 只读。
 
-Same as calling [`server.state()`](#server.state()).
+于调用 [`server.state()`](#server.state()) 相同。
 
 ### <a name="server.states.format()" /> `await server.states.format(cookies)`
 
@@ -2927,15 +2912,14 @@ will result in an error response.
 
 默认值: none.
 
-Overrides payload processing for multipart requests. Value can be one of:
+覆盖多部分请求的有效负载处理. 值可以是以下之一：:
 
-- `false` - disable multipart processing.
+- `false` - 禁用多部分处理
 
-- an object with the following required options:
+- 具有以下必需选项的对象：
 
-    - `output` - same as the [`output`](#route.options.payload.output) option with an additional
-      value option:
-        - `annotated` - wraps each multipart part in an object with the following keys:
+    - `output` - 与 [`output`](#route.options.payload.output) 选项相同，带有额外值的选项：
+        - `annotated` - 使用以下键将每个多部分包装在对象中：
 
             - `headers` - the part headers.
             - `filename` - the part file name.
@@ -2945,7 +2929,7 @@ Overrides payload processing for multipart requests. Value can be one of:
 
 默认值: `'data'`.
 
-The processed payload format. The value must be one of:
+处理的有效载荷格式。 该值必须是其中之一：
 
 - `'data'` - the incoming payload is read fully into memory. If [`parse`](#route.options.payload.parse)
   is `true`, the payload is parsed (JSON, form-decoded, multipart) based on the 'Content-Type'
@@ -2972,13 +2956,13 @@ The processed payload format. The value must be one of:
 
 默认值: none.
 
-A mime type string overriding the 'Content-Type' header value received.
+mime 类型字符串，覆盖收到的 'Content-Type' 值。
 
 #### <a name="route.options.payload.parse" /> `route.options.payload.parse`
 
 默认值: `true`.
 
-Determines if the incoming payload is processed or presented raw. Available values:
+确定传入的有效负载是否已处理或以原始方式显示。 可用值：
 
 - `true` - if the request 'Content-Type' matches the allowed mime types set by
   [`allow`](#route.options.payload.allow) (for the whole payload as well as parts), the payload is
