@@ -337,18 +337,12 @@ options 控制服务器对象的行为。注意 options 对象是深拷贝的（
 
 确定【Determines】将哪些日志事件发送到控制台。仅用于开发模式并且不影响【affect】记录实际内部和收录的事件。设置 `false` 去关闭所有输出日志，或者传入一个对象：
 
-- `log` - a string array of server log tags to be displayed via `console.error()` when
-    the events are logged via [`server.log()`](#server.log()) as well as
-    internally generated [server logs](#server-logs). Defaults to no output.
+- `log` - 当通过 [`server.log()`](#server.log()) 记录事件时，通过 `console.error()` 显示的服务器日志标记的字符串数组以及
+        内部生成 [server logs](#server-logs)。 默认为无输出。
 
-- `request` - a string array of request log tags to be displayed via `console.error()` when
-    the events are logged via [`request.log()`](#request.log()) as well as
-    internally generated [request logs](#request-logs). For example, to display all errors,
-    set the option to `['error']`. To turn off all console debug messages set it to `false`.
-    To display all request logs, set it to `'*'`.
-    Defaults to uncaught errors thrown in external code (these errors are handled
-    automatically and result in an Internal Server Error response) or runtime errors due to
-    developer error.
+- `request` - 当通过 [`server.log()`](#server.log()) 记录事件时，通过 `console.error()` 显示的请求日志标记的字符串数组以及
+        内部生成 [server logs](#server-logs)。 例如，想要展示所有错误，可以设置选项为 `['error']`。设置 false 关闭所有输出 debug 信息。设置 `'*'` 显示所有请求日志。
+        默认为外部代码中抛出的未捕获错误（这些错误会自动处理并导致内部服务器错误响应）或由于开发人员导致的运行时错误
 
 举个例子, 为了展示所有错误, 设置 `log` or `request` 为 `['error']`. 关闭所有输出，设置 `log` or `request` 为 `false`. 展示所有服务器日志, 设置 `log` or
 `request` 为 `'*'`. 关闭所有服务器日志, 设置 `debug` 为 `false`.
@@ -378,16 +372,16 @@ options 控制服务器对象的行为。注意 options 对象是深拷贝的（
 服务器过载【excessive】处理的限制，其中：
 
 - `sampleInterval` - the frequency of sampling in milliseconds. When set to `0`, the other load
-  options are ignored. Defaults to `0` (no sampling).
+  options are ignored. 默认为 `0` (no sampling).
 
 - `maxHeapUsedBytes` - maximum V8 heap size over which incoming requests are rejected with an HTTP
-  Server Timeout (503) response. Defaults to `0` (no limit).
+  Server Timeout (503) response. 默认为 `0` (no limit).
 
 - `maxRssBytes` - maximum process RSS size over which incoming requests are rejected with an HTTP
-  Server Timeout (503) response. Defaults to `0` (no limit).
+  Server Timeout (503) response. 默认为 `0` (no limit).
 
 - `maxEventLoopDelay` - maximum event loop delay duration in milliseconds over which incoming
-  requests are rejected with an HTTP Server Timeout (503) response. Defaults to `0` (no limit).
+  requests are rejected with an HTTP Server Timeout (503) response. 默认为 `0` (no limit).
 
 - `concurrent` - maximum number of requests to execute in parallel. This is useful to reduce
   garbage collection costs on high load deployment where the actual handler computation load is
@@ -395,7 +389,7 @@ options 控制服务器对象的行为。注意 options 对象是深拷贝的（
   to queue up all the way to the handler lifecycle step. This will trigger heavy garbage collection
   load trying to sort out the many pending objects. Reducing the number of concurrent requests
   being processed can help. There is no recommended value - you need to test what works best for
-  your specific deployment. Defaults to `0` (no queue).
+  your specific deployment. 默认为 `0` (no queue).
 
 #### <a name="server.options.mime" /> `server.options.mime`
 
@@ -1543,26 +1537,26 @@ Register custom application events where:
         - `name` - 事件名称字符串 (必须).
 
         - `channels` - a string or array of strings specifying the event channels available.
-          Defaults to no channel restrictions (event updates can specify a channel or not).
+          默认为 no channel restrictions (event updates can specify a channel or not).
 
         - `clone` - if `true`, the `data` object passed to [`server.events.emit()`](#server.events.emit())
           is cloned before it is passed to the listeners (unless an override specified by each
-          listener). Defaults to `false` (`data` is passed as-is).
+          listener). 默认为 `false` (`data` is passed as-is).
 
         - `spread` - if `true`, the `data` object passed to [`server.event.emit()`](#server.event.emit())
           must be an array and the `listener` method is called with each array element passed as a
           separate argument (unless an override specified by each listener). This should only be
-          used when the emitted data structure is known and predictable. Defaults to `false` (`data`
+          used when the emitted data structure is known and predictable. 默认为 `false` (`data`
           is emitted as a single argument regardless of its type).
 
         - `tags` - if `true` and the `criteria` object passed to [`server.event.emit()`](#server.event.emit())
           includes `tags`, the tags are mapped to an object (where each tag string is the key and
           the value is `true`) which is appended to the arguments list at the end. A configuration
-          override can be set by each listener. Defaults to `false`.
+          override can be set by each listener. 默认为 `false`.
 
         - `shared` - if `true`, the same event `name` can be registered multiple times where the
           second registration is ignored. Note that if the registration config is changed between
-          registrations, only the first configuration is used. Defaults to `false` (a duplicate
+          registrations, only the first configuration is used. 默认为 `false` (a duplicate
           registration will throw an error).
 
     - 一个 [**podium**](https://github.com/hapijs/podium) 触发器对象。
@@ -1633,16 +1627,16 @@ Subscribe to an event where:
         - `channels` - a string or array of strings specifying the event channels to subscribe to.
           If the event registration specified a list of allowed channels, the `channels` array must
           match the allowed channels. If `channels` are specified, event updates without any
-          channel designation will not be included in the subscription. Defaults to no channels
+          channel designation will not be included in the subscription. 默认为 no channels
           filter.
 
         - `clone` - if `true`, the `data` object passed to [`server.event.emit()`](#server.event.emit())
-           is cloned before it is passed to the `listener` method. Defaults to the event
-           registration option (which defaults to `false`).
+           is cloned before it is passed to the `listener` method. 默认为 the event
+           registration option (which 默认为 `false`).
 
         - `count` - a positive integer indicating the number of times the `listener` can be called
           after which the subscription is automatically removed. A count of `1` is the same as
-          calling `server.events.once()`. Defaults to no limit.
+          calling `server.events.once()`. 默认为 no limit.
 
         - `filter` - the event tags (if present) to subscribe to which can be one of:
 
@@ -1652,17 +1646,17 @@ Subscribe to an event where:
 
                 - `tags` - a tag string or array of tag strings.
                 - `all` - if `true`, all `tags` must be present for the event update to match the
-                  subscription. Defaults to `false` (at least one matching tag).
+                  subscription. 默认为 `false` (at least one matching tag).
 
         - `spread` - if `true`, and the `data` object passed to [`server.event.emit()`](#server.event.emit())
           is an array, the `listener` method is called with each array element passed as a separate
           argument. This should only be used when the emitted data structure is known and
-          predictable. Defaults to the event registration option (which defaults to `false`).
+          predictable. 默认为 the event registration option (which 默认为 `false`).
 
         - `tags` - if `true` and the `criteria` object passed to [`server.event.emit()`](#server.event.emit())
           includes `tags`, the tags are mapped to an object (where each tag string is the key and
-          the value is `true`) which is appended to the arguments list at the end. Defaults to the
-          event registration option (which defaults to `false`).
+          the value is `true`) which is appended to the arguments list at the end. 默认为 the
+          event registration option (which 默认为 `false`).
 
 - `listener` - the handler method set to receive event updates. The function signature depends on
   the event argument, and the `spread` and `tags` options.
@@ -1801,7 +1795,7 @@ points where:
 
         - `sandbox` - if set to `'plugin'` when adding a [request extension points](#request-lifecycle)
           the extension is only added to routes defined by the current plugin. Not allowed when
-          configuring route-level extensions, or when adding server extensions. Defaults to
+          configuring route-level extensions, or when adding server extensions. 默认为
           `'server'` which applies to any route added to the server the extension is added to.
 
 返回值: none.
@@ -1896,35 +1890,35 @@ injections, with some additional options and response properties:
 
 - `options` - can be assigned a string with the requested URI, or an object with:
 
-    - `method` - (可选) the request HTTP method (e.g. `'POST'`). Defaults to `'GET'`.
+    - `method` - (可选) the request HTTP method (e.g. `'POST'`). 默认为 `'GET'`.
 
     - `url` - (required) the request URL. If the URI includes an authority
       (e.g. `'example.com:8080'`), it is used to automatically set an HTTP 'Host' header, unless
       one was specified in `headers`.
 
     - `headers` - (可选) an object with optional request headers where each key is the header
-      name and the value is the header content. Defaults to no additions to the default **shot**
+      name and the value is the header content. 默认为 no additions to the default **shot**
       headers.
 
     - `payload` - (可选) an string, buffer or object containing the request payload. In case of
-      an object it will be converted to a string for you. Defaults to no payload. Note that payload
-      processing defaults to `'application/json'` if no 'Content-Type' header provided.
+      an object it will be converted to a string for you. 默认为 no payload. Note that payload
+      processing 默认为 `'application/json'` if no 'Content-Type' header provided.
 
     - `credentials` - (可选) an credentials object containing authentication information. The
       `credentials` are used to bypass the default authentication strategies, and are validated
-      directly as if they were received via an authentication scheme. Defaults to no credentials.
+      directly as if they were received via an authentication scheme. 默认为 no credentials.
 
     - `artifacts` - (可选) an artifacts object containing authentication artifact information.
       The `artifacts` are used to bypass the default authentication strategies, and are validated
       directly as if they were received via an authentication scheme. Ignored if set without
-      `credentials`. Defaults to no artifacts.
+      `credentials`. 默认为 no artifacts.
 
-    - `app` - (可选) sets the initial value of `request.app`, defaults to `{}`.
+    - `app` - (可选) sets the initial value of `request.app`, 默认为 `{}`.
 
-    - `plugins` - (可选) sets the initial value of `request.plugins`, defaults to `{}`.
+    - `plugins` - (可选) sets the initial value of `request.plugins`, 默认为 `{}`.
 
     - `allowInternals` - (可选) allows access to routes with `config.isInternal` set to `true`.
-      Defaults to `false`.
+      默认为 `false`.
 
     - `remoteAddress` - (可选) sets the remote address for the incoming connection.
 
@@ -1932,14 +1926,14 @@ injections, with some additional options and response properties:
       conditions for testing:
 
         - `error` - if `true`, emits an `'error'` event after payload transmission (if any).
-          Defaults to `false`.
+          默认为 `false`.
 
         - `close` - if `true`, emits a `'close'` event after payload transmission (if any).
-          Defaults to `false`.
+          默认为 `false`.
 
-        - `end` - if `false`, does not end the stream. Defaults to `true`.
+        - `end` - if `false`, does not end the stream. 默认为 `true`.
 
-        - `split` - indicates whether the request payload will be split into chunks. Defaults to
+        - `split` - indicates whether the request payload will be split into chunks. 默认为
           `undefined`, meaning payload will not be chunked.
 
     - `validate` - (可选) if `false`, the `options` inputs are not validated. This is
@@ -2064,12 +2058,12 @@ const route = server.match('get', '/');
 - `method` - the method function with a signature `async function(...args, [flags])` where:
     - `...args` - the method function arguments (can be any number of arguments or none).
     - `flags` - when caching is enabled, an object used to set optional method result flags:
-        - `ttl` - `0` if result is valid but cannot be cached. Defaults to cache policy.
+        - `ttl` - `0` if result is valid but cannot be cached. 默认为 cache policy.
 
 - `options` - (可选) configuration object:
 
     - `bind` - a context object passed back to the method function (via `this`) when called.
-      Defaults to active context (set via [`server.bind()`](#server.bind()) when the method is
+      默认为 active context (set via [`server.bind()`](#server.bind()) when the method is
       registered. Ignored if the method is an arrow function.
 
     - `cache` - the same cache configuration used in [`server.cache()`](#server.cache()). The
@@ -2245,7 +2239,7 @@ Adds a route where:
 
     - `vhost` - (可选) a domain string or an array of domain strings for limiting the route to
       only requests with a matching host header field. Matching is done against the hostname part
-      of the header only (excluding the port). Defaults to all hosts.
+      of the header only (excluding the port). 默认为 all hosts.
 
     - `handler` - (required when [`handler`](#route.options.handler) is not set) the route
       handler function called to generate the response after successful authentication and
@@ -2398,7 +2392,7 @@ server.route({ method: '*', path: '/{p*}', handler });
 - `options` - 可选设置:
     - `validate` - rules object validation:
         - `schema` - **joi** schema.
-        - `options` - optional **joi** validation options. Defaults to `{ allowUnknown: true }`.
+        - `options` - optional **joi** validation options. 默认为 `{ allowUnknown: true }`.
 
 请注意，根服务器和每个插件服务器实例只能注册一个规则处理器。如果在配置规则后添加路由，则不会包含规则配置。插件添加的路由将规则应用于从根到路由域的每个父域规则。
 这意味着如果它们重叠【overlap】，插件定义的处理器会覆盖根处理器生成的配置。
@@ -2436,12 +2430,12 @@ across multiple requests. Registers a cookie definitions where:
 
 - `options` - are the optional cookie settings:
 
-    - `ttl` - time-to-live in milliseconds. Defaults to `null` (session time-life - cookies are
+    - `ttl` - time-to-live in milliseconds. 默认为 `null` (session time-life - cookies are
       deleted when the browser is closed).
 
-    - `isSecure` - sets the 'Secure' flag. Defaults to `true`.
+    - `isSecure` - sets the 'Secure' flag. 默认为 `true`.
 
-    - `isHttpOnly` - sets the 'HttpOnly' flag. Defaults to `true`.
+    - `isHttpOnly` - sets the 'HttpOnly' flag. 默认为 `true`.
 
     - `isSameSite` - sets the ['SameSite' flag](https://www.owasp.org/index.php/SameSite).  The value must be one of:
 
@@ -2449,9 +2443,9 @@ across multiple requests. Registers a cookie definitions where:
         - `'Strict'` - sets the value to `'Strict'` (this is the 默认值).
         - `'Lax'` - sets the value to `'Lax'`.
 
-    - `path` - the path scope. Defaults to `null` (no path).
+    - `path` - the path scope. 默认为 `null` (no path).
 
-    - `domain` - the domain scope. Defaults to `null` (no domain).
+    - `domain` - the domain scope. 默认为 `null` (no domain).
 
     - `autoValue` - if present and the cookie was not received from the client or explicitly set by
       the route handler, the cookie is automatically added to the response with the provided value.
@@ -2473,22 +2467,22 @@ across multiple requests. Registers a cookie definitions where:
       provide privacy, only a mean to verify that the cookie value was generated by the server.
       Redundant when `'iron'` encoding is used. Options are:
 
-        - `integrity` - algorithm options. Defaults to
+        - `integrity` - algorithm options. 默认为
           [`require('iron').defaults.integrity`](https://github.com/hueniverse/iron#options).
         - `password` - password used for HMAC key generation (must be at least 32 characters long).
 
     - `password` - password used for `'iron'` encoding (must be at least 32 characters long).
 
-    - `iron` - options for `'iron'` encoding. Defaults to
+    - `iron` - options for `'iron'` encoding. 默认为
        [`require('iron').defaults`](https://github.com/hueniverse/iron#options).
 
     - `ignoreErrors` - if `true`, errors are ignored and treated as missing cookies.
 
     - `clearInvalid` - if `true`, automatically instruct the client to remove invalid
-      cookies. Defaults to `false`.
+      cookies. 默认为 `false`.
 
     - `strictHeader` - if `false`, allows any cookie value including values in
-      violation of [RFC 6265](https://tools.ietf.org/html/rfc6265). Defaults to `true`.
+      violation of [RFC 6265](https://tools.ietf.org/html/rfc6265). 默认为 `true`.
 
     - `passThrough` - used by proxy plugins (e.g. [**h2o2**](https://github.com/hapijs/h2o2)).
 
@@ -2582,7 +2576,7 @@ connections will continue until closed or timeout), where:
 - `options` - (可选) object with:
 
     - `timeout` - overrides the timeout in millisecond before forcefully terminating a connection.
-      Defaults to `5000` (5 seconds).
+      默认为 `5000` (5 seconds).
 
 返回值: none.
 
@@ -2602,7 +2596,7 @@ async function example() {
 
 Returns a copy of the routing table where:
 
-- `host` - (可选) host to filter routes matching a specific virtual host. Defaults to all
+- `host` - (可选) host to filter routes matching a specific virtual host. 默认为 all
   virtual hosts.
 
 返回值: an array of routes where each route contains:
@@ -2746,26 +2740,26 @@ object with the following options:
   can contain any combination of fully qualified origins along with origin strings containing a
   wildcard `'*'` character, or a single `'*'` origin string. If set to `'ignore'`, any incoming
   Origin header is ignored (present or not) and the 'Access-Control-Allow-Origin' header is set to
-  `'*'`. Defaults to any origin `['*']`.
+  `'*'`. 默认为 any origin `['*']`.
 
 - `maxAge` - number of seconds the browser should cache the CORS response
   ('Access-Control-Max-Age'). The greater the value, the longer it will take before the browser
-  checks for changes in policy. Defaults to `86400` (one day).
+  checks for changes in policy. 默认为 `86400` (one day).
 
-- `headers` - a strings array of allowed headers ('Access-Control-Allow-Headers'). Defaults to
+- `headers` - a strings array of allowed headers ('Access-Control-Allow-Headers'). 默认为
   `['Accept', 'Authorization', 'Content-Type', 'If-None-Match']`.
 
 - `additionalHeaders` - a strings array of additional headers to `headers`. Use this to keep the
   default headers in place.
 
 - `exposedHeaders` - a strings array of exposed headers ('Access-Control-Expose-Headers').
-  Defaults to `['WWW-Authenticate', 'Server-Authorization']`.
+  默认为 `['WWW-Authenticate', 'Server-Authorization']`.
 
 - `additionalExposedHeaders` - a strings array of additional headers to `exposedHeaders`. Use this
   to keep the default headers in place.
 
 - `credentials` - if `true`, allows user credentials to be sent
-  ('Access-Control-Allow-Credentials'). Defaults to `false`.
+  ('Access-Control-Allow-Credentials'). 默认为 `false`.
 
 ### <a name="route.options.description" /> `route.options.description`
 
@@ -3195,7 +3189,7 @@ following options:
           otherwise this field is ignored. If `rule` is `'allow-from'` but `source` is unset, the
           rule will be automatically changed to `'sameorigin'`.
 
-- `xss` - boolean that controls the 'X-XSS-PROTECTION' header for Internet Explorer. Defaults to
+- `xss` - boolean that controls the 'X-XSS-PROTECTION' header for Internet Explorer. 默认为
   `true` which sets the header to equal `'1; mode=block'`.
     - Note: this setting can create a security vulnerability in versions of Internet Exploere below
       8, as well as unpatched versions of IE8. See [here](https://hackademix.net/2009/11/21/ies-xss-filter-creates-xss-vulnerabilities/)
@@ -3204,9 +3198,9 @@ following options:
       `false`.
 
 - `noOpen` - boolean controlling the 'X-Download-Options' header for Internet Explorer, preventing
-  downloads from executing in your context. Defaults to `true` setting the header to `'noopen'`.
+  downloads from executing in your context. 默认为 `true` setting the header to `'noopen'`.
 
-- `noSniff` - boolean controlling the 'X-Content-Type-Options' header. Defaults to `true` setting
+- `noSniff` - boolean controlling the 'X-Content-Type-Options' header. 默认为 `true` setting
   the header to its only and default option, `'nosniff'`.
 
 - `referrer` - controls the ['Referrer-Policy'](https://www.w3.org/TR/referrer-policy/) header, which has the following possible values.
@@ -3233,7 +3227,7 @@ back to the server with every request (as defined in [RFC 6265](https://tools.ie
   [`request.state`](#request.state) object.
 
 - `failAction` - A [`failAction` value](#lifecycle-failAction) which determines how to handle
-  cookie parsing errors. Defaults to `'error'` (return a Bad Request (400) error response).
+  cookie parsing errors. 默认为 `'error'` (return a Bad Request (400) error response).
 
 ### <a name="route.options.tags" /> `route.options.tags`
 
@@ -3645,7 +3639,7 @@ values:
 
 **hapi** uses the [**boom**](https://github.com/hapijs/boom) error library for all its internal
 error generation. **boom** provides an expressive interface to return HTTP errors. Any error
-thrown by a [lifecycle method](#lifecycle-methods) is converted into a **boom** object and defaults to status
+thrown by a [lifecycle method](#lifecycle-methods) is converted into a **boom** object and 默认为 status
 code `500` if the error is not already a **boom** object.
 
 When the error is sent back to the client, the response contains a JSON object with the
@@ -3807,7 +3801,7 @@ changing the response.
 
 访问： 只读。
 
-The [server realm](#server.realm) associated with the matching route. Defaults to the root server
+The [server realm](#server.realm) associated with the matching route. 默认为 the root server
 realm in the _**onRequest**_ step.
 
 ##### <a name="h.request" /> `h.request`
@@ -3838,10 +3832,10 @@ return as its value which will set a 304 response. Otherwise, it sets the provid
 and returns `undefined`. The method argumetns are:
 
 - `options` - a required configuration object with:
-    - `etag` - the ETag string. Required if `modified` is not present. Defaults to no header.
-    - `modified` - the Last-Modified header value. Required if `etag` is not present. Defaults to
+    - `etag` - the ETag string. Required if `modified` is not present. 默认为 no header.
+    - `modified` - the Last-Modified header value. Required if `etag` is not present. 默认为
       no header.
-    - `vary` - same as the [`response.etag()`](#response.etag()) option. Defaults to `true`.
+    - `vary` - same as the [`response.etag()`](#response.etag()) option. 默认为 `true`.
 
 返回值:
     - a [response object](#response-object) if the response is unmodified.
@@ -3892,7 +3886,7 @@ const handler = function (request, h) {
 Wraps the provided value and returns a [`response`](#response-object) object which allows
 customizing the response (e.g. setting the HTTP status code, custom headers, etc.), where:
 
-- `value` - (可选) 返回值. Defaults to `null`.
+- `value` - (可选) 返回值. 默认为 `null`.
 
 Returns a [response object](#response-object).
 
@@ -3962,10 +3956,8 @@ const ext = function (request, h) {
 
 ### Response object
 
-The response object contains the request response value along with various HTTP headers and flags.
-When a [lifecycle method](#lifecycle-methods) returns a value, the value is wrapped in a response
-object along with some default flags (e.g. `200` status code). In order to customize a response
-before it is returned, the [`h.response()`](#h.response()) method is provided.
+响应对象包含请求响应值以及各种 HTTP 头 和 标识
+当 [lifecycle method](#lifecycle-methods) 返回一个值时, 该值将包含在响应对象中，以及一些默认标识（例如 `200` 状态码）。提供了 [`h.response()`](#h.response()) 方法，为了在返回之前自定义响应,。
 
 #### Response properties
 
@@ -3975,21 +3967,17 @@ before it is returned, the [`h.response()`](#h.response()) method is provided.
 
 默认值: `{}`.
 
-Application-specific state. Provides a safe place to store application data without potential
-conflicts with the framework. Should not be used by [plugins](#plugins) which should use
-[`plugins[name]`](#response.plugins).
+应用程序特定的状态. 提供存储应用程序数据的安全位置，而不会与框架发生潜在【potential】冲突. 不应该使用 [plugins](#plugins)，应使用 [`plugins[name]`](#response.plugins).
 
 ##### <a name="response.events" /> `response.events`
 
-访问： read only and the public **podium** interface.
+访问： 只读 并且是公共的 **podium** 接口.
 
-The `response.events` object supports the following events:
+`response.events` 对象支持以下对象:
 
-- `'peek'` - emitted for each chunk of data written back to the client connection. The event method
-  signature is `function(chunk, encoding)`.
+- `'peek'` - 为回写客户端连接的每个数据块触发. 事件签名为 `function(chunk, encoding)`.
 
-- `'finish'` - emitted when the response finished writing but before the client response connection
-  is ended. The event method signature is `function ()`.
+- `'finish'` - 当响应完成写入单在客户端连接结束之前触发. 事件签名为 `function ()`.
 
 ```js
 const Crypto = require('crypto');
@@ -4026,11 +4014,9 @@ server.ext('onPreResponse', preResponse);
 
 默认值: `{}`.
 
-An object containing the response headers where each key is a header field name and the value is
-the string header value or array of string.
+包含响应头的对象，其中每个键是 header 字段名称，值是字符串的 header 值或字符串数组
 
-Note that this is an incomplete list of headers to be included with the response. Additional
-headers will be added once the response is prepared for transmission.
+请注意，这是一个不完整的 header 列表，要包含在响应中。 一旦响应准备好传输，将添加其他 header。
 
 ##### <a name="response.plugins" /> `response.plugins`
 
@@ -4038,23 +4024,21 @@ headers will be added once the response is prepared for transmission.
 
 默认值: `{}`.
 
-Plugin-specific state. Provides a place to store and pass request-level plugin data. `plugins` is
-an object where each key is a plugin name and the value is the state.
+插件特定的状态. 提供存储和传递请求级插件数据的位置。 `plugins` 是一个对象，其中每个键是一个插件名称，值是状态。
 
 ##### <a name="response.settings" /> `response.settings`
 
 访问： 只读。
 
-Object containing the response handling flags.
+包含响应处理标志的对象。
 
 ###### <a name="response.settings.passThrough" /> `response.settings.passThrough`
 
 访问： 只读。
 
-Defaults value: `true`.
+默认值: `true`.
 
-If `true` and [`source`](#response.source) is a `Stream`, copies the `statusCode` and `headers`
-properties of the stream object to the outbound response.
+如果为 `true` 并且 [`source`](#response.source) 为一个 `Stream`, 将流对象的 `statusCode` and `headers` 属性复制到出站响应
 
 ###### <a name="response.settings.stringify" /> `response.settings.stringify`
 
@@ -4062,8 +4046,7 @@ properties of the stream object to the outbound response.
 
 默认值: `null` (use route defaults).
 
-Override the route [`json`](#route.options.json) options used when [`source`](#response.source)
-value requires stringification.
+当 [`source`](#response.source) 值需要字符串化时，覆盖路由 [`json`](#route.options.json) 选项使用。
 
 ###### <a name="response.settings.ttl" /> `response.settings.ttl`
 
@@ -4071,21 +4054,19 @@ value requires stringification.
 
 默认值: `null` (use route defaults).
 
-If set, overrides the route [`cache`](#route.options.cache) with an expiration value in
-milliseconds.
+如果设置, 覆盖路由的 [`cache`](#route.options.cache) 具有到期值（以毫秒为单位）。
 
 ###### <a name="response.settings.varyEtag" /> `response.settings.varyEtag`
 
 默认值: `false`.
 
-If `true`, a suffix will be automatically added to the 'ETag' header at transmission time
-(separated by a `'-'` character) when the HTTP 'Vary' header is present.
+如果为 `true`, 当HTTP 'Vary' 头出现时，后缀将在传输时自动添加到 'ETag' 标题中（由 `'-'` 字符分隔）。
 
 ##### <a name="response.source" /> `response.source`
 
 访问： 只读。
 
-The raw value returned by the [lifecycle method](#lifecycle-methods).
+[lifecycle method](#lifecycle-methods) 返回的原始值.
 
 ##### <a name="response.statusCode" /> `response.statusCode`
 
@@ -4093,126 +4074,123 @@ The raw value returned by the [lifecycle method](#lifecycle-methods).
 
 默认值: `200`.
 
-The HTTP response status code.
+HTTP 相应状态码。
 
 ##### <a name="response.variety" /> `response.variety`
 
 访问： 只读。
 
-A string indicating the type of [`source`](#response.source) with available values:
+一个字符串，指示[`source`](#response.source) 类型具有以下可用值：
 
-- `'plain'` - a plain response such as string, number, `null`, or simple object.
+- `'plain'` - 一个简单的相应，如 字符串, 数字, `null`, 或简单对象.
 - `'buffer'` - a `Buffer`.
 - `'stream'` - a `Stream`.
 
 #### <a name="response.bytes()" /> `response.bytes(length)`
 
-Sets the HTTP 'Content-Length' header (to avoid chunked transfer encoding) where:
+HTTP 'Content-Length' 头 (避免分块传输编码) :
 
-- `length` - the header value. Must match the actual payload size.
+- `length` - header 值。 必须与实际 payload 大小匹配。
 
-返回值: the current response object.
+返回值: 当前相应对象.
 
 #### <a name="response.charset()" /> `response.charset(charset)`
 
-Sets the 'Content-Type' HTTP header 'charset' property where:
+设置 'Content-Type' HTTP header 'charset' 属性:
 
-- `charset` - the charset property value.
+- `charset` -charset 属性值
 
-返回值: the current response object.
+返回值: 当前相应对象.
 
 #### <a name="response.code()" /> `response.code(statusCode)`
 
-Sets the HTTP status code where:
+设置 HTTP 状态码:
 
 - `statusCode` - the HTTP status code (e.g. 200).
 
-返回值: the current response object.
+返回值: 当前相应对象。
 
 #### <a name="response.message()" /> `response.message(httpMessage)`
 
-Sets the HTTP status message where:
+设置 HTTP 状态信息:
 
 - `httpMessage` - the HTTP status message (e.g. 'Ok' for status code 200).
 
-返回值: the current response object.
+返回值: 当前相应对象。
 
 #### <a name="response.created()" /> `response.created(uri)`
 
-Sets the HTTP status code to Created (201) and the HTTP 'Location' header where:
+将 HTTP 状态代码设置为Created（201）和 HTTP 'Location' 头，其中：
 
-- `uri` - an absolute or relative URI used as the 'Location' header value.
+- `uri` - 用作 'Location' 值的绝对或相对 URI。
 
-返回值: the current response object.
+返回值: 当前相应对象。
 
 #### <a name="response.encoding()" /> `response.encoding(encoding)`
 
-Sets the string encoding scheme used to serial data into the HTTP payload where:
-- `encoding` - the encoding property value (see [node Buffer encoding](https://nodejs.org/api/buffer.html#buffer_buffers_and_character_encodings)).
+将用于串行数据的字符串编码方案设置为 HTTP 有效负载，其中：
 
-返回值: the current response object.
+- `encoding` - 编码属性值 (see [node Buffer encoding](https://nodejs.org/api/buffer.html#buffer_buffers_and_character_encodings)).
+
+返回值: 当前相应对象。
 
 #### <a name="response.etag()" /> `response.etag(tag, options)`
 
-Sets the representation [entity tag](https://tools.ietf.org/html/rfc7232#section-2.3) where:
+设置标识 [entity tag](https://tools.ietf.org/html/rfc7232#section-2.3) :
 
-- `tag` - the entity tag string without the double-quote.
+- `tag` - 没有双引号的实体标记字符串。
 
-- `options` - (可选) settings where:
+- `options` - (可选) 设置如下:
 
-    - `weak` - if `true`, the tag will be prefixed with the `'W/'` weak signifier. Weak tags will
-      fail to match identical tags for the purpose of determining 304 response status. Defaults to
-      `false`.
+    - `weak` - 如果为 `true`, 标识将以 `'W/'` 弱标识符为前缀. 为了确定 304 响应状态，弱标签将无法匹配相同的标签。 默认为 `false`.
 
-    - `vary` - if `true` and content encoding is set or applied to the response (e.g 'gzip' or
-      'deflate'), the encoding name will be automatically added to the tag at transmission time
-      (separated by a `'-'` character). Ignored when `weak` is `true`. Defaults to `true`.
+    - `vary` - 如果为 `true` 并且内容编码被设置或应用于相应 (例如 'gzip' or
+      'deflate'), 编码名称将在传输时自动添加到标记中
+      (以`'-'` 分割的字符串). 忽略 `weak` 为 `true`. 默认为 to `true`.
 
-返回值: the current response object.
+返回值: 当前相应对象。
 
 #### <a name="response.header()" /> `response.header(name, value, options)`
 
-Sets an HTTP header where:
+设置 HTTP header:
 
-- `name` - the header name.
+- `name` - header 名称.
 
-- `value` - the header value.
+- `value` - header 值.
 
-- `options` - (可选) object where:
+- `options` - (可选) 对象:
 
-    - `append` - if `true`, the value is appended to any existing header value using `separator`.
-      Defaults to `false`.
+    - `append` - 如果 `true`, 使用 `separator` 将值附加到任何现有的 header 值中.
+      默认为 `false`.
 
-    - `separator` - string used as separator when appending to an existing value. Defaults to `','`.
+    - `separator` - 附加到现有值时用作分隔符的字符串。 默认为 `','`.
 
-    - `override` - if `false`, the header value is not set if an existing value present. Defaults
-      to `true`.
+    - `override` - 如果为 `false`, 如果存在现有值，则不设置 header 值。 默认为 `true`.
 
-    - `duplicate` - if `false`, the header value is not modified if the provided value is already
-      included. Does not apply when `append` is `false` or if the `name` is `'set-cookie'`.
-      Defaults to `true`.
+    - `duplicate` - 如果 `false`, 如果已包含提供的值，则不会修改 header值. 当 `append` 为 `false` 或 如果 `name` 为 `'set-cookie'` 不会被添加.
+      默认为 `true`.
 
-返回值: the current response object.
+返回值: 当前相应对象。
 
 #### <a name="response.location()" /> `response.location(uri)`
 
-Sets the HTTP 'Location' header where:
+设置 HTTP 'Location' header:
 
-- `uri` - an absolute or relative URI used as the 'Location' header value.
+- `uri` - 用作 'Location' 值的绝对或相对 URI。
 
-返回值: the current response object.
+返回值: 当前相应对象。
 
 #### <a name="response.redirect()" /> `response.redirect(uri)`
 
-Sets an HTTP redirection response (302) and decorates the response with additional methods, where:
+设置 HTTP 重定向响应（302）并使用其他方法修饰响应：
 
-- `uri` - an absolute or relative URI used to redirect the client to another resource.
+- `uri` - 用于将客户端重定向到另一个资源的绝对或相对 URI。
 
-返回值: the current response object.
+返回值: 当前相应对象。
 
-Decorates the response object with the [`response.temporary()`](#response.temporary()),
-[`response.permanent()`](#response.permanent()), and [`response.rewritable()`](#response.rewritable())
-methods to easily change the default redirection code (302).
+使用 [`response.temporary()`](#response.temporary()) 来装饰响应对象,
+[`response.permanent()`](#response.permanent()), 和 [`response.rewritable()`](#response.rewritable())
+方法 轻松更改默认重定向代码 (302).
 
 |                |  Permanent | Temporary |
 | -------------- | ---------- | --------- |
@@ -4221,120 +4199,112 @@ methods to easily change the default redirection code (302).
 
 #### <a name="response.replacer()" /> `response.replacer(method)`
 
-Sets the `JSON.stringify()` `replacer` argument where:
+设置 `JSON.stringify()` `replacer` 参数:
 
-- `method` - the replacer function or array. Defaults to none.
+- `method` - replacer 函数或数组. 默认为 none.
 
-返回值: the current response object.
+返回值: 当前相应对象。
 
 #### <a name="response.spaces()" /> `response.spaces(count)`
 
-Sets the `JSON.stringify()` `space` argument where:
+设置 `JSON.stringify()` `space` 参数:
 
-- `count` - the number of spaces to indent nested object keys. Defaults to no indentation.
+- `count` - 缩进嵌套对象键的空格数。 默认为 没有缩进.
 
-返回值: the current response object.
+返回值: 当前相应对象。
 
 #### <a name="response.state()" /> `response.state(name, value, [options])`
 
-Sets an HTTP cookie where:
+设置 HTTP cookie:
 
-- `name` - the cookie name.
+- `name` - cookie 名称.
 
-- `value` - the cookie value. If no `options.encoding` is defined, must be a string. See
-  [`server.state()`](#server.state()) for supported `encoding` values.
+- `value` - cookie 值. 如果没有定义 `options.encoding` , 必须是字符串类型. 参阅
+  [`server.state()`](#server.state()) 以获取支持的 `encoding` 的值.
 
-- `options` - (可选) configuration. If the state was previously registered with the server
-  using [`server.state()`](#server.state()), the specified keys in `options` are merged with the
-  default server definition.
+- `options` - (可选) 可配置的. 如果状态之前已使用 [`server.state()`](#server.state()) 在服务器上注册,  `options` 中的指定键将与默认服务器定义合并。
 
-返回值: the current response object.
+返回值: 当前相应对象。
 
 #### <a name="response.suffix()" /> `response.suffix(suffix)`
 
-Sets a string suffix when the response is process via `JSON.stringify()` where:
+当相应通过 `JSON.stringify()` 处理时设置字符串前缀:
 
-- `suffix` - the string suffix.
+- `suffix` - 字符串前缀.
 
-返回值: the current response object.
+返回值: 当前相应对象。
 
 #### <a name="response.ttl()" /> `response.ttl(msec)`
 
-Overrides the default route cache expiration rule for this response instance where:
+覆盖此响应实例的默认路由缓存过期规则:
 
-- `msec` - the time-to-live value in milliseconds.
+- `msec` - 生存时间值，以毫秒为单位.
 
-返回值: the current response object.
+返回值: 当前相应对象。
 
 #### <a name="response.type()" /> `response.type(mimeType)`
 
-Sets the HTTP 'Content-Type' header where:
+设置 HTTP 的 'Content-Type' header:
 
 - `value` - is the mime type.
 
-返回值: the current response object.
+返回值: 当前相应对象。
 
-Should only be used to override the built-in default for each response type.
+应该仅用于覆盖每种响应类型的内置默认值。
 
 #### <a name="response.unstate()" /> `response.unstate(name, [options])`
 
-Clears the HTTP cookie by setting an expired value where:
-- `name` - the cookie name.
-- `options` - (可选) configuration for expiring cookie. If the state was previously registered
-  with the server using [`server.state()`](#serverstatename-options), the specified `options` are
-  merged with the server definition.
+通过设置过期值清除 HTTP cookie:
+- `name` - cookie 名称.
+- `options` - (可选) 过期 cookie 的配置. 如果状态之前已使用 [`server.state()`](#serverstatename-options) 在服务器上注册, `options` 中的指定键将与默认服务器定义合并。
 
-返回值: the current response object.
+返回值: 当前相应对象。
 
 #### <a name="response.vary()" /> `response.vary(header)`
 
-Adds the provided header to the list of inputs affected the response generation via the HTTP 'Vary'
-header where:
+通过 HTTP 'Vary' 头将提供的标头添加到影响响应生成的输入列表中:
 
-- `header` - the HTTP request header name.
+- `header` - HTTP 请求头名称.
 
-返回值: the current response object.
+返回值: 当前相应对象。
 
 #### <a name="response.takeover()" /> `response.takeover()`
 
-Marks the response object as a [takeover response](#takeover-response).
+标记相应对象为一个 [takeover response](#takeover-response)。
 
-返回值: the current response object.
+返回值: 当前相应对象。
 
 #### <a name="response.temporary()" /> `response.temporary(isTemporary)`
 
-Sets the status code to `302` or `307` (based on the [`response.rewritable()`](#response.rewriteable())
-setting) where:
+设置状态码为 `302` 或 `307` (基于 [`response.rewritable()`](#response.rewriteable())
+设置) :
 
-- `isTemporary` - if `false`, sets status to permanent. Defaults to `true`.
+- `isTemporary` - 如果为 `false`, 将状态设置为永久. 默认为 `true`.
 
-返回值: the current response object.
+返回值: 当前相应对象。
 
-Only available after calling the [`response.redirect()`](#response.redirect()) method.
+仅在调用 [`response.redirect()`](#response.redirect()) 方法后才可用.
 
 #### <a name="response.permanent()" /> `response.permanent(isPermanent)`
 
-Sets the status code to `301` or `308` (based on the [`response.rewritable()`](#response.rewritable())
-setting) where:
+设置状态码为 `301` 或 `308` (基于[`response.rewritable()`](#response.rewritable()) 设置) :
 
-- `isPermanent` - if `false`, sets status to temporary. Defaults to `true`.
+- `isPermanent` - 如果 `false`, 将状态设置为临时. 默认为 `true`.
 
-返回值: the current response object.
+返回值: 当前相应对象。
 
-Only available after calling the [`response.redirect()`](#response.redirect()) method.
+仅在调用 [`response.redirect()`](#response.redirect()) 方法后才可用.
 
 #### <a name="response.rewritable()" /> `response.rewritable(isRewritable)`
 
-Sets the status code to `301`/`302` for rewritable (allows changing the request method from 'POST'
-to 'GET') or `307`/`308` for non-rewritable (does not allow changing the request method from 'POST'
-to 'GET'). Exact code based on the [`response.temporary()`](#response.temporary()) or
-[`response.permanent()`](#response.permanent()) setting. Arguments:
+设置状态码为 `301`/`302` 为可重写 (允许将请求方法从 'POST' 更改为 'GET') 或 `307`/`308` 为不可重写 (不允许将请求方法从 'POST' 更改为 'GET'). 精确代码基于 [`response.temporary()`](#response.temporary()) or
+[`response.permanent()`](#response.permanent()) 设置. 参数:
 
-- `isRewritable` - if `false`, sets to non-rewritable. Defaults to `true`.
+- `isRewritable` - 如果 `false`, 设置为不可重写. 默认为 `true`.
 
-返回值: the current response object.
+返回值: 当前相应对象。
 
-Only available after calling the [`response.redirect()`](#response.redirect()) method.
+仅在调用 [`response.redirect()`](#response.redirect()) 方法后才可用.
 
 ## 请求
 
@@ -4739,35 +4709,24 @@ server.ext('onRequest', onRequest);
 
 ## 插件
 
-Plugins provide a way to organize application code by splitting the server logic into smaller
-components. Each plugin can manipulate the server through the standard server interface, but with
-the added ability to sandbox certain properties. For example, setting a file path in one plugin
-doesn't affect the file path set in another plugin.
+插件提供了一种通过将服务器逻辑拆分为更小的组件来组织应用程序代码的方法。 每个插件都可以通过标准服务器接口操作服务器， 但增加了沙箱某些属性的能力。 例如，在一个插件中设置文件路径不会影响另一个插件中设置的文件路径。
 
-A plugin is an object with the following properties:
+插件是具有以下属性的对象：
 
-- `register` - (required) the registration function with the signature
-  `async function(server, options)` where:
+- `register` - (required) 注册签名函数 `async function(server, options)` 其中:
 
-    - `server` - the server object with a plugin-specific [`server.realm`](#server.realm).
-    - `options` - any options passed to the plugin during registration via [`server.register()`](#server.register()).
+    - `server` - 具有特定于插件的 [`server.realm`](#server.realm) 服务器对象.
+    - `options` - 通过 [`server.register()`](#server.register()) 在注册期间传递给插件的任何选项。
 
-- `name` - (required) the plugin name string. The name is used as a unique key. Published plugins
-  (e.g. published in the npm registry) should  use the same name as the name field in their
-  'package.json' file. Names must be unique within each application.
+- `name` - (必要) 插件名称字符串. 该名称用作唯一键。 已发布的插件（例如，在 npm 中发布）应使用与其 'package.json' 文件中的名称字段相同的名称. 每个应用程序中的名称必须是唯一的。
 
-- `version` - (可选) plugin version string. The version is only used informatively to enable
-  other plugins to find out the versions loaded. The version should be the same as the one
-  specified in the plugin's 'package.json' file.
+- `version` - (可选) 插件版本字符串. 该版本仅用于提供信息，以使其他插件能够找到加载的版本. 该版本应与插件的 'package.json' 文件中指定的版本相同。
 
-- `multiple` - (可选) if `true`, allows the plugin to be registered multiple times with the same server.
-  Defaults to `false`.
+- `multiple` - (可选) 如果为 `true`, 允许插件在同一服务器上多次注册。默认为 `false`。
 
-- `dependencies` - (可选) a string or an array of strings indicating a plugin dependency. Same
-  as setting dependencies via [`server.dependency()`](#server.dependency()).
+- `dependencies` - (可选) 一个字符串或一个字符串数组，表示插件依赖项。 与通过 [`server.dependency()`](#server.dependency()) 设置依赖相同.
 
-- `once` - (可选) if `true`, will only register the plugin once per server. If set, overrides
-  the `once` option passed to [`server.register()`](#server.register()). Defaults to no override.
+- `once` - (可选) 如果为 `true`, 每个服务器只会注册一次插件。如果设置，则覆盖传递给 [`server.register()`](#server.register()) 的 `once` 选项。默认为不覆盖。
 
 ```js
 const plugin = {
@@ -4787,8 +4746,7 @@ const plugin = {
 };
 ```
 
-Alternatively, the `name` and `version` can be included via the `pkg` property containing the
-'package.json' file for the module which already has the name and version included:
+或者，可以通过 `pkg` 属性包含 `name` 和 `version`，该属性包含已有名称和版本的 'package.json' 文件中：
 
 ```js
 const plugin = {
