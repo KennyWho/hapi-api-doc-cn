@@ -1,28 +1,24 @@
 'use strict';
 
-// Load modules
-
 const Path = require('path');
 const Zlib = require('zlib');
 
-const Boom = require('boom');
-const CatboxMemory = require('catbox-memory');
-const Code = require('code');
+const Boom = require('@hapi/boom');
+const CatboxMemory = require('@hapi/catbox-memory');
+const Code = require('@hapi/code');
 const Handlebars = require('handlebars');
 const Hapi = require('..');
-const Hoek = require('hoek');
-const Inert = require('inert');
-const Lab = require('lab');
-const Vision = require('vision');
-const Wreck = require('wreck');
+const Hoek = require('@hapi/hoek');
+const Inert = require('@hapi/inert');
+const Lab = require('@hapi/lab');
+const Vision = require('@hapi/vision');
+const Wreck = require('@hapi/wreck');
 
+const Pkg = require('../package.json');
 
-// Declare internals
 
 const internals = {};
 
-
-// Test shortcuts
 
 const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
@@ -117,7 +113,7 @@ describe('Server', () => {
 
         it('provisions a server cache with custom partition', async () => {
 
-            const server = Hapi.server({ cache: { engine: CatboxMemory, partition: 'hapi-test-other' } });
+            const server = Hapi.server({ cache: { provider: { constructor: CatboxMemory, options: { partition: 'hapi-test-other' } } } });
             const cache = server.cache({ segment: 'test', expiresIn: 1000 });
             await server.initialize();
 
@@ -147,7 +143,7 @@ describe('Server', () => {
 
         it('allows reusing the same cache segment (server)', () => {
 
-            const server = Hapi.server({ cache: { engine: CatboxMemory, shared: true } });
+            const server = Hapi.server({ cache: { provider: CatboxMemory, shared: true } });
             expect(() => {
 
                 server.cache({ segment: 'a', expiresIn: 1000 });
@@ -171,7 +167,7 @@ describe('Server', () => {
                 name: 'test',
                 register: function (srv, options) {
 
-                    const cache = srv.cache({ expiresIn: 10 });
+                    const cache = srv.cache({ expiresIn: 50 });
                     srv.expose({
                         get: function (key) {
 
@@ -193,7 +189,7 @@ describe('Server', () => {
             const value1 = await server.plugins.test.get('a');
             expect(value1).to.equal('1');
 
-            await Hoek.wait(11);
+            await Hoek.wait(600);
             const value2 = await server.plugins.test.get('a');
             expect(value2).to.equal(null);
         });
@@ -204,7 +200,7 @@ describe('Server', () => {
         it('provisions a server cache (before initialization)', async () => {
 
             const server = Hapi.server();
-            await server.cache.provision({ engine: CatboxMemory, name: 'dynamic' });
+            await server.cache.provision({ provider: CatboxMemory, name: 'dynamic' });
             const cache = server.cache({ cache: 'dynamic', segment: 'test', expiresIn: 1000 });
 
             await expect(cache.set('a', 'going in', 0)).to.reject();
@@ -220,7 +216,7 @@ describe('Server', () => {
             const server = Hapi.server();
 
             await server.initialize();
-            await server.cache.provision({ engine: CatboxMemory, name: 'dynamic' });
+            await server.cache.provision({ provider: CatboxMemory, name: 'dynamic' });
             const cache = server.cache({ cache: 'dynamic', segment: 'test', expiresIn: 1000 });
 
             await cache.set('a', 'going in', 0);
@@ -232,7 +228,7 @@ describe('Server', () => {
 
             const server = Hapi.server();
             await server.initialize();
-            await server.cache.provision({ engine: CatboxMemory, name: 'dynamic' });
+            await server.cache.provision({ provider: CatboxMemory, name: 'dynamic' });
             const cache = server.cache({ cache: 'dynamic', segment: 'test', expiresIn: 1000 });
 
             await cache.set('a', 'going in', 0);
@@ -2253,6 +2249,70 @@ describe('Server', () => {
             await server.initialize();
         });
 
+        it('sets multiple dependencies in one statement (versioned)', async () => {
+
+            const a = {
+                name: 'a',
+                version: '0.1.2',
+                register: function (srv, options) {
+
+                    srv.dependency({
+                        b: '1.x.x',
+                        c: '2.x.x'
+                    });
+                }
+            };
+
+            const b = {
+                name: 'b',
+                version: '1.2.3',
+                register: Hoek.ignore
+            };
+
+            const c = {
+                name: 'c',
+                version: '2.3.4',
+                register: Hoek.ignore
+            };
+
+            const server = Hapi.server();
+            await server.register(b);
+            await server.register(c);
+            await server.register(a);
+            await server.initialize();
+        });
+
+        it('sets multiple dependencies in plugin (versioned)', async () => {
+
+            const a = {
+                name: 'a',
+                version: '0.1.2',
+                dependencies: {
+                    b: '1.x.x',
+                    c: '2.x.x'
+                },
+                register: Hoek.ignore
+            };
+
+            const b = {
+                name: 'b',
+                version: '1.2.3',
+                register: Hoek.ignore
+            };
+
+            const c = {
+                name: 'c',
+                version: '2.3.4',
+                register: Hoek.ignore
+            };
+
+            const server = Hapi.server();
+            await server.register(b);
+            await server.register(c);
+            await server.register(a);
+            await server.initialize();
+        });
+
         it('sets multiple dependencies in plugin', async () => {
 
             const a = {
@@ -2566,6 +2626,93 @@ describe('Server', () => {
 
             await server.register([b]);
             await server.initialize();
+        });
+
+        it('validates node version', async () => {
+
+            const test = {
+                name: 'test',
+                requirements: {
+                    node: '>=8.x.x'
+                },
+                register: function (srv, options) { }
+            };
+
+            const server = Hapi.server();
+            await expect(server.register(test)).to.not.reject();
+        });
+
+        it('errors on invalid node version', async () => {
+
+            const test = {
+                name: 'test',
+                requirements: {
+                    node: '4.x.x'
+                },
+                register: function (srv, options) { }
+            };
+
+            const server = Hapi.server();
+            await expect(server.register(test)).to.reject(`Plugin test requires node version 4.x.x but found ${process.version}`);
+        });
+
+        it('validates hapi version', async () => {
+
+            const test = {
+                name: 'test',
+                requirements: {
+                    hapi: '>=17.x.x'
+                },
+                register: function (srv, options) { }
+            };
+
+            const server = Hapi.server();
+            await expect(server.register(test)).to.not.reject();
+        });
+
+        it('errors on invalid hapi version', async () => {
+
+            const test = {
+                name: 'test',
+                requirements: {
+                    hapi: '4.x.x'
+                },
+                register: function (srv, options) { }
+            };
+
+            const server = Hapi.server();
+            await expect(server.register(test)).to.reject(`Plugin test requires hapi version 4.x.x but found ${Pkg.version}`);
+        });
+
+        it('errors on invalid plugin version', async () => {
+
+            const a = {
+                name: 'a',
+                version: '0.1.2',
+                dependencies: {
+                    b: '3.x.x',
+                    c: '2.x.x'
+                },
+                register: Hoek.ignore
+            };
+
+            const b = {
+                name: 'b',
+                version: '1.2.3',
+                register: Hoek.ignore
+            };
+
+            const c = {
+                name: 'c',
+                version: '2.3.4',
+                register: Hoek.ignore
+            };
+
+            const server = Hapi.server();
+            await server.register(b);
+            await server.register(c);
+            await server.register(a);
+            await expect(server.initialize()).to.reject('Plugin a requires b version 3.x.x but found 1.2.3');
         });
     });
 

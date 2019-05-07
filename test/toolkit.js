@@ -1,25 +1,19 @@
 'use strict';
 
-// Load modules
-
 const Path = require('path');
 const Stream = require('stream');
 
-const Code = require('code');
+const Code = require('@hapi/code');
 const Handlebars = require('handlebars');
 const Hapi = require('..');
-const Inert = require('inert');
-const Lab = require('lab');
-const Teamwork = require('teamwork');
-const Vision = require('vision');
+const Inert = require('@hapi/inert');
+const Lab = require('@hapi/lab');
+const Teamwork = require('@hapi/teamwork');
+const Vision = require('@hapi/vision');
 
-
-// Declare internals
 
 const internals = {};
 
-
-// Test shortcuts
 
 const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
@@ -54,13 +48,13 @@ describe('Toolkit', () => {
                 await server.register(Inert);
                 const handler = (request, h) => {
 
-                    return h.file('./package.json').code(499);
+                    return h.file('./package.json').code(999);
                 };
 
                 server.route({ method: 'GET', path: '/file', handler });
 
                 const res = await server.inject('/file');
-                expect(res.statusCode).to.equal(499);
+                expect(res.statusCode).to.equal(999);
                 expect(res.payload).to.contain('hapi');
                 expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
                 expect(res.headers['content-length']).to.exist();
@@ -264,6 +258,7 @@ describe('Toolkit', () => {
                         if (this.isDone) {
                             return;
                         }
+
                         this.isDone = true;
 
                         this.push('x');
@@ -294,16 +289,65 @@ describe('Toolkit', () => {
 
         describe('abandon', () => {
 
-            it('abandon request with manual response', async () => {
+            it('abandon request with manual response (handler)', async () => {
 
                 const handler = (request, h) => {
 
+                    request.raw.res.setHeader('content-type', 'text/plain');
                     request.raw.res.end('manual');
                     return h.abandon;
                 };
 
                 const server = Hapi.server();
                 server.route({ method: 'GET', path: '/', handler });
+
+                const res = await server.inject('/');
+                expect(res.result).to.equal('manual');
+            });
+
+            it('abandon request with manual response (onRequest)', async () => {
+
+                const server = Hapi.server();
+                server.route({ method: 'GET', path: '/', handler: () => null });
+
+                server.ext('onRequest', (request, h) => {
+
+                    request.raw.res.setHeader('content-type', 'text/plain');
+                    request.raw.res.end('manual');
+                    return h.abandon;
+                });
+
+                const res = await server.inject('/');
+                expect(res.result).to.equal('manual');
+            });
+
+            it('abandon request with manual response (lifecycle)', async () => {
+
+                const server = Hapi.server();
+                server.route({ method: 'GET', path: '/', handler: () => null });
+
+                server.ext('onPreHandler', (request, h) => {
+
+                    request.raw.res.setHeader('content-type', 'text/plain');
+                    request.raw.res.end('manual');
+                    return h.abandon;
+                });
+
+                const res = await server.inject('/');
+                expect(res.result).to.equal('manual');
+            });
+
+            it('abandon request with manual response (post cycle)', async () => {
+
+                const server = Hapi.server();
+                server.route({ method: 'GET', path: '/', handler: () => null });
+
+                server.ext('onPreResponse', (request, h) => {
+
+                    request.raw.res.setHeader('content-type', 'text/plain');
+                    request.raw.res.end('manual');
+                    return h.abandon;
+                });
 
                 const res = await server.inject('/');
                 expect(res.result).to.equal('manual');
@@ -484,6 +528,26 @@ describe('Toolkit', () => {
                 expect(res2.statusCode).to.equal(304);
                 expect(res2.headers['last-modified']).to.equal(1200);
                 expect(count).to.equal(1);
+            });
+
+            it('does not override manual last-modified header', async () => {
+
+                const server = Hapi.server();
+
+                server.route({
+                    method: 'GET',
+                    path: '/',
+                    handler: (request, h) => {
+
+                        h.entity({ modified: 1200 });
+                        return h.response('ok').header('last-modified', 999);
+                    }
+                });
+
+                const res = await server.inject('/');
+                expect(res.statusCode).to.equal(200);
+                expect(res.result).to.equal('ok');
+                expect(res.headers['last-modified']).to.equal(999);
             });
 
             it('returns a 304 when the request has if-none-match', async () => {

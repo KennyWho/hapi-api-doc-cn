@@ -1,24 +1,18 @@
 'use strict';
 
-// Load modules
-
 const Path = require('path');
 
-const Boom = require('boom');
-const Code = require('code');
+const Boom = require('@hapi/boom');
+const Code = require('@hapi/code');
 const Handlebars = require('handlebars');
 const Hapi = require('..');
-const Hoek = require('hoek');
-const Lab = require('lab');
-const Vision = require('vision');
+const Hoek = require('@hapi/hoek');
+const Lab = require('@hapi/lab');
+const Vision = require('@hapi/vision');
 
-
-// Declare internals
 
 const internals = {};
 
-
-// Test shortcuts
 
 const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
@@ -98,12 +92,14 @@ describe('authentication', () => {
                     const access = {
                         two: request.server.lookup('two').auth.access(request),
                         three1: request.server.lookup('three').auth.access(request),
-                        four1: request.server.lookup('four').auth.access(request)
+                        four1: request.server.lookup('four').auth.access(request),
+                        five1: request.server.lookup('five').auth.access(request)
                     };
 
                     request.auth.credentials = null;
                     access.three2 = request.server.lookup('three').auth.access(request);
                     access.four2 = request.server.lookup('four').auth.access(request);
+                    access.five2 = request.server.lookup('five').auth.access(request);
                     request.auth.credentials = credentials;
 
                     return access;
@@ -117,6 +113,7 @@ describe('authentication', () => {
         server.route({ method: 'GET', path: '/two', options: { id: 'two', handler: () => null, auth: { scope: 'two' } } });
         server.route({ method: 'GET', path: '/three', options: { id: 'three', handler: () => null, auth: { scope: 'one' } } });
         server.route({ method: 'GET', path: '/four', options: { id: 'four', handler: () => null, auth: false } });
+        server.route({ method: 'GET', path: '/five', options: { id: 'five', handler: () => null, auth: { mode: 'required' } } });
 
         const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
         expect(res.statusCode).to.equal(200);
@@ -125,7 +122,9 @@ describe('authentication', () => {
             three1: true,
             three2: false,
             four1: true,
-            four2: true
+            four2: true,
+            five1: true,
+            five2: true
         });
     });
 
@@ -425,7 +424,7 @@ describe('authentication', () => {
 
             const doubleHandler = async (request) => {
 
-                const options = { url: '/2', credentials: request.auth.credentials };
+                const options = { url: '/2', auth: { credentials: request.auth.credentials, strategy: 'default' } };
                 const res = await server.inject(options);
                 return res.result;
             };
@@ -447,7 +446,7 @@ describe('authentication', () => {
 
             const doubleHandler = async (request) => {
 
-                const options = { url: '/2', credentials: request.auth.credentials, artifacts: '!' };
+                const options = { url: '/2', auth: { credentials: request.auth.credentials, artifacts: '!', strategy: 'default' } };
                 const res = await server.inject(options);
                 return res.result;
             };
@@ -1278,8 +1277,11 @@ describe('authentication', () => {
             const options = {
                 url: '/',
                 headers: { authorization: 'Custom steve' },
-                credentials: { foo: 'bar' },
-                artifacts: { bar: 'baz' }
+                auth: {
+                    credentials: { foo: 'bar' },
+                    artifacts: { bar: 'baz' },
+                    strategy: 'default'
+                }
             };
 
             const res = await server.inject(options);
@@ -1326,6 +1328,94 @@ describe('authentication', () => {
 
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
+        });
+    });
+
+    describe('verify()', () => {
+
+        it('verifies an authenticated request', async () => {
+
+            const implementation = (...args) => {
+
+                const imp = internals.implementation(...args);
+                imp.verify = async (auth) => {
+
+                    await Hoek.wait(1);
+                    if (auth.credentials.user !== 'steve') {
+                        throw Boom.unauthorized('Invalid');
+                    }
+                };
+
+                return imp;
+            };
+
+            const server = Hapi.server();
+            server.auth.scheme('custom', implementation);
+            server.auth.strategy('default', 'custom', { users: { steve: { user: 'steve' }, john: { user: 'john' } } });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    auth: {
+                        mode: 'try',
+                        strategy: 'default'
+                    },
+                    handler: async (request) => {
+
+                        if (request.auth.error &&
+                            request.auth.error.message === 'Missing authentication') {
+
+                            request.auth.error = null;
+                        }
+
+                        return await server.auth.verify(request) || 'ok';
+                    }
+                }
+            });
+
+            const res1 = await server.inject('/');
+            expect(res1.result).to.equal('ok');
+
+            const res2 = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res2.result).to.equal('ok');
+
+            const res3 = await server.inject({ url: '/', headers: { authorization: 'Custom unknown' } });
+            expect(res3.result.message).to.equal('Missing credentials');
+
+            const res4 = await server.inject({ url: '/', auth: { credentials: {}, strategy: 'default' } });
+            expect(res4.result.message).to.equal('Invalid');
+
+            const res5 = await server.inject({ url: '/', auth: { credentials: { user: 'steve' }, strategy: 'default' } });
+            expect(res5.result).to.equal('ok');
+
+            const res6 = await server.inject({ url: '/', headers: { authorization: 'Custom john' } });
+            expect(res6.result.message).to.equal('Invalid');
+        });
+
+        it('skips when verify unsupported', async () => {
+
+            const server = Hapi.server();
+            server.auth.scheme('custom', internals.implementation);
+            server.auth.strategy('default', 'custom', { users: { steve: { user: 'steve' } } });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    auth: {
+                        mode: 'try',
+                        strategy: 'default'
+                    },
+                    handler: async (request) => {
+
+                        return await server.auth.verify(request) || 'ok';
+                    }
+                }
+            });
+
+            const res = await server.inject({ url: '/', headers: { authorization: 'Custom steve' } });
+            expect(res.result).to.equal('ok');
         });
     });
 
@@ -1689,8 +1779,8 @@ describe('authentication', () => {
             const handler = async (request) => {
 
                 try {
-                    const credentials = await request.server.auth.test('default', request);
-                    return { status: true, user: credentials.name };
+                    const { credentials, artifacts } = await request.server.auth.test('default', request);
+                    return { status: true, user: credentials.name, artifacts };
                 }
                 catch (err) {
                     return { status: false };
@@ -1699,7 +1789,7 @@ describe('authentication', () => {
 
             const server = Hapi.server();
             server.auth.scheme('custom', internals.implementation);
-            server.auth.strategy('default', 'custom', { users: { steve: { name: 'steve' }, skip: 'skip' } });
+            server.auth.strategy('default', 'custom', { users: { steve: { name: 'steve' }, skip: 'skip' }, artifacts: {} });
             server.route({ method: 'GET', path: '/', handler });
 
             const res1 = await server.inject('/');
@@ -1710,6 +1800,7 @@ describe('authentication', () => {
             expect(res2.statusCode).to.equal(200);
             expect(res2.result.status).to.be.true();
             expect(res2.result.user).to.equal('steve');
+            expect(res2.result.artifacts).to.equal({});
 
             const res3 = await server.inject({ url: '/', headers: { authorization: 'Custom skip' } });
             expect(res3.statusCode).to.equal(200);
@@ -1759,7 +1850,7 @@ internals.implementation = function (server, options) {
             }
 
             credentials.user = credentials.user || null;
-            return h.authenticated({ credentials });
+            return h.authenticated({ credentials, artifacts: settings.artifacts });
         },
         response: (request, h) => {
 

@@ -1,4 +1,4 @@
-# hapijs 中文文档【v17.5.x API Reference】
+# hapijs 中文文档【v18.3.x API Reference】
 
 <!-- toc -->
 
@@ -16,8 +16,11 @@
     - [`server.options.listener`](#server.options.listener)
     - [`server.options.load`](#server.options.load)
     - [`server.options.mime`](#server.options.mime)
+    - [`server.options.operations`](#server.options.operations)
     - [`server.options.plugins`](#server.options.plugins)
     - [`server.options.port`](#server.options.port)
+    - [`server.options.query`](#server.options.query)
+      - [`server.options.query.parser`](#server.options.query.parser)
     - [`server.options.router`](#server.options.router)
     - [`server.options.routes`](#server.options.routes)
     - [`server.options.state`](#server.options.state)
@@ -55,6 +58,7 @@
     - [Authentication scheme](#authentication-scheme)
   - [`server.auth.strategy(name, scheme, [options])`](#server.auth.strategy())
   - [`await server.auth.test(strategy, request)`](#server.auth.test())
+  - [`await server.auth.verify(request)`](#server.auth.verify())
   - [`server.bind(context)`](#server.bind())
   - [`server.cache(options)`](#server.cache())
   - [`await server.cache.provision(options)`](#server.cache.provision())
@@ -127,11 +131,13 @@
     - [`route.options.payload.output`](#route.options.payload.output)
     - [`route.options.payload.override`](#route.options.payload.override)
     - [`route.options.payload.parse`](#route.options.payload.parse)
+    - [`route.options.payload.protoAction`](#route.options.payload.protoAction)
     - [`route.options.payload.timeout`](#route.options.payload.timeout)
     - [`route.options.payload.uploads`](#route.options.payload.uploads)
   - [`route.options.plugins`](#route.options.plugins)
   - [`route.options.pre`](#route.options.pre)
   - [`route.options.response`](#route.options.response)
+    - [`route.options.response.disconnectStatusCode`](#route.options.response.disconnectStatusCode)
     - [`route.options.response.emptyStatusCode`](#route.options.response.emptyStatusCode)
     - [`route.options.response.failAction`](#route.options.response.failAction)
     - [`route.options.response.modify`](#route.options.response.modify)
@@ -239,6 +245,7 @@
     - [`request.state`](#request.state)
     - [`request.url`](#request.url)
   - [`request.generateResponse(source, [options])`](#request.generateResponse())
+  - [`request.active()`](#request.active())
   - [`request.log(tags, [data])`](#request.log())
   - [`request.route.auth.access(request)`](#request.route.auth.access())
   - [`request.setMethod(method)`](#request.setMethod())
@@ -294,9 +301,9 @@ options 控制服务器对象的行为。注意 options 对象是深拷贝的（
 
 #### <a name="server.options.cache" /> `server.options.cache`
 
-默认值: `{ engine: require('catbox-memory') }`.
+默认值: `{ provider: { constructor: require('catbox-memory'), options: { partition: 'hapi-cache' } } }`.
 
-设置服务端缓存的提供者程序。每个服务器包含一个默认用于存储应用程序状态的缓存。默认情况下，会创建一个容量【capacity】和功能【capability】有限，基于内存的缓存，
+设置服务端缓存的提供者程序。每个服务器包含一个默认用于存储应用程序状态的缓存。默认情况下，创建了一个简单的基于内存的缓存，其容量和功能有限。
 
 **hapi** 使用 [**catbox**](https://github.com/hapijs/catbox) 为其缓存实现【implementation】，包括对常见存储解决方案的支持（例如 Redis, MongoDB, Memcached, Riak 等等）。仅当 [methods](#server.methods) 和 [plugins](#plugins) 明确存储状态在缓存中时才使用缓存。
 
@@ -310,13 +317,18 @@ options 控制服务器对象的行为。注意 options 对象是深拷贝的（
     
     - `name` - 稍后为 [server methods](#server.methods) 或 [plugins](#plugins) 提供或配置缓存时使用的标识符。每个缓存名称必须是惟一的。单一项可以省略定义默认缓存的 `name` 选项。如果每个缓存都包含 `name`，还会配置默认的内存缓存。
 
+    - `provider` - a class, a constructor function, or an object with the following:
+
+        - `constructor` - a class or a prototype function.
+
+        - `options` - (optional) a settings object passed as-is to the `constructor` with the following:
+
+            - `partition` - (optional) string used to isolate cached data. Defaults to `'hapi-cache'`.
+            - other constructor-specific options passed to the `constructor` on instantiation.
+
     - `shared` - 如果为 `true`, 允许多个缓存用户共享同一个片段【segment】 (例如多个方法使用相同的缓存存储容器). 默认为 `false`.
 
-    - `partition` - (可选) 字符串用于隔离缓存的数据. 默认为 `'hapi-cache'`.
-
-    - other options passed to the **catbox** strategy used. Other options are only passed to
-      **catbox** when `engine` above is a class or function and ignored if `engine` is a **catbox**
-      engine object).
+    - One (and only one) of `engine` or `provider` is required per configuration object.
 
 #### <a name="server.options.compression" /> `server.options.compression`
 
@@ -444,6 +456,19 @@ const options = {
 };
 ```
 
+#### <a name="server.options.operations" /> `server.options.operations`
+
+Default value: `{ cleanStop: true }`.
+
+Defines server handling of server operations:
+
+- `cleanStop` - if `true`, the server keeps track of open connections and properly closes them
+  when the server is stopped. Under normal load, this should not interfere with server performance.
+  However, under severe load connection monitoring can consume additional resources and aggravate
+  the situation. If the server is never stopped, or if it is forced to stop without waiting for
+  open connection to close, setting this to `false` can save resources that are not being utilized
+  anyway. Defaults to `true`.
+
 #### <a name="server.options.plugins" /> `server.options.plugins`
 
 默认值: `{}`.
@@ -458,6 +483,33 @@ const options = {
 
 如果 `port` 是一个包含 '/' 的字符串，它用作 UNIX 域的 socket 路径。
 如果以 '\\.\pipe' 开头，它用作 Windows 命名管道。
+
+#### <a name="server.options.query" /> `server.options.query`
+
+Default value: `{}`.
+
+Defines server handling of the request path query component.
+
+##### <a name="server.options.query.parser" /> `server.options.query.parser`
+
+Default value: none.
+
+Sets a query parameters parser method using the signature `function(searchParams)` where:
+
+- `query` - an object containing the incoming [`request.query`](#request.query) parameters.
+- the method must return an object where each key is a parameter and matching value is the
+  parameter value. If the method throws, the error is used as the response or returned when
+  [`request.setUrl()`](#request.setUrl()) is called.
+
+```js
+const Qs = require('qs');
+
+const options = {
+    query: {
+        parser: (query) => Qs.parse(query)
+    }
+};
+```
 
 #### <a name="server.options.router" /> `server.options.router`
 
@@ -1111,8 +1163,17 @@ server.route({
 
 - `async response(request, h)` - (可选) 一个 [lifecycle method](#lifecycle-methods) 用于写入响应头或有效负荷之前描述带有身份认证头的响应。
 
-- `options` - (可选) 具有以下键的对象：
-    - `payload` - 如果为 `true`, 要求有效负载验证作为方案的一部分，并禁止【forbids】路由禁用有效负载验证. 默认为 `false`。
+- `async verify(auth)` - (optional) a method used to verify the authentication credentials provided
+  are still valid (e.g. not expired or revoked after the initial authentication) where:
+  - `auth` - the [`request.auth`](#request.auth) object containing the `credentials` and
+    `artifacts` objects returned by the scheme's `authenticate()` method.
+  - the method throws an `Error` when the credentials passed are no longer valid (e.g. expired or
+  revoked). Note that the method does not have access to the original request, only to the
+  credentials and artifacts produced by the `authenticate()` method.
+
+- `options` - (optional) an object with the following keys:
+    - `payload` - if `true`, requires payload validation as part of the scheme and forbids routes
+      from disabling payload auth validation. Defaults to `false`.
 
 When the scheme `authenticate()` method implementation throws an error or calls
 [`h.unauthenticated()`](#h.unauthenticated()), the specifics of the error affect whether additional
@@ -1187,7 +1248,8 @@ server.route({
 - `strategy` - 使用 [`server.auth.strategy()`](#server.auth.strategy()) 注册的策略名称.
 - `request` - the [request object](#request).
 
-返回值: 验证成功时的身份验证凭据对象，否则抛出错误。
+Return value: an object containing the authentication `credentials` and `artifacts` if authentication
+was successful, otherwise throws an error.
 
 请注意，`test()` 方法不考虑【take into account】路由验证配置。它也不执行【perform】有效负载认证。它仅限于【limited to】基本策略身份验证执行【execution】。它不包括验证范围，入口或其他路由属性。
 
@@ -1204,7 +1266,45 @@ server.route({
     handler: async function (request, h) {
 
         try {
-            const credentials = await request.server.auth.test('default', request);
+            const { credentials, artifacts } = await request.server.auth.test('default', request);
+            return { status: true, user: credentials.name };
+        }
+        catch (err) {
+            return { status: false };
+        }
+    }
+});
+```
+
+
+### <a name="server.auth.verify()" /> `await server.auth.verify(request)`
+
+Verify a request's authentication credentials against an authentication strategy where:
+
+- `request` - the [request object](#request).
+
+Return value: nothing if verification was successful, otherwise throws an error.
+
+Note that the `verify()` method does not take into account the route authentication configuration
+or any other information from the request other than the `request.auth` object. It also does not
+perform payload authentication. It is limited to verifying that the previously valid credentials
+are still valid (e.g. have not been revoked or expired). It does not include verifying scope,
+entity, or other route properties.
+
+```js
+const Hapi = require('hapi');
+const server = Hapi.server({ port: 80 });
+
+server.auth.scheme('custom', scheme);
+server.auth.strategy('default', 'custom');
+
+server.route({
+    method: 'GET',
+    path: '/',
+    handler: async function (request, h) {
+
+        try {
+            const credentials = await request.server.auth.verify(request);
             return { status: true, user: credentials.name };
         }
         catch (err) {
@@ -1313,7 +1413,7 @@ async function example() {
 
     const server = Hapi.server({ port: 80 });
     await server.initialize();
-    await server.cache.provision({ engine: require('catbox-memory'), name: 'countries' });
+    await server.cache.provision({ provider: require('catbox-memory'), name: 'countries' });
 
     const cache = server.cache({ cache: 'countries', expiresIn: 60 * 60 * 1000 });
     await cache.set('norway', { capital: 'oslo' });
@@ -1464,9 +1564,16 @@ server.decorate('handler', 'test', handler);
 
 ### <a name="server.dependency()" /> `server.dependency(dependencies, [after])`
 
-在插件中用于声明【declare】对其他 [plugins](#plugins) 所需的依赖：
+Used within a plugin to declare a required dependency on other [plugins](#plugins) required for
+the current plugin to operate (plugins listed must be registered before the server is initialized
+or started) where:
 
-- `dependencies` - 单个字符串或插件名称字符串数组，必须注册才能使此插件运行【operate】。 列出的插件必须在初始化或启动服务器之前注册。
+- `dependencies` - one of:
+  - a single plugin name string.
+  - an array of plugin name strings.
+  - an object where each key is a plugin name and each matching value is a
+   [version range string](https://www.npmjs.com/package/semver) which must match the registered
+   plugin version.
 
 - `after` - (可选) 在注册了所有指定的依赖项之后且在服务器启动之前调用的函数。仅在初始化或启动服务器时才调用该函数。 函数签名是 `async function(server)` 其中：
 
@@ -1477,8 +1584,6 @@ server.decorate('handler', 'test', handler);
 `after` 方法与在 `'onPreStart'` 上设置服务器扩展点相同【identical】。
 
 如果检测【detected】到循环依赖关系，, 异常【exception】将会被抛出 (例如 两个插件各有一个可以在另一个之后调用的 `after` 函数)。
-
-该方法不提供应使用 [npm peer dependencies](https://nodejs.org/en/blog/npm/peer-dependencies/) 实现的版本依赖性。
 
 ```js
 const after = function (server) {
@@ -1501,10 +1606,19 @@ exports.plugin = {
 exports.plugin = {
     name: 'test',
     version: '1.0.0',
-    dependencies: 'yar',
+    dependencies: {
+        yar: '1.x.x'
+    },
     register: function (server, options) { }
 };
 ```
+
+The `dependencies` configuration accepts one of:
+  - a single plugin name string.
+  - an array of plugin name strings.
+  - an object where each key is a plugin name and each matching value is a
+   [version range string](https://www.npmjs.com/package/semver) which must match the registered
+   plugin version.
 
 ### <a name="server.encoder()" /> `server.encoder(encoding, encoder)`
 
@@ -1798,7 +1912,10 @@ points where:
           configuring route-level extensions, or when adding server extensions. 默认为
           `'server'` which applies to any route added to the server the extension is added to.
 
-返回值: none.
+        - `timeout` - number of milliseconds to wait for the `method` to complete before returning
+          a timeout error. Defaults to no timeout.
+
+Return value: none.
 
 ```js
 const Hapi = require('hapi');
@@ -1904,14 +2021,19 @@ injections, with some additional options and response properties:
       an object it will be converted to a string for you. 默认为 no payload. Note that payload
       processing 默认为 `'application/json'` if no 'Content-Type' header provided.
 
-    - `credentials` - (可选) an credentials object containing authentication information. The
-      `credentials` are used to bypass the default authentication strategies, and are validated
-      directly as if they were received via an authentication scheme. 默认为 no credentials.
+    - `auth` - (optional) an object containing parsed authentication credentials where:
 
-    - `artifacts` - (可选) an artifacts object containing authentication artifact information.
-      The `artifacts` are used to bypass the default authentication strategies, and are validated
-      directly as if they were received via an authentication scheme. Ignored if set without
-      `credentials`. 默认为 no artifacts.
+        - `strategy` - (required) the authentication strategy name matching the provided
+          credentials.
+
+        - `credentials` - (required) a credentials object containing authentication information.
+          The `credentials` are used to bypass the default authentication strategies, and are
+          validated directly as if they were received via an authentication scheme.
+
+        - `artifacts` - (optional) an artifacts object containing authentication artifact
+          information. The `artifacts` are used to bypass the default authentication strategies,
+          and are validated directly as if they were received via an authentication scheme.
+          Defaults to no artifacts.
 
     - `app` - (可选) sets the initial value of `request.app`, 默认为 `{}`.
 
@@ -2057,8 +2179,10 @@ const route = server.match('get', '/');
 
 - `method` - the method function with a signature `async function(...args, [flags])` where:
     - `...args` - the method function arguments (can be any number of arguments or none).
-    - `flags` - when caching is enabled, an object used to set optional method result flags:
-        - `ttl` - `0` if result is valid but cannot be cached. 默认为 cache policy.
+    - `flags` - when caching is enabled, an object used to set optional method result flags. This
+      parameter is provided automatically and can only be accessed/modified within the method
+      function. It cannot be passed as an argument.
+        - `ttl` - `0` if result is valid but cannot be cached. Defaults to cache policy.
 
 - `options` - (可选) configuration object:
 
@@ -2290,16 +2414,16 @@ server.route([
 #### 路径参数
 
 Parameterized paths are processed by matching the named parameters to the content of the incoming
-request path at that path segment. For example, '/book/{id}/cover' will match '/book/123/cover' and
-`request.params.id` will be set to `'123'`. Each path segment (everything between the opening '/'
-and the closing '/' unless it is the end of the path) can only include one named parameter. A
-parameter can cover the entire segment ('/{param}') or part of the segment ('/file.{ext}').  A path
-parameter may only contain letters, numbers and underscores, e.g. '/{file-name}' is invalid
-and '/{file_name}' is valid.
+request path at that path segment. For example, `'/book/{id}/cover'` will match `'/book/123/cover'` and
+`request.params.id` will be set to `'123'`. Each path segment (everything between the opening `'/'`
+and the closing `'/'` unless it is the end of the path) can only include one named parameter. A
+parameter can cover the entire segment (`'/{param}'`) or part of the segment (`'/file.{ext}'`).  A path
+parameter may only contain letters, numbers and underscores, e.g. `'/{file-name}'` is invalid
+and `'/{file_name}'` is valid.
 
-An optional '?' suffix following the parameter name indicates an optional parameter (only allowed
+An optional `'?'` suffix following the parameter name indicates an optional parameter (only allowed
 if the parameter is at the ends of the path or only covers part of the segment as in
-'/a{param?}/b'). For example, the route '/book/{id?}' matches '/book/' with the value of
+`'/a{param?}/b'`). For example, the route `'/book/{id?}'` matches `'/book/'` with the value of
 `request.params.id` set to an empty string `''`.
 
 ```js
@@ -2381,13 +2505,13 @@ server.route({ method: '*', path: '/{p*}', handler });
 
 定义路由规则处理器，用于将路由规则对象转换为路由配置：
 
-- `processor` - 一个函数签名 `function(rules, info)` 其中:
-    - `rules` -
-    - `info` - 具有以下属性的对象：
-        - `method` - 路由方法.
-        - `path` - 路由路径.
-        - `vhost` - 路由虚拟 host (如果有定义).
-    - 返回一个路由配置对象.
+- `processor` - a function using the signature `function(rules, info)` where:
+    - `rules` - the [custom object](#route.options.rules) defined in your routes configuration for you to use its values.
+    - `info` - an object with the following properties:
+        - `method` - the route method.
+        - `path` - the route path.
+        - `vhost` - the route virtual host (if any defined).
+    - returns a route config object.
 
 - `options` - 可选设置:
     - `validate` - rules object validation:
@@ -2575,8 +2699,14 @@ connections will continue until closed or timeout), where:
 
 - `options` - (可选) object with:
 
-    - `timeout` - overrides the timeout in millisecond before forcefully terminating a connection.
-      默认为 `5000` (5 seconds).
+    - `timeout` - sets the timeout in millisecond before forcefully terminating any open
+      connections that arrived before the server stopped accepting new connections. The timeout
+      only applies to waiting for existing connections to close, and not to any
+      [`'onPreStop'` or `'onPostStop'` server extensions](#server.ext.args()) which can
+      delay or block the stop operation indefinitely. Ignored if
+      [`server.options.operations.cleanStop`](#server.options.operations) is `false`. Note that if
+      the server is set as a [group controller](#server.control()), the timeout is per controlled
+      server and the controlling server itself. Defaults to `5000` (5 seconds).
 
 返回值: none.
 
@@ -2967,6 +3097,20 @@ mime 类型字符串，覆盖收到的 'Content-Type' 值。
 
 - `'gunzip'` - the raw payload is returned unmodified after any known content encoding is decoded.
 
+#### <a name="route.options.payload.protoAction" /> `route.options.payload.protoAction`
+
+Default value: `'error'`.
+
+Sets handling of incoming payload that may contain a prototype poisoning security attack. Available
+values:
+
+- `'error'` - returns a `400` bad request error when the payload contains a prototype.
+
+- `'remove'` - sanitizes the payload to remove the prototype.
+
+- `'ignore'` - disables the protection and allows the payload to pass as received. Use this option
+  only when you are sure that such incoming data cannot pose any risks to your application.
+
 #### <a name="route.options.payload.timeout" /> `route.options.payload.timeout`
 
 默认值: to `10000` (10 seconds).
@@ -3069,6 +3213,15 @@ server.route({
 
 Processing rules for the outgoing response.
 
+#### <a name="route.options.response.disconnectStatusCode" /> `route.options.response.disconnectStatusCode`
+
+ Default value: `499`.
+
+The default HTTP status code used to set a response error when the request is closed or aborted
+before the response is fully transmitted. Value can be any integer greater or equal to `400`. The
+default value `499` is based on the non-standard nginx "CLIENT CLOSED REQUEST" error. The value is
+only used for logging as the request has already ended.
+
 #### <a name="route.options.response.emptyStatusCode" /> `route.options.response.emptyStatusCode`
 
  默认值: `200`.
@@ -3124,14 +3277,14 @@ The default response payload validation rules (for all non-error responses) expr
 - `false` - no payload allowed.
 
 - a [**joi**](https://github.com/hapijs/joi) validation object. The [`options`](#route.options.response.options)
-  along with the request context (`{ headers, params, query, payload, app, auth }`) are passed to
+  along with the request context (`{ headers, params, query, payload, state, app, auth }`) are passed to
   the validation function.
 
 - a validation function using the signature `async function(value, options)` where:
 
     - `value` - the pending response payload.
     - `options` - The [`options`](#route.options.response.options) along with the request context
-      (`{ headers, params, query, payload, app, auth }`).
+      (`{ headers, params, query, payload, state, app, auth }`).
 
     - if the function returns a value and [`modify`](#route.options.response.modify) is `true`,
       the value is used as the new response. If the original response is an error, the return
@@ -3311,7 +3464,7 @@ If a custom validation function (see `headers`, `params`, `query`, or `payload` 
 then `options` can an arbitrary object that will be passed to this function as the second
 parameter.
 
-The values of the other inputs (i.e. `headers`, `query`, `params`, `payload`, `app`, and `auth`)
+The values of the other inputs (i.e. `headers`, `query`, `params`, `payload`, `state`, `app`, and `auth`)
 are added to the `options` object under the validation `context` (accessible in rules as
 `Joi.ref('$query.key')`).
 
@@ -3354,6 +3507,7 @@ all requests to fail.
 Validation rules for incoming request payload (request body), where:
 
 - `true` - any payload allowed (no validation performed).
+
 - `false` - no payload allowed.
 
 - a [**joi**](https://github.com/hapijs/joi) validation object.
@@ -3384,6 +3538,7 @@ Validation rules for incoming request URI query component (the key-value part of
 [`request.query`](#request.query) prior to validation. Where:
 
 - `true` - any query parameter value allowed (no validation performed).
+
 - `false` - no query parameter value allowed.
 
 - a [**joi**](https://github.com/hapijs/joi) validation object.
@@ -3400,6 +3555,28 @@ Validation rules for incoming request URI query component (the key-value part of
 
 Note that changes to the query parameters will not be reflected in [`request.url`](#request.url).
 
+#### <a name="route.options.validate.state" /> `route.options.validate.state`
+
+Default value: `true` (no validation).
+
+Validation rules for incoming cookies. The `cookie` header is parsed and decoded into the
+[`request.state`](#request.state) prior to validation. Where: 
+
+- `true` - any cookie value allowed (no validation performed).
+
+- `false` - no cookies allowed.
+
+- a [**joi**](https://github.com/hapijs/joi) validation object.
+
+- a validation function using the signature `async function(value, options)` where:
+
+    - `value` - the [`request.state`](#request.state) object containing all parsed cookie values.
+    - `options` - [`options`](#route.options.validate.options).
+    - if a value is returned, the value is used as the new [`request.state`](#request.state) value
+      and the original value is stored in [`request.orig.state`](#request.orig). Otherwise, the
+      cookie values are left unchanged. If an error is thrown, the error is handled according to
+      [`failAction`](#route.options.validate.failAction).
+
 ## Request lifecycle
 
 Each incoming request passes through the request lifecycle. The specific steps vary based on the
@@ -3412,6 +3589,8 @@ the same. The following is the complete list of steps a request can go through:
       and [`request.setMethod()`](#request.setMethod()) methods. Changes to the request path or
       method will impact how the request is routed and can be used for rewrite rules.
     - [`request.route`](#request.route) is unassigned.
+    - [`request.url`](#request.url) can be `null` if the incoming request path is invalid.
+    - [`request.path`](#request.path) can be an invalid path.
     - JSONP configuration is ignored for any response returned from the extension point since no
       route is matched yet and the JSONP configuration is unavailable.
 
@@ -3436,7 +3615,7 @@ the same. The following is the complete list of steps a request can go through:
     - based on the route [`auth`](#route.options.auth) option.
 
 - _**Payload processing**_
-    - based on the route [`state`](#route.options.payload) option.
+    - based on the route [`payload`](#route.options.payload) option.
     - error handling based on [`failAction`](#route.options.payload.failAction).
 
 - _**Payload authentication**_
@@ -3469,6 +3648,10 @@ the same. The following is the complete list of steps a request can go through:
 
 - _**Payload validation**_
     - based on the route [`validate.payload`](#route.options.validate.payload) option.
+    - error handling based on [`failAction`](#route.options.validate.failAction).
+
+- _**State validation**_
+    - based on the route [`validate.state`](#route.options.validate.state) option.
     - error handling based on [`failAction`](#route.options.validate.failAction).
 
 - _**onPreHandler**_
@@ -3582,7 +3765,7 @@ The flow between each lifecyle step depends on the value returned by each lifecy
 follows:
 
 - an error:
-    - the lifecycle skips to the **_Response validation**_ step.
+    - the lifecycle skips to the _**Response validation**_ step.
     - if returned by the _**onRequest**_ step it skips to the _**onPreResponse**_ step.
     - if returned by the _**Response validation**_ step it skips to the _**onPreResponse**_ step.
     - if returned by the _**onPreResponse**_ step it skips to the _**Response transmission**_ step.
@@ -4332,7 +4515,7 @@ conflicts with the framework. Should not be used by [plugins](#plugins) which sh
 - `credentials` - the `credential` object received during the authentication process. The
   presence of an object does not mean successful authentication.
 
-- `error` - 验证错误失败，模式设置为 `'try'`。
+- `error` - the authentication error if failed and mode set to `'try'`.
 
 - `isAuthenticated` - `true` if the request has been successfully authenticated, otherwise `false`.
 
@@ -4340,7 +4523,10 @@ conflicts with the framework. Should not be used by [plugins](#plugins) which sh
   authentication [`access`](#route.options.auth.access) configuration. If the route has not
   access rules defined or if the request failed authorization, set to `false`.
 
-- `mode` - 路由认证模式。
+- `isInjected` - `true` if the request has been authenticated via the
+  [`server.inject()`](#server.inject()) `auth` option, otherwise `undefined`.
+
+- `mode` - the route authentication mode.
 
 - `strategy` - 所用策略的名称。
 
@@ -4401,12 +4587,13 @@ Request information:
 
 - `acceptEncoding` - the request preferred encoding.
 
-- `cors` - if CORS is enabled for the route, contains the following:
+- `completed` - request processing completion timestamp (`0` is still processing).
+
+- `cors` - request CORS information (available only after the `'onRequest'` extension point as CORS
+  is configured per-route and no routing decisions are made at that point in the request
+  lifecycle), where:
     - `isOriginMatch` - `true` if the request 'Origin' header matches the configured CORS
       restrictions. Set to `false` if no 'Origin' header is found or if it does not match.
-      Note that this is only available after the `'onRequest'` extension point as CORS is
-      configured per-route and no routing decisions are made at that point in the request
-      lifecycle.
 
 - `host` - content of the HTTP 'Host' header (e.g. 'example.com:8080').
 
@@ -4422,7 +4609,7 @@ Request information:
 
 - `remotePort` - remote client port.
 
-- `responded` - request response timestamp (`0` is not responded yet).
+- `responded` - request response timestamp (`0` is not responded yet or response failed when `completed` is set).
 
 Note that the `request.info` object is not meant to be modified.
 
@@ -4451,7 +4638,7 @@ The parsed content-type header. Only available when payload parsing enabled and 
 
 访问： 只读。
 
-An object containing the values of `params`, `query`, and `payload` before any validation
+An object containing the values of `params`, `query`, `payload` and `state` before any validation
 modifications made. Only set when input validation is performed.
 
 #### <a name="request.params" /> `request.params`
@@ -4512,10 +4699,9 @@ Same as `pre` but represented as the response object created by the pre method.
 
 访问： 只读。
 
-By default the object outputted from [node's URL parse()](https://nodejs.org/docs/latest/api/url.html#url_urlobject_query)
-method.  Might also be set indirectly via [request.setUrl](#request.setUrl())
-in which case it may be a `string` (if `url` is set to an object with the `query` attribute as an
-unparsed string).
+An object where each key is a query parameter name and each matching value is the parameter value
+or an array of values if a parameter repeats. Can be modified indirectly via
+[request.setUrl](#request.setUrl()).
 
 #### <a name="request.raw" /> `request.raw`
 
@@ -4579,6 +4765,36 @@ Returns a [`response`](#response-object) which you can pass into the [reply inte
       opened by the response object (e.g. file handlers), where:
         - `response` - the response object being marshaled.
         - should not throw errors (which are logged but otherwise ignored).
+
+### <a name="request.active()" /> `request.active()`
+
+Returns `true` when the request is active and processing should continue and `false` when the
+request terminated early or completed its lifecycle. Useful when request processing is a
+resource-intensive operation and should be terminated early if the request is no longer active
+(e.g. client disconnected or aborted early).
+
+```js
+const Hapi = require('hapi');
+const server = Hapi.server({ port: 80 });
+
+server.route({
+    method: 'POST',
+    path: '/worker',
+    handler: function (request, h) {
+
+        // Do some work...
+
+        // Check if request is still active
+        if (!request.active()) {
+            return h.close;
+        }
+
+        // Do some more work...
+
+        return null;
+    }
+});
+```
 
 ### <a name="request.log()" /> `request.log(tags, [data])`
 
@@ -4662,12 +4878,11 @@ server.ext('onRequest', onRequest);
 
 ### <a name="request.setUrl()" /> `request.setUrl(url, [stripTrailingSlash]`
 
-在路由器开始处理请求之前更改请求 URI，其中：
-
- - `url` - 新的请求 URI. 如果 `url` 是一个字符串, 用 [node's **URL**
- `parse()`](https://nodejs.org/docs/latest/api/url.html#url_url_parse_urlstring_parsequerystring_slashesdenotehost)
- 带有 `parseQueryString` 为 `true` 方法解析它 with `parseQueryString`。 `url` 也可以设置为与 node 的 **URL** `parse()` 方法输出兼容的对象。
- - `stripTrailingSlash` - 如果为 `true`, 从路径中删除尾部斜杠。 默认为 `false`.
+Changes the request URI before the router begins processing the request where:
+- `url` - the new request URI. `url` can be a string or an instance of
+  [`Url.URL`](https://nodejs.org/dist/latest-v10.x/docs/api/url.html#url_class_url) in which case
+  `url.href` is used.
+- `stripTrailingSlash` - if `true`, strip the trailing slash from the path. Defaults to `false`.
 
 ```js
 const Hapi = require('hapi');
@@ -4683,29 +4898,7 @@ const onRequest = function (request, h) {
 server.ext('onRequest', onRequest);
 ```
 
-使用另一个 query string 解析器:
-
-```js
-const Url = require('url');
-const Hapi = require('hapi');
-const Qs = require('qs');
-
-const server = Hapi.server({ port: 80 });
-
-const onRequest = function (request, h) {
-
-    const uri = request.url.href;
-    const parsed = Url.parse(uri, false);
-    parsed.query = Qs.parse(parsed.query);
-    request.setUrl(parsed);
-
-    return h.continue;
-};
-
-server.ext('onRequest', onRequest);
-```
-
-只能从 `'onRequest'` 扩展方法调用
+Can only be called from an `'onRequest'` extension method.
 
 ## 插件
 

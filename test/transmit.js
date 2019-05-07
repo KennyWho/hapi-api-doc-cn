@@ -1,7 +1,5 @@
 'use strict';
 
-// Load modules
-
 const ChildProcess = require('child_process');
 const Fs = require('fs');
 const Http = require('http');
@@ -9,23 +7,19 @@ const Path = require('path');
 const Stream = require('stream');
 const Zlib = require('zlib');
 
-const Boom = require('boom');
-const Bounce = require('bounce');
-const Code = require('code');
+const Boom = require('@hapi/boom');
+const Bounce = require('@hapi/bounce');
+const Code = require('@hapi/code');
 const Hapi = require('..');
-const Hoek = require('hoek');
-const Inert = require('inert');
-const Lab = require('lab');
-const Teamwork = require('teamwork');
-const Wreck = require('wreck');
+const Hoek = require('@hapi/hoek');
+const Inert = require('@hapi/inert');
+const Lab = require('@hapi/lab');
+const Teamwork = require('@hapi/teamwork');
+const Wreck = require('@hapi/wreck');
 
-
-// Declare internals
 
 const internals = {};
 
-
-// Test shortcuts
 
 const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
@@ -261,6 +255,7 @@ describe('transmission', () => {
                         if (this.isDone) {
                             return;
                         }
+
                         this.isDone = true;
 
                         this.push('hello');
@@ -296,6 +291,7 @@ describe('transmission', () => {
                         if (this.isDone) {
                             return;
                         }
+
                         this.isDone = true;
 
                         this.push('hello');
@@ -601,13 +597,8 @@ describe('transmission', () => {
                     }
 
                     this.isDone = true;
-
                     this.push('success');
-
-                    setImmediate(() => {
-
-                        this.emit('error', new Error());
-                    });
+                    setImmediate(() => this.emit('error', new Error()));
                 };
 
                 return stream;
@@ -615,10 +606,16 @@ describe('transmission', () => {
 
             const server = Hapi.server();
             server.route({ method: 'GET', path: '/', handler });
+            const log = server.events.once('response');
 
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(500);
             expect(res.result.message).to.equal('An internal server error occurred');
+
+            const [request] = await log;
+            expect(request.response.statusCode).to.equal(500);
+            expect(request.info.completed).to.be.above(0);
+            expect(request.info.responded).to.equal(0);
         });
 
         it('handles stream errors on the response after the response has been piped (http)', async () => {
@@ -642,11 +639,17 @@ describe('transmission', () => {
             };
 
             const server = Hapi.server();
+            const log = server.events.once('response');
             server.route({ method: 'GET', path: '/', handler });
 
             await server.start();
             await expect(Wreck.request('GET', 'http://localhost:' + server.info.port + '/')).to.reject();
             await server.stop();
+
+            const [request] = await log;
+            expect(request.response.statusCode).to.equal(500);
+            expect(request.info.completed).to.be.above(0);
+            expect(request.info.responded).to.equal(0);
         });
 
         it('matches etag header list value', async () => {
@@ -1085,6 +1088,7 @@ describe('transmission', () => {
                     if (this.isDone) {
                         return;
                     }
+
                     this.isDone = true;
                     this.push('here is the response');
                     process.nextTick(() => {
@@ -1099,10 +1103,16 @@ describe('transmission', () => {
             };
 
             const server = Hapi.server();
+            const log = server.events.once('response');
             server.route({ method: 'GET', path: '/stream', handler: (request, h) => h.response(new ErrStream(request)).bytes(0) });
 
             const res = await server.inject({ url: '/stream', headers: { 'Accept-Encoding': 'gzip' } });
-            expect(res.statusCode).to.equal(200);
+            expect(res.statusCode).to.equal(499);
+
+            const [request] = await log;
+            expect(request.response.statusCode).to.equal(499);
+            expect(request.info.completed).to.be.above(0);
+            expect(request.info.responded).to.equal(0);
         });
 
         it('does not truncate the response when stream finishes before response is done', async () => {
@@ -1279,6 +1289,7 @@ describe('transmission', () => {
                         _read();
                     }
                 };
+
                 stream.pause = function () {
 
                     paused = true;
@@ -1316,19 +1327,22 @@ describe('transmission', () => {
                 let count = 0;
                 stream._read = function (size) {
 
+                    const timeout = 10 * count++;           // Must have back off here to hit the socket timeout
+
                     setTimeout(() => {
 
                         if (request._isFinalized) {
                             stream.push(null);
+                            return;
                         }
-                        else {
-                            stream.push(new Array(size).join('x'));
-                        }
-                    }, 10 * (count++));       // Must have back off here to hit the socket timeout
+
+                        stream.push(new Array(size).join('x'));
+
+                    }, timeout);
                 };
 
-                stream.once('end', () => team.attend());
-
+                stream.once('error', () => team.attend());          // Node 8
+                stream.once('close', () => team.attend());          // Node 10
                 return stream;
             };
 
@@ -1338,6 +1352,8 @@ describe('transmission', () => {
 
             const res = await Wreck.request('GET', 'http://localhost:' + server.info.port);
             res.on('data', (chunk) => { });
+
+            await team.work;
             await server.stop();
         });
 
@@ -1474,7 +1490,7 @@ describe('transmission', () => {
             const fileStreamHandler = (request, h) => {
 
                 const filePath = Path.join(__dirname, 'file', 'image.png');
-                return h.response(Fs.createReadStream(filePath)).bytes(Fs.statSync(filePath).size);
+                return h.response(Fs.createReadStream(filePath)).bytes(Fs.statSync(filePath).size).etag('some-tag');
             };
 
             it('returns a subset of a fileStream (start)', async () => {
@@ -1793,6 +1809,7 @@ describe('transmission', () => {
                         if (this.isDone) {
                             return;
                         }
+
                         this.isDone = true;
 
                         this.push('some payload');
@@ -1867,6 +1884,41 @@ describe('transmission', () => {
             expect(res.statusCode).to.equal(500);
         });
     });
+
+    describe('end()', () => {
+
+        it('node v8 and v10 coverage', async () => {
+
+            const AbortStream = class extends Stream.Readable {
+
+                constructor(request) {
+
+                    super();
+                    this.request = request;
+                }
+
+                _read(size) {
+
+                    if (this.isDone) {
+                        return;
+                    }
+
+                    this.isDone = true;
+                    this.push('here is the response');
+                    this.push(null);
+
+                    this.request.raw.res.finished = true;
+                    this.request.raw.req.emit('close');
+                }
+            };
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request, h) => new AbortStream(request) });
+
+            const res = await server.inject({ url: '/' });
+            expect(res.statusCode).to.equal(200);
+        });
+    });
 });
 
 
@@ -1877,6 +1929,7 @@ internals.TimerStream = class extends Stream.Readable {
         if (this.isDone) {
             return;
         }
+
         this.isDone = true;
 
         setTimeout(() => {

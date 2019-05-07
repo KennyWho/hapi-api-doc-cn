@@ -7,58 +7,69 @@
 - Benjamin Flesch / StriveWire
 - Biao Xie
 - Bryan Sapot
+- Chords
 - Christian Giacomi
 - CNN Digital
 - CodePilot.ai
 - Condé Nast Technology
 - Contentful
+- Creative Artists Agency
 - Dave Hyndman
 - David Roncancio
 - Dmitry Savinkov
 - Elba Sánchez Márquez
 - Eric Lanehart
 - [gitconnected](https://gitconnected.com)
-- Greg Allen
+- Greg Allen / First + Third
 - Healthline Media
 - Jeremy Whitbred
 - John Brett
 - Julian Lannigan
 - Lob
 - Louis Beltramo
+- Luke Bond
 - Mahesh Babu R
 - Manny Pamintuan
-- NZZ Storytelling
+- Max Fierro
+- Nicklas Laine Overgaard
+- NZZ Visuals
+- Oakley Hall
 - Paulo Vieira
 - Peter Ka
+- [quickytools](https://www.quickytools.com)
 - Raffi Minassian
 - Raquel Hernandez
+- Robert McGuinness
 - Saul Maddox
 - Shane Warren
 - Srikanth Minnam
 - Sven Lito
 - Tim Boudreau
+- Trey Huffine
 - Umut Şirin
 - Yehor Sergeenko
 
 # Supporters
 
+- Adam Recvlohe
 - Adilson Schmitt Junior
+- Alexander Springer
 - Andreas Zeuch
+- Checkly
 - Chris St
+- Daniel Cassidy
 - Dave Stevens
+- Domenic Denicola
 - Essau Ramirez
 - Finnegan
 - Geraint Corneu
-- Luke Bond
 - Marcos Bérgamo
-- Max Fierro
+- Marie Clemenssy
 - Nathan Buchar
-- Nicklas Laine Overgaard
-- Oakley Hall
+- Nathan Heskew
 - PIer Bover
 - Robin van der Vleuten
 - Sheridan Tighe
 - Troy Whiteley
 - Viswanadha Pratap Kondoju
-- [quickytools](https://www.quickytools.com)
-
+- Wouter De Loose

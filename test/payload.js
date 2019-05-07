@@ -1,25 +1,19 @@
 'use strict';
 
-// Load modules
-
 const Fs = require('fs');
 const Http = require('http');
 const Path = require('path');
 const Zlib = require('zlib');
 
-const Code = require('code');
+const Code = require('@hapi/code');
 const Hapi = require('..');
-const Hoek = require('hoek');
-const Lab = require('lab');
-const Wreck = require('wreck');
+const Hoek = require('@hapi/hoek');
+const Lab = require('@hapi/lab');
+const Wreck = require('@hapi/wreck');
 
-
-// Declare internals
 
 const internals = {};
 
-
-// Test shortcuts
 
 const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
@@ -80,7 +74,7 @@ describe('Payload', () => {
         server.inject({ method: 'POST', url: '/', payload: 'test', simulate: { close: true, end: false } });
         const [request] = await log;
         expect(request._isReplied).to.equal(true);
-        expect(request.response).to.be.null();
+        expect(request.response.output.statusCode).to.equal(500);
     });
 
     it('handles aborted request', async () => {
@@ -129,6 +123,56 @@ describe('Payload', () => {
         expect(res.statusCode).to.equal(413);
         expect(res.result).to.exist();
         expect(res.result.message).to.equal('Payload content length greater than maximum allowed: 10');
+    });
+
+    it('errors when payload contains prototype poisoning', async () => {
+
+        const server = Hapi.server();
+        server.route({ method: 'POST', path: '/', handler: (request) => request.payload.x });
+
+        const payload = '{"x":"1","y":"2","z":"3","__proto__":{"x":"4"}}';
+        const res = await server.inject({ method: 'POST', url: '/', payload });
+        expect(res.statusCode).to.equal(400);
+    });
+
+    it('ignores when payload contains prototype poisoning', async () => {
+
+        const server = Hapi.server();
+        server.route({
+            method: 'POST',
+            path: '/',
+            options: {
+                payload: {
+                    protoAction: 'ignore'
+                },
+                handler: (request) => request.payload.__proto__
+            }
+        });
+
+        const payload = '{"x":"1","y":"2","z":"3","__proto__":{"x":"4"}}';
+        const res = await server.inject({ method: 'POST', url: '/', payload });
+        expect(res.statusCode).to.equal(200);
+        expect(res.result).to.equal({ x: '4' });
+    });
+
+    it('sanitizes when payload contains prototype poisoning', async () => {
+
+        const server = Hapi.server();
+        server.route({
+            method: 'POST',
+            path: '/',
+            options: {
+                payload: {
+                    protoAction: 'remove'
+                },
+                handler: (request) => request.payload.__proto__
+            }
+        });
+
+        const payload = '{"x":"1","y":"2","z":"3","__proto__":{"x":"4"}}';
+        const res = await server.inject({ method: 'POST', url: '/', payload });
+        expect(res.statusCode).to.equal(200);
+        expect(res.result).to.equal({});
     });
 
     it('returns 413 with response when payload is not consumed', async () => {

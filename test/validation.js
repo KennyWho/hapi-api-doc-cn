@@ -1,21 +1,15 @@
 'use strict';
 
-// Load modules
-
-const Boom = require('boom');
-const Code = require('code');
+const Boom = require('@hapi/boom');
+const Code = require('@hapi/code');
 const Hapi = require('..');
-const Inert = require('inert');
-const Joi = require('joi');
-const Lab = require('lab');
+const Inert = require('@hapi/inert');
+const Joi = require('@hapi/joi');
+const Lab = require('@hapi/lab');
 
-
-// Declare internals
 
 const internals = {};
 
-
-// Test shortcuts
 
 const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
@@ -751,6 +745,100 @@ describe('validation', () => {
                 source: 'payload',
                 keys: ['']
             });
+        });
+
+        it('rejects invalid cookies', async () => {
+
+            const server = Hapi.server({
+                routes: {
+                    validate: {
+                        state: {
+                            a: Joi.string().min(8)
+                        },
+                        failAction: (request, h, err) => err            // Expose detailed error
+                    }
+                }
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: () => 'ok'
+            });
+
+            const res = await server.inject({ method: 'GET', url: '/', headers: { 'cookie': 'a=abc' } });
+            expect(res.statusCode).to.equal(400);
+            expect(res.result.validation).to.equal({
+                source: 'state',
+                keys: ['a']
+            });
+        });
+
+        it('accepts valid cookies', async () => {
+
+            const server = Hapi.server();
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: (request) => request.state,
+                options: {
+                    validate: {
+                        state: {
+                            a: Joi.string().min(8),
+                            b: Joi.array().single().items(Joi.boolean()),
+                            c: Joi.string().default('value')
+                        },
+                        failAction: (request, h, err) => err            // Expose detailed error
+                    }
+                }
+            });
+
+            const res = await server.inject({ method: 'GET', url: '/', headers: { 'cookie': 'a=abcdefghi; b=true' } });
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal({
+                a: 'abcdefghi',
+                b: [true],
+                c: 'value'
+            });
+        });
+
+        it('accepts all cookies', async () => {
+
+            const server = Hapi.server();
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: (request) => request.state,
+                options: {
+                    validate: {
+                        state: true
+                    }
+                }
+            });
+
+            const res = await server.inject({ method: 'GET', url: '/', headers: { 'cookie': 'a=abc' } });
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal({ a: 'abc' });
+        });
+
+        it('rejects all cookies', async () => {
+
+            const server = Hapi.server();
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                handler: (request) => request.state,
+                options: {
+                    validate: {
+                        state: false
+                    }
+                }
+            });
+
+            const res = await server.inject({ method: 'GET', url: '/', headers: { 'cookie': 'a=abc' } });
+            expect(res.statusCode).to.equal(400);
         });
 
         it('validates valid header', async () => {
@@ -1562,6 +1650,53 @@ describe('validation', () => {
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(200);
             expect(res.payload).to.equal('else');
+        });
+
+        it('combines onPreResponse with response validation error', async () => {
+
+            const server = Hapi.server();
+
+            const responses = [];
+
+            server.ext('onPreResponse', (request, h) => {
+
+                responses.push(request.response);
+                return h.continue;
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    handler: () => {
+
+                        const err = Boom.internal('handler error');
+                        err.output.payload.x = 1;
+                        throw err;
+                    },
+                    response: {
+                        status: {
+                            500: (value, options) => {
+
+                                responses.push(value);
+                                throw new Error('500 validation error');
+                            }
+                        },
+                        failAction: (request, h, err) => {
+
+                            responses.push(err);
+                            throw new Error('failAction error');
+                        }
+                    }
+                }
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+
+            expect(responses).to.have.length(3);
+            expect(responses[0].x).to.equal(1);
+            expect(responses[1]).to.be.an.error('500 validation error');
         });
 
         it('validates string response', async () => {

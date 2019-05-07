@@ -1,7 +1,5 @@
 'use strict';
 
-// Load modules
-
 const ChildProcess = require('child_process');
 const Fs = require('fs');
 const Http = require('http');
@@ -11,24 +9,21 @@ const Os = require('os');
 const Path = require('path');
 const TLS = require('tls');
 
-const Boom = require('boom');
-const Bounce = require('bounce');
-const Code = require('code');
+const Boom = require('@hapi/boom');
+const Bounce = require('@hapi/bounce');
+const CatboxMemory = require('@hapi/catbox-memory');
+const Code = require('@hapi/code');
 const Handlebars = require('handlebars');
 const Hapi = require('..');
-const Hoek = require('hoek');
-const Inert = require('inert');
-const Lab = require('lab');
-const Vision = require('vision');
-const Wreck = require('wreck');
+const Hoek = require('@hapi/hoek');
+const Inert = require('@hapi/inert');
+const Lab = require('@hapi/lab');
+const Vision = require('@hapi/vision');
+const Wreck = require('@hapi/wreck');
 
-
-// Declare internals
 
 const internals = {};
 
-
-// Test shortcuts
 
 const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
@@ -139,6 +134,11 @@ describe('Core', () => {
     it('creates a server listening on a unix domain socket', { skip: process.platform === 'win32' }, async () => {
 
         const port = Path.join(__dirname, 'hapi-server.socket');
+
+        if (Fs.existsSync(port)) {
+            Fs.unlinkSync(port);
+        }
+
         const server = Hapi.server({ port });
 
         expect(server.type).to.equal('socket');
@@ -338,6 +338,34 @@ describe('Core', () => {
         });
     });
 
+    describe('_createCache()', () => {
+
+        it('provisions cache using engine instance', async () => {
+
+            // Config provision
+
+            const engine = new CatboxMemory();
+            const server = Hapi.server({ cache: { engine, name: 'test1' } });
+            expect(server._core.caches.get('test1').client.connection).to.shallow.equal(engine);
+
+            // Active provision
+
+            await server.cache.provision({ engine, name: 'test2' });
+            expect(server._core.caches.get('test2').client.connection).to.shallow.equal(engine);
+
+            // Active provision but indirect constructor
+
+            const Provider = function (options) {
+
+                this.settings = options;
+            };
+
+            const ref = {};
+            await server.cache.provision({ provider: { constructor: Provider, options: { ref } }, name: 'test3' });
+            expect(server._core.caches.get('test3').client.connection.settings.ref).to.shallow.equal(ref);
+        });
+    });
+
     describe('start()', () => {
 
         it('starts and stops', async () => {
@@ -522,6 +550,20 @@ describe('Core', () => {
 
             await server.start();
             await expect(server.stop()).to.reject('failed cleanup');
+        });
+
+        it('returns an extension timeout (onPreStop)', async () => {
+
+            const server = Hapi.server();
+            const preStop = function (srv) {
+
+                return Hoek.block();
+            };
+
+            server.ext('onPreStop', preStop, { timeout: 100 });
+
+            await server.start();
+            await expect(server.stop()).to.reject('onPreStop timed out');
         });
 
         it('errors when stopping a stopping server', async () => {
@@ -752,8 +794,8 @@ describe('Core', () => {
             expect(count1).to.equal(2);
 
             const timer = new Hoek.Bench();
-            await server.stop({ timeout: 20 });
-            expect(timer.elapsed()).to.be.at.most(21);
+            await server.stop({ timeout: 100 });
+            expect(timer.elapsed()).to.be.at.most(110);
         });
 
         it('waits to destroy handled connections until after the timeout', async () => {
@@ -787,11 +829,11 @@ describe('Core', () => {
             const count1 = await internals.countConnections(server);
             expect(count1).to.equal(1);
 
-            setTimeout(() => socket.end(), 10);
+            setTimeout(() => socket.end(), 50);
 
             const timer = new Hoek.Bench();
             await server.stop({ timeout: 200 });
-            expect(timer.elapsed()).to.be.below(25);
+            expect(timer.elapsed()).to.be.below(150);
         });
 
         it('immediately destroys idle keep-alive connections', async () => {
@@ -985,12 +1027,15 @@ describe('Core', () => {
 
             const options = {
                 url: '/',
-                credentials: { foo: 'bar' }
+                auth: {
+                    credentials: { foo: 'bar' },
+                    strategy: 'test'
+                }
             };
 
             const res = await server.inject(options);
             expect(res.statusCode).to.equal(200);
-            expect(options.credentials).to.exist();
+            expect(options.auth.credentials).to.exist();
         });
 
         it('sets credentials (with host header)', async () => {
@@ -1000,7 +1045,10 @@ describe('Core', () => {
 
             const options = {
                 url: '/',
-                credentials: { foo: 'bar' },
+                auth: {
+                    credentials: { foo: 'bar' },
+                    strategy: 'test'
+                },
                 headers: {
                     host: 'something'
                 }
@@ -1008,7 +1056,7 @@ describe('Core', () => {
 
             const res = await server.inject(options);
             expect(res.statusCode).to.equal(200);
-            expect(options.credentials).to.exist();
+            expect(options.auth.credentials).to.exist();
         });
 
         it('sets credentials (with authority)', async () => {
@@ -1018,14 +1066,17 @@ describe('Core', () => {
 
             const options = {
                 url: '/',
-                credentials: { foo: 'bar' },
-                authority: 'something'
+                authority: 'something',
+                auth: {
+                    credentials: { foo: 'bar' },
+                    strategy: 'test'
+                }
             };
 
             const res = await server.inject(options);
             expect(res.statusCode).to.equal(200);
             expect(res.result).to.equal('something');
-            expect(options.credentials).to.exist();
+            expect(options.auth.credentials).to.exist();
         });
 
         it('sets authority', async () => {
@@ -1050,14 +1101,35 @@ describe('Core', () => {
 
             const options = {
                 url: '/',
-                credentials: { foo: 'bar' },
-                artifacts: { bar: 'baz' }
+                auth: {
+                    credentials: { foo: 'bar' },
+                    artifacts: { bar: 'baz' },
+                    strategy: 'test'
+                }
             };
 
             const res = await server.inject(options);
             expect(res.statusCode).to.equal(200);
             expect(res.result.bar).to.equal('baz');
-            expect(options.artifacts).to.exist();
+            expect(options.auth.artifacts).to.exist();
+        });
+
+        it('sets isInjected', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request) => request.auth.isInjected });
+
+            const options = {
+                url: '/',
+                auth: {
+                    credentials: { foo: 'bar' },
+                    strategy: 'test'
+                }
+            };
+
+            const res = await server.inject(options);
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.be.true();
         });
 
         it('sets app settings', async () => {
@@ -1852,7 +1924,7 @@ describe('Core', () => {
 
         it('queues requests', () => {
 
-            const server = Hapi.server({ load: { concurrent: 100 } });
+            const server = Hapi.server({ load: { concurrent: 10 } });
 
             const handler = async () => {
 
@@ -1861,8 +1933,11 @@ describe('Core', () => {
             };
 
             server.route({ method: 'GET', path: '/', handler });
-            server.inject('/');
-            expect(server._core.queue.active).to.equal(1);
+            for (let i = 0; i < 15; ++i) {
+                server.inject('/');
+            }
+
+            expect(server._core.queue.active).to.equal(10);
         });
     });
 });

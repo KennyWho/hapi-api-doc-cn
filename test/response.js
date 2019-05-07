@@ -1,29 +1,23 @@
 'use strict';
 
-// Load modules
-
 const Events = require('events');
 const Http = require('http');
 const Path = require('path');
 const Stream = require('stream');
 
-const Code = require('code');
+const Code = require('@hapi/code');
 const Handlebars = require('handlebars');
 const Hapi = require('..');
-const Hoek = require('hoek');
-const Inert = require('inert');
-const Lab = require('lab');
-const Vision = require('vision');
+const Hoek = require('@hapi/hoek');
+const Inert = require('@hapi/inert');
+const Lab = require('@hapi/lab');
+const Vision = require('@hapi/vision');
 
 const Response = require('../lib/response');
 
 
-// Declare internals
-
 const internals = {};
 
-
-// Test shortcuts
 
 const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
@@ -128,6 +122,30 @@ describe('Response', () => {
             expect(res.result).to.equal(null);
             expect(res.payload).to.equal('');
         });
+
+        it('returns a stream', async () => {
+
+            const handler = (request) => {
+
+                const stream = new Stream.Readable({
+                    read() {
+
+                        this.push('x');
+                        this.push(null);
+                    }
+                });
+
+                return stream;
+            };
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler });
+
+            const res = await server.inject('/');
+            expect(res.result).to.equal('x');
+            expect(res.statusCode).to.equal(200);
+            expect(res.headers['content-type']).to.equal('application/octet-stream');
+        });
     });
 
     describe('code()', () => {
@@ -214,7 +232,7 @@ describe('Response', () => {
 
     describe('created()', () => {
 
-        it('returns a stream response (created)', async () => {
+        it('returns a response (created)', async () => {
 
             const handler = (request, h) => {
 
@@ -245,12 +263,13 @@ describe('Response', () => {
             expect(res.statusCode).to.equal(500);
         });
 
-        it('doesn\'t return an error on created with PUT', async () => {
+        it('does not return an error on created with PUT', async () => {
 
             const handler = (request, h) => {
 
                 return h.response({ a: 1 }).created();
             };
+
             const server = Hapi.server();
             server.route({ method: 'PUT', path: '/', handler });
 
@@ -259,12 +278,13 @@ describe('Response', () => {
             expect(res.statusCode).to.equal(201);
         });
 
-        it('doesn\'t return an error on created with PATCH', async () => {
+        it('does not return an error on created with PATCH', async () => {
 
             const handler = (request, h) => {
 
                 return h.response({ a: 1 }).created();
             };
+
             const server = Hapi.server();
             server.route({ method: 'PATCH', path: '/', handler });
 
@@ -502,7 +522,7 @@ describe('Response', () => {
 
                     super();
                     this.statusCode = 299;
-                    this.headers = { xcustom: 'some value' };
+                    this.headers = { xcustom: 'some value', 'content-type': 'something/special' };
                 }
 
                 _read(size) {
@@ -510,6 +530,7 @@ describe('Response', () => {
                     if (this.isDone) {
                         return;
                     }
+
                     this.isDone = true;
 
                     this.push('x');
@@ -529,6 +550,7 @@ describe('Response', () => {
             expect(res.result).to.equal('x');
             expect(res.statusCode).to.equal(299);
             expect(res.headers.xcustom).to.equal('some value');
+            expect(res.headers['content-type']).to.equal('something/special');
         });
 
         it('excludes connection header and connection options', async () => {
@@ -553,6 +575,7 @@ describe('Response', () => {
                     if (this.isDone) {
                         return;
                     }
+
                     this.isDone = true;
 
                     this.push('x');
@@ -592,6 +615,7 @@ describe('Response', () => {
                     if (this.isDone) {
                         return;
                     }
+
                     this.isDone = true;
 
                     this.push('x');
@@ -629,6 +653,7 @@ describe('Response', () => {
                     if (this.isDone) {
                         return;
                     }
+
                     this.isDone = true;
 
                     this.push('x');
@@ -665,6 +690,7 @@ describe('Response', () => {
                     if (this.isDone) {
                         return;
                     }
+
                     this.isDone = true;
 
                     this.push('x');
@@ -772,7 +798,7 @@ describe('Response', () => {
             await server.register(Inert);
             const handler = (request, h) => {
 
-                return h.file('./LICENSE').type('application/example');
+                return h.file('./LICENSE.md').type('application/example');
             };
 
             server.route({ method: 'GET', path: '/file', handler });
@@ -941,7 +967,7 @@ describe('Response', () => {
             expect(res.statusCode).to.equal(308);
         });
 
-        it('returns a 301 redirection response (reveresed methods)', async () => {
+        it('returns a 301 redirection response (reversed methods)', async () => {
 
             const handler = (request, h) => {
 
@@ -955,7 +981,7 @@ describe('Response', () => {
             expect(res.statusCode).to.equal(301);
         });
 
-        it('returns a 302 redirection response (reveresed methods)', async () => {
+        it('returns a 302 redirection response (reversed methods)', async () => {
 
             const handler = (request, h) => {
 
@@ -969,7 +995,7 @@ describe('Response', () => {
             expect(res.statusCode).to.equal(302);
         });
 
-        it('returns a 307 redirection response (reveresed methods)', async () => {
+        it('returns a 307 redirection response (reversed methods)', async () => {
 
             const handler = (request, h) => {
 
@@ -983,7 +1009,7 @@ describe('Response', () => {
             expect(res.statusCode).to.equal(307);
         });
 
-        it('returns a 308 redirection response (reveresed methods)', async () => {
+        it('returns a 308 redirection response (reversed methods)', async () => {
 
             const handler = (request, h) => {
 
@@ -1037,7 +1063,21 @@ describe('Response', () => {
             expect(event.error.message).to.contain('The partial x could not be found: The partial x could not be found');
         });
 
-        it('returns a formatted response', async () => {
+        it('returns a formatted response (spaces)', async () => {
+
+            const handler = (request) => {
+
+                return { a: 1, b: 2, '<': '&' };
+            };
+
+            const server = Hapi.server({ routes: { json: { space: 4, suffix: '\n', escape: true } } });
+            server.route({ method: 'GET', path: '/', handler });
+
+            const res = await server.inject('/');
+            expect(res.payload).to.equal('{\n    \"a\": 1,\n    \"b\": 2,\n    \"\\u003c\": \"\\u0026\"\n}\n');
+        });
+
+        it('returns a formatted response (replacer and spaces', async () => {
 
             const handler = (request) => {
 
@@ -1122,7 +1162,7 @@ describe('Response', () => {
             let updates = 0;
             server.events.on({ name: 'request', channels: 'error' }, (request, event) => {
 
-                expect(event.error).to.be.an.error('Stream must have a streams2 readable interface');
+                expect(event.error).to.be.an.error('Stream must have a readable interface');
                 ++updates;
             });
 
@@ -1172,6 +1212,7 @@ describe('Response', () => {
                     if (this.isDone) {
                         return;
                     }
+
                     this.isDone = true;
 
                     this.push({ x: 1 });

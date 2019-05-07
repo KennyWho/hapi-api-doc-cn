@@ -1,27 +1,22 @@
 'use strict';
 
-// Load modules
-
 const Http = require('http');
 const Net = require('net');
 const Stream = require('stream');
 const Url = require('url');
 
-const Boom = require('boom');
-const Code = require('code');
+const Boom = require('@hapi/boom');
+const Code = require('@hapi/code');
 const Hapi = require('..');
-const Hoek = require('hoek');
-const Lab = require('lab');
-const Teamwork = require('teamwork');
-const Wreck = require('wreck');
+const Hoek = require('@hapi/hoek');
+const Joi = require('@hapi/joi');
+const Lab = require('@hapi/lab');
+const Teamwork = require('@hapi/teamwork');
+const Wreck = require('@hapi/wreck');
 
-
-// Declare internals
 
 const internals = {};
 
-
-// Test shortcuts
 
 const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
@@ -211,13 +206,66 @@ describe('Request', () => {
         expect(res3.result).to.match(/10$/);
     });
 
+    describe('active()', () => {
+
+        it('exits handler early when request is no longer active', async () => {
+
+            const server = Hapi.server();
+            const team = new Teamwork();
+
+            let rounds = 0;
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    handler: async (request, h) => {
+
+                        for (let i = 0; i < 100; ++i) {
+                            ++rounds;
+                            await Hoek.wait(10);
+
+                            if (!request.active()) {
+                                break;
+                            }
+                        }
+
+                        team.attend();
+                        return null;
+                    }
+                }
+            });
+
+            await server.start();
+
+            const req = Http.get(server.info.uri, (res) => { });
+            req.on('error', Hoek.ignore);
+
+            await Hoek.wait(50);
+            req.abort();
+            await server.stop();
+
+            await team.work;
+            expect(rounds).to.be.below(10);
+        });
+    });
+
     describe('_execute()', () => {
 
         it('returns 400 on invalid path', async () => {
 
             const server = Hapi.server();
+
+            server.ext('onRequest', (request, h) => {
+
+                expect(request.url).to.be.null();
+                expect(request.query).to.equal({});
+                expect(request.path).to.equal('invalid');
+                return h.continue;
+            });
+
             const res = await server.inject('invalid');
             expect(res.statusCode).to.equal(400);
+            expect(res.result.message).to.equal('Invalid URL: invalid');
         });
 
         it('returns boom response on ext error', async () => {
@@ -252,6 +300,26 @@ describe('Request', () => {
             expect(res.result.statusCode).to.equal(500);
         });
 
+        it('returns error response on ext timeout', async () => {
+
+            const server = Hapi.server();
+
+            const log = server.events.once('response');
+            const ext = (request) => {
+
+                return Hoek.block();
+            };
+
+            server.ext('onPostHandler', ext, { timeout: 100 });
+            server.route({ method: 'GET', path: '/', handler: () => 'OK' });
+
+            const res = await server.inject('/');
+            expect(res.result.statusCode).to.equal(500);
+
+            const [request] = await log;
+            expect(request.response._error).to.be.an.error('onPostHandler timed out');
+        });
+
         it('handles aborted requests (during response)', async () => {
 
             const handler = (request) => {
@@ -263,6 +331,7 @@ describe('Request', () => {
                         if (this.isDone) {
                             return;
                         }
+
                         this.isDone = true;
 
                         this.push('success');
@@ -538,6 +607,111 @@ describe('Request', () => {
             const res = await server.inject({ url: '/some/route', allowInternals: true });
             expect(res.statusCode).to.equal(200);
         });
+
+        it('allows internal only route (inject with allowInternals and authority)', async () => {
+
+            const server = Hapi.server();
+            server.route({
+                method: 'GET',
+                path: '/some/route',
+                options: {
+                    isInternal: true,
+                    handler: () => 'ok'
+                }
+            });
+
+            const res = await server.inject({ url: '/some/route', allowInternals: true, authority: 'server:8000' });
+            expect(res.statusCode).to.equal(200);
+        });
+
+        it('creates arrays from multiple entries', async () => {
+
+            const server = Hapi.server();
+
+            const handler = (request) => {
+
+                return { a: request.query.a, array: Array.isArray(request.query.a), instance: request.query.a instanceof Array };
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
+
+            const res = await server.inject('/?a=1&a=2');
+            expect(res.statusCode).to.equal(200);
+            expect(res.result).to.equal({ a: ['1', '2'], array: true, instance: true });
+        });
+
+        it('supports custom query parser (new object)', async () => {
+
+            const parser = (query) => {
+
+                return { hello: query.hi };
+            };
+
+            const server = Hapi.server({ query: { parser } });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    handler: (request) => request.query.hello
+                }
+            });
+
+            const res = await server.inject('/?hi=hola');
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.equal('hola');
+        });
+
+        it('supports custom query parser (same object)', async () => {
+
+            const parser = (query) => {
+
+                query.hello = query.hi;
+                return query;
+            };
+
+            const server = Hapi.server({ query: { parser } });
+
+            server.route({
+                method: 'GET', path: '/', options: {
+                    handler: (request) => request.query.hello
+                }
+            });
+
+            const res = await server.inject('/?hi=hola');
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.equal('hola');
+        });
+
+        it('returns 500 when custom query parser returns non-object', async () => {
+
+            const server = Hapi.server({ debug: false, query: { parser: () => 'something' } });
+
+            server.route({
+                method: 'GET', path: '/', options: {
+                    handler: (request) => request.query.hello
+                }
+            });
+
+            const res = await server.inject('/?hi=hola');
+            expect(res.statusCode).to.equal(500);
+            expect(res.request.response._error).to.be.an.error('Parsed query must be an object');
+        });
+
+        it('returns 500 when custom query parser returns null', async () => {
+
+            const server = Hapi.server({ debug: false, query: { parser: () => null } });
+
+            server.route({
+                method: 'GET', path: '/', options: {
+                    handler: (request) => request.query.hello
+                }
+            });
+
+            const res = await server.inject('/?hi=hola');
+            expect(res.statusCode).to.equal(500);
+            expect(res.request.response._error).to.be.an.error('Parsed query must be an object');
+        });
     });
 
     describe('_onRequest()', () => {
@@ -561,6 +735,72 @@ describe('Request', () => {
             server.route({ method: 'GET', path: '/', handler: () => null });
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(500);
+        });
+    });
+
+    describe('_postCycle()', () => {
+
+        it('skips onPreResponse when validation terminates request', async () => {
+
+            const server = Hapi.server();
+            const team = new Teamwork();
+
+            let called = false;
+            server.ext('onPreResponse', (request, h) => {
+
+                called = true;
+                return h.continue;
+            });
+
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    handler: () => null,
+                    response: {
+                        status: {
+                            200: async () => {
+
+                                req.abort();
+                                await Hoek.wait(10);
+                                team.attend();
+                            }
+                        }
+                    }
+                }
+            });
+
+            await server.start();
+
+            const req = Http.get(server.info.uri, (res) => { });
+            req.on('error', Hoek.ignore);
+
+            await team.work;
+            await Hoek.wait(100);
+            await server.stop();
+
+            expect(called).to.be.false();
+        });
+
+        it('handles continue signal', async () => {
+
+            const server = Hapi.server({ debug: false });
+            server.route({
+                method: 'GET',
+                path: '/',
+                options: {
+                    handler: () => ({ a: '1' }),
+                    response: {
+                        failAction: (request, h) => h.continue,
+                        schema: {
+                            b: Joi.string()
+                        }
+                    }
+                }
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
         });
     });
 
@@ -589,6 +829,26 @@ describe('Request', () => {
             await server.inject('/');
             const [request] = await log;
             expect(request.info.responded).to.be.min(request.info.received);
+            expect(request.info.completed).to.be.min(request.info.responded);
+            expect(request.response.source).to.equal('ok');
+            expect(request.response.statusCode).to.equal(200);
+        });
+
+        it('skips logging error when not the result of a thrown error', async () => {
+
+            const server = Hapi.server();
+            server.route({ method: 'GET', path: '/', handler: (request, h) => h.response().code(500) });
+
+            let called = false;
+            server.events.once('request', () => {
+
+                called = true;
+            });
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(500);
+            expect(res.request.response._error).to.not.exist();
+            expect(called).to.be.false();
         });
 
         it('closes response after server timeout', async () => {
@@ -625,11 +885,11 @@ describe('Request', () => {
 
             const handler = async (request) => {
 
-                await Hoek.wait(10);
+                await Hoek.wait(40);
                 throw new Error('after');
             };
 
-            const server = Hapi.server({ routes: { timeout: { server: 5 } } });
+            const server = Hapi.server({ routes: { timeout: { server: 20 } } });
             server.route({ method: 'GET', path: '/', handler });
 
             const res = await server.inject('/');
@@ -752,12 +1012,18 @@ describe('Request', () => {
 
             const url = 'http://localhost/page?param1=something';
             const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', handler: () => null });
+
+            const handler = (request) => {
+
+                return [request.url.href, request.path, request.query.param1].join('|');
+            };
+
+            server.route({ method: 'GET', path: '/page', handler });
 
             const onRequest = (request, h) => {
 
                 request.setUrl(url);
-                return h.response([request.url.href, request.path, request.query.param1].join('|')).takeover();
+                return h.continue;
             };
 
             server.ext('onRequest', onRequest);
@@ -808,24 +1074,30 @@ describe('Request', () => {
             expect(res2.payload).to.equal(url + '|/|initial|redirected|redirected');
         });
 
-        it('overrides query string parsing', async () => {
+        it('overrides query string content', async () => {
 
             const server = Hapi.server();
-            server.route({ method: 'GET', path: '/', handler: () => null });
+
+            const handler = (request) => {
+
+                return [request.url.href, request.path, request.query.a].join('|');
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
 
             const onRequest = (request, h) => {
 
                 const uri = request.raw.req.url;
-                const parsed = Url.parse(uri, true);
-                parsed.query.a = 2;
+                const parsed = new Url.URL(uri, 'http://test/');
+                parsed.searchParams.set('a', 2);
                 request.setUrl(parsed);
-                return h.response([request.url.href, request.path, request.query.a].join('|')).takeover();
+                return h.continue;
             };
 
             server.ext('onRequest', onRequest);
 
             const res = await server.inject('/?a=1');
-            expect(res.payload).to.equal('/?a=1|/|2');
+            expect(res.payload).to.equal('http://test/?a=2|/|2');
         });
 
         it('normalizes a path', async () => {
@@ -842,7 +1114,7 @@ describe('Request', () => {
             const onRequest = (request, h) => {
 
                 request.setUrl(url);
-                return h.response([request.url.href, request.path, request.query.param1].join('|')).takeover();
+                return h.response([request.url.href, request.path, request.url.searchParams.get('param1')].join('|')).takeover();
             };
 
             server.ext('onRequest', onRequest);
@@ -851,9 +1123,9 @@ describe('Request', () => {
             expect(res.payload).to.equal(normUrl + '|' + normPath + '|something');
         });
 
-        it('allows missing path', async () => {
+        it('errors on empty path', async () => {
 
-            const server = Hapi.server();
+            const server = Hapi.server({ debug: false });
             const onRequest = (request, h) => {
 
                 request.setUrl('');
@@ -863,15 +1135,41 @@ describe('Request', () => {
             server.ext('onRequest', onRequest);
 
             const res = await server.inject('/');
-            expect(res.statusCode).to.equal(400);
+            expect(res.statusCode).to.equal(500);
+        });
+
+        it('throws when path is missing', async () => {
+
+            const server = Hapi.server();
+            const onRequest = (request, h) => {
+
+                try {
+                    request.setUrl();
+                }
+                catch (err) {
+                    return h.response(err.message).takeover();
+                }
+
+                return h.continue;
+            };
+
+            server.ext('onRequest', onRequest);
+
+            const res = await server.inject('/');
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload).to.equal('Url must be a string or URL object');
         });
 
         it('strips trailing slash', async () => {
 
             const server = Hapi.server({ router: { stripTrailingSlash: true } });
             server.route({ method: 'GET', path: '/test', handler: () => null });
-            const res = await server.inject('/test/');
-            expect(res.statusCode).to.equal(200);
+
+            const res1 = await server.inject('/test/');
+            expect(res1.statusCode).to.equal(200);
+
+            const res2 = await server.inject('/test');
+            expect(res2.statusCode).to.equal(200);
         });
 
         it('does not strip trailing slash on /', async () => {
@@ -892,17 +1190,13 @@ describe('Request', () => {
 
         it('clones passed url', async () => {
 
-            const urlObject = {
-                protocol: 'http:',
-                pathname: '/%41'
-            };
-            const passedUrl = Hoek.clone(urlObject);
+            const urlObject = new Url.URL('http:/%41');
             let requestUrl;
 
             const server = Hapi.server();
             const onRequest = (request, h) => {
 
-                request.setUrl(passedUrl);
+                request.setUrl(urlObject);
                 requestUrl = request.url;
 
                 return h.continue;
@@ -912,9 +1206,8 @@ describe('Request', () => {
 
             const res = await server.inject('/');
             expect(res.statusCode).to.equal(404);
-            expect(passedUrl).to.equal(urlObject);
-            expect(requestUrl).to.not.shallow.equal(passedUrl);
-            expect(requestUrl).to.not.equal(urlObject);
+            expect(requestUrl).to.equal(urlObject);
+            expect(requestUrl).to.not.shallow.equal(urlObject);
         });
 
         it('handles vhost redirection', async () => {
@@ -1282,6 +1575,38 @@ describe('Request', () => {
             expect(i).to.equal(1);
             console.error = orig;
         });
+
+        it('logs nothing', async () => {
+
+            const server = Hapi.server({ debug: false, routes: { log: { collect: false } } });
+
+            const handler = (request) => {
+
+                expect(request.logs).to.have.length(0);
+                return request.info.acceptEncoding;
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
+
+            const res = await server.inject({ url: '/', headers: { 'accept-encoding': 'a;b' } });
+            expect(res.result).to.equal('identity');
+        });
+
+        it('logs when only collect is true', async () => {
+
+            const server = Hapi.server({ debug: false, routes: { log: { collect: true } } });
+
+            const handler = (request) => {
+
+                expect(request.logs).to.have.length(1);
+                return request.info.acceptEncoding;
+            };
+
+            server.route({ method: 'GET', path: '/', handler });
+
+            const res = await server.inject({ url: '/', headers: { 'accept-encoding': 'a;b' } });
+            expect(res.result).to.equal('identity');
+        });
     });
 
     describe('_setResponse()', () => {
@@ -1484,6 +1809,7 @@ describe('Request', () => {
                         if (this.isDone) {
                             return;
                         }
+
                         this.isDone = true;
 
                         setTimeout(() => {
@@ -1554,6 +1880,26 @@ describe('Request', () => {
             });
 
             await server.stop({ timeout: 1 });
+        });
+    });
+
+    describe('event()', () => {
+
+        it('does not emit request error on normal close', async () => {
+
+            const server = Hapi.server();
+            const events = [];
+            server.events.on('request', (request, event, tags) => events.push(tags));
+
+            server.route({ method: 'GET', path: '/', handler: () => 'ok' });
+
+            await server.start();
+
+            const { payload } = await Wreck.get('http://localhost:' + server.info.port);
+            expect(payload.toString()).to.equal('ok');
+            await server.stop();
+
+            expect(events).to.have.length(0);
         });
     });
 });
