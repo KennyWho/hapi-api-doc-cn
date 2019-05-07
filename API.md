@@ -3968,7 +3968,7 @@ finalizing step after calling `request.raw.res.end())` to close the the node res
 
 ##### <a name="h.context" /> `h.context`
 
-访问： read / write (will impact the shared context if the object is modified).
+访问： 读 / 写 (will impact the shared context if the object is modified).
 
 A response symbol. Provides access to the route or server context set via the route
 [`bind`](#route.options.bind) option or [`server.bind()`](#server.bind()).
@@ -4146,7 +4146,7 @@ const ext = function (request, h) {
 
 ##### <a name="response.app" /> `response.app`
 
-访问： read / write.
+访问： 读 / 写.
 
 默认值: `{}`.
 
@@ -4203,7 +4203,7 @@ server.ext('onPreResponse', preResponse);
 
 ##### <a name="response.plugins" /> `response.plugins`
 
-访问： read / write.
+访问： 读 / 写.
 
 默认值: `{}`.
 
@@ -4497,11 +4497,9 @@ HTTP 'Content-Length' 头 (避免分块传输编码) :
 
 #### <a name="request.app" /> `request.app`
 
-访问： read / write.
+访问： 读 / 写.
 
-Application-specific state. Provides a safe place to store application data without potential
-conflicts with the framework. Should not be used by [plugins](#plugins) which should use
-`plugins[name]`.
+应用程序特定的状态. 提供存储应用程序数据的安全位置，而不会与框架发生潜在冲突。 不应该被 [plugins](#plugins) 使用， 应该使用 `plugins[name]`.
 
 #### <a name="request.auth" /> `request.auth`
 
@@ -4509,40 +4507,34 @@ conflicts with the framework. Should not be used by [plugins](#plugins) which sh
 
 认证信息:
 
-- `artifacts` - an artifact object received from the authentication strategy and used in
-  authentication-related actions.
+- `artifacts` - 从身份验证策略接收的对象，用于与身份验证相关的操作。
 
-- `credentials` - the `credential` object received during the authentication process. The
-  presence of an object does not mean successful authentication.
+- `credentials` - 在身份验证过程中收到的 `credential` 对象。 对象的存在并不意味着成功的身份验证。
 
-- `error` - the authentication error if failed and mode set to `'try'`.
+- `error` - 模式设置为`'try'` 失败时认证的错误.
 
-- `isAuthenticated` - `true` if the request has been successfully authenticated, otherwise `false`.
+- `isAuthenticated` -  如果请求已成功验证设置为 `true`, 否则为 `false`.
 
-- `isAuthorized` - `true` is the request has been successfully authorized against the route
-  authentication [`access`](#route.options.auth.access) configuration. If the route has not
-  access rules defined or if the request failed authorization, set to `false`.
+- `isAuthorized` - `true` 是请求已成功授权对路由认证 [`access`](#route.options.auth.access) 配置. 如果路由未定义访问规则或请求授权失败, 设置为 `false`.
 
-- `isInjected` - `true` if the request has been authenticated via the
-  [`server.inject()`](#server.inject()) `auth` option, otherwise `undefined`.
+- `isInjected` - `true` 是如果请求已经通过 [`server.inject()`](#server.inject()) `auth` 选项被认证， 否则为 `undefined`.
 
-- `mode` - the route authentication mode.
+- `mode` - 路由认证的模式.
 
 - `strategy` - 所用策略的名称。
 
 #### <a name="request.events" /> `request.events`
 
-访问： read only and the public **podium** interface.
+访问： 只读并且是公共 **podium** 接口.
 
-The `request.events` supports the following events:
+`request.events` 支持一下事件:
 
-- `'peek'` - emitted for each chunk of payload data read from the client connection. The event
-  method signature is `function(chunk, encoding)`.
+- `'peek'` - 为从客户端连接读取的每个有效负载数据块触发。 事件方法签名是 `function(chunk, encoding)`.
 
-- `'finish'` - emitted when the request payload finished reading. The event method signature is
+- `'finish'` - 请求有效负责完成读取时发出. 事件方法签名是
   `function ()`.
 
-- `'disconnect'` - emitted when a request errors or aborts unexpectedly.
+- `'disconnect'` - 当请求错误或意外终止时触发.
 
 ```js
 const Crypto = require('crypto');
@@ -4577,171 +4569,161 @@ server.ext('onRequest', onRequest);
 
 访问： 只读。
 
-The raw request headers (references `request.raw.req.headers`).
+原始请求头 (参考 `request.raw.req.headers`).
 
 #### <a name="request.info" /> `request.info`
 
 访问： 只读。
 
-Request information:
+请求信息:
 
-- `acceptEncoding` - the request preferred encoding.
+- `acceptEncoding` - 请求的编码
 
-- `completed` - request processing completion timestamp (`0` is still processing).
+- `completed` - 请求处理完成的时间戳 (`0` 表示还在处理中).
 
-- `cors` - request CORS information (available only after the `'onRequest'` extension point as CORS
-  is configured per-route and no routing decisions are made at that point in the request
-  lifecycle), where:
-    - `isOriginMatch` - `true` if the request 'Origin' header matches the configured CORS
-      restrictions. Set to `false` if no 'Origin' header is found or if it does not match.
+- `cors` - 请求的 CORS 信息 (尽在 `'onRequest'` 扩展之后可用，因为每个路由配置了 CORS, 并且在请求生命周期中这个点上没有做出路由决策）, 如下:
+    - `isOriginMatch` - 如果果请求 'Origin' 头与匹配的 CORS 限制【restrictions】匹配则为 `true`。 如果未找到 'Origin' 头或者不匹配，则设置为 `false`
 
-- `host` - content of the HTTP 'Host' header (e.g. 'example.com:8080').
+- `host` -  HTTP 'Host' 头 (e.g. 'example.com:8080').
 
-- `hostname` - the hostname part of the 'Host' header (e.g. 'example.com').
+- `hostname` - 'Host' 头部的 hostname 部分 (e.g. 'example.com').
 
-- `id` - a unique request identifier (using the format '{now}:{connection.info.id}:{5 digits counter}').
+- `id` - 唯一请求标识符 (using the format '{now}:{connection.info.id}:{5 digits counter}').
 
-- `received` - request reception timestamp.
+- `received` - 请求接收时间戳.
 
-- `referrer` - content of the HTTP 'Referrer' (or 'Referer') header.
+- `referrer` - HTTP 'Referrer' (or 'Referer') 头.
 
-- `remoteAddress` - remote client IP address.
+- `remoteAddress` - 远程客户端 IP 地址.
 
-- `remotePort` - remote client port.
+- `remotePort` - 远程客户端端口.
 
-- `responded` - request response timestamp (`0` is not responded yet or response failed when `completed` is set).
+- `responded` - 请求的相应时间 (`0` 标识尚未响应或者 `completed` 被设置但响应失败).
 
-Note that the `request.info` object is not meant to be modified.
+请注意， `request.info` 对象不能被修改
 
 #### <a name="request.logs" /> `request.logs`
 
 访问： 只读。
 
-An array containing the logged request events.
+一个数组包含日志请求事件。
 
-Note that this array will be empty if route [`log.collect`](#route.options.log) is set to `false`.
+注意如果路由 [`log.collect`](#route.options.log) 被设置为 `false`, 数组将为空。
 
 #### <a name="request.method" /> `request.method`
 
 访问： 只读。
 
-The request method in lower case (e.g. `'get'`, `'post'`).
+小写的请求方法 (例如 `'get'`, `'post'`).
 
 #### <a name="request.mime" /> `request.mime`
 
 访问： 只读。
 
-The parsed content-type header. Only available when payload parsing enabled and no
-  payload error occurred.
+解析后的 content-type 头. 仅在启用有效负载解析且未发生错误时可用
 
 #### <a name="request.orig" /> `request.orig`
 
 访问： 只读。
 
-An object containing the values of `params`, `query`, `payload` and `state` before any validation
-modifications made. Only set when input validation is performed.
+在进行任何验证修改之前, 包含 `params`, `query`, `payload` 和 `state` 值的对象。仅在执行输入验证时设置。
 
 #### <a name="request.params" /> `request.params`
 
 访问： 只读。
 
-An object where each key is a path parameter name with matching value as described in
-[Path parameters](#path-parameters).
+一个对象，其中每个键都是具有匹配值的路径参数名称，如 [Path parameters](#path-parameters) 中所述.
 
 #### <a name="request.paramsArray" /> `request.paramsArray`
 
 访问： 只读。
 
-An array containing all the path `params` values in the order they appeared in the path.
+一个数组，包含它们在路径中出现的顺序的所有路径 `params` 的值。
 
 #### <a name="request.path" /> `request.path`
 
 访问： 只读。
 
-The request URI's [pathname](https://nodejs.org/api/url.html#url_urlobject_pathname) component.
+请求 URI 的 [pathname](https://nodejs.org/api/url.html#url_urlobject_pathname) 组件.
 
 #### <a name="request.payload" /> `request.payload`
 
 访问： 只读。
 
-The request payload based on the route `payload.output` and `payload.parse` settings.
+请求 payload 基于路由 `payload.output` 和 `payload.parse` 的设置.
 
-#### <a name="request.plugins" /> `request.plugins`
+#### <a name="request.plugins" /> `request.plugins`3
+123
 
-访问： read / write.
+访问： 读 / 写.
 
-Plugin-specific state. Provides a place to store and pass request-level plugin data. The `plugins`
-is an object where each key is a plugin name and the value is the state.
+插件特定的状态。 提供存储和传递请求级插件数据的位置。`plugins` 是一个对象，其中每个键都是一个插件名称，值是状态。
 
 #### <a name="request.pre" /> `request.pre`
 
 访问： 只读。
 
-An object where each key is the name assigned by a [route pre-handler methods](#route.options.pre)
-function. The values are the raw values provided to the continuation function as argument. For the
-wrapped response object, use `responses`.
+一个对象，其中每个键是由 [route pre-handler methods](#route.options.pre) 函数指定的名称。值会被作为原始值提供给后续函数作为参数。对于包装响应对象，使用 `responses`。
 
 #### <a name="request.response" /> `request.response`
 
-访问： read / write (see limitations below).
+访问： 读 / 写 (see limitations below).
 
-The response object when set. The object can be modified but must not be assigned another object.
-To replace the response with another from within an [extension point](#server.ext()), return a new response value. Contains `null` when no response has
-been set (e.g. when a request terminates prematurely when the client disconnects).
+对象可以被修改，但不能为其分配另一个对象
+
+设置时的响应对象。 对象可以被修改，但不能为其分配另一个对象。从 [extension point](#server.ext()) 中替换另一个响应，返回一个新的相应值。当没有设置响应时，会为 `null`（例如，当客户端断开连接时请求过早终止）。
 
 #### <a name="request.preResponses" /> `request.preResponses`
 
 访问： 只读。
 
-Same as `pre` but represented as the response object created by the pre method.
+与 `pre` 相同，但表示为 pre 方法创建的响应对象。
 
 #### <a name="request.query" /> `request.query`
 
 访问： 只读。
 
-An object where each key is a query parameter name and each matching value is the parameter value
-or an array of values if a parameter repeats. Can be modified indirectly via
-[request.setUrl](#request.setUrl()).
+一个对象，其中每个键是查询参数名称，每个匹配值是参数值，如果参数重复，则为值数组。 可以通过
+[request.setUrl](#request.setUrl()) 间接【indirectly】修改.
 
 #### <a name="request.raw" /> `request.raw`
 
 访问： 只读。
 
-An object containing the Node HTTP server objects. **Direct interaction with these raw objects is
-not recommended.**
-- `req` - the node request object.
-- `res` - the node response object.
+包含Node HTTP服务器对象的对象。 **不建议与这些原始对象直接交互**
+
+- `req` - node 请求对象.
+- `res` - node 相应对象.
 
 #### <a name="request.route" /> `request.route`
 
 访问： 只读。
 
-The request route information object, where:
-- `method` - the route HTTP method.
-- `path` - the route path.
-- `vhost` - the route vhost option if configured.
-- `realm` - the [active realm](#server.realm) associated with the route.
-- `settings` - the [route options](#route-options) object with all defaults applied.
-- `fingerprint` - the route internal normalized string representing the normalized path.
+请求路由信息, 如下:
+- `method` - 路由的 HTTP 请求方法.
+- `path` - 路由地址.
+- `vhost` - 如果配置.
+- `realm` - 与路由相关的 [active realm](#server.realm).
+- `settings` - [route options](#route-options) 对象应用的默认设置
+- `fingerprint` - 路由内部规范化字符串，表示规范化路径。
 
 #### <a name="request.server" /> `request.server`
 
-访问： read only and the public server interface.
+访问： 只读并且为公有服务器接口
 
-The server object.
+服务器对象.
 
 #### <a name="request.state" /> `request.state`
 
 访问： 只读。
 
-An object containing parsed HTTP state information (cookies) where each key is the cookie name and
-value is the matching cookie content after processing using any registered cookie definition.
+包含已解析的HTTP状态信息（cookie）的对象，其中每个键是cookie名称和值，是使用任何已注册的cookie定义处理后的匹配cookie内容。
 
 #### <a name="request.url" /> `request.url`
 
 访问： 只读。
 
-The parsed request URI.
+解析后的请求 URI.
 
 ### <a name="request.generateResponse()" /> `request.generateResponse(source, [options])`
 
@@ -4768,10 +4750,7 @@ Returns a [`response`](#response-object) which you can pass into the [reply inte
 
 ### <a name="request.active()" /> `request.active()`
 
-Returns `true` when the request is active and processing should continue and `false` when the
-request terminated early or completed its lifecycle. Useful when request processing is a
-resource-intensive operation and should be terminated early if the request is no longer active
-(e.g. client disconnected or aborted early).
+当请求处于活动状态时返回 `true` 并且当请求提前终止或完成其生命周期时，处理应继续并返回 `false`。 当请求处理是资源密集型操作时很有用，如果请求不再有效（例如客户端断开连接或提前中止），则应提前终止。
 
 ```js
 const Hapi = require('hapi');
@@ -4798,15 +4777,10 @@ server.route({
 
 ### <a name="request.log()" /> `request.log(tags, [data])`
 
-Logs request-specific events. When called, the server emits a [`'request'` event](#server.events.request)
-on the `'app'` channel which can be used by other listeners or [plugins](#plugins). The arguments
-are:
-- `tags` - a string or an array of strings (e.g. `['error', 'database', 'read']`) used to identify
-  the event. Tags are used instead of log levels and provide a much more expressive mechanism for
-  describing and filtering events.
-- `data` - (可选) an message string or object with the application data being logged. If `data`
-  is a function, the function signature is `function()` and it called once to generate (return
-  value) the actual data emitted to the listeners.
+记录特定于请求的事件. 当被调用时，服务器在被 `'app'` 使用的其他监听器或 [plugins](#plugins) 上触发 [`'request'` event](#server.events.request)。 参数如下:
+
+- `tags` - 用于标识事件的字符串或字符串数组 (例如. `['error', 'database', 'read']`)。 使用 tags 代替日志级别，并为描述和过滤事件提供更具表现力的机制。
+- `data` - (可选) 记录应用程序数据的消息字符串或对象。 如果 `data` 是一个函数, 函数签名为 `function()` 并且它调用一次已生成返回值发送给监听器的实际数据。
 
 ```js
 const Hapi = require('hapi');
@@ -4825,8 +4799,7 @@ const handler = function (request, h) {
     return null;
 };
 
-Note that any logs generated by the server internally will be emitted using the
-[`'request'` event](#server.events.request) on the `'internal'` channel.
+请注意，服务器内部生成的任何日志都将使用 `'internal'` 上的 [`'request'` event](#server.events.request).
 
 ```js
 server.events.on({ name: 'request', channels: 'internal' }, (request, event, tags) => {
@@ -4837,22 +4810,17 @@ server.events.on({ name: 'request', channels: 'internal' }, (request, event, tag
 
 ### <a name="request.route.auth.access()" /> `request.route.auth.access(request)`
 
-Validates a request against the route's authentication [`access`](#route.options.auth.access)
-configuration, where:
+验证针对路由的身份验证 [`access`](#route.options.auth.access) 配置的请求, 其中:
 
 - `request` - the [request object](#request).
 
-返回值: `true` if the `request` would have passed the route's access requirements.
+返回值:  如果` request` 已经通过了路由的访问要求，则为 `true`
 
-Note that the route's authentication mode and strategies are ignored. The only match is made
-between the `request.auth.credentials` scope and entity information and the route
-[`access`](#route.options.auth.access) configuration.
+请注意，路由的身份验证模式和策略将被忽略。 唯一匹配是 `request.auth.credentials` 和实体信息以及路由的 [`access`](#route.options.auth.access) 配置.
 
-If the route uses dynamic scopes, the scopes are constructed against the [`request.query`](#request.query),
-[`request.params`](#request.params), [`request.payload`](#request.payload), and
-[`request.auth.credentials`](#request.auth) which may or may not match between the route and the
-request's route. If this method is called using a request that has not been authenticated (yet or
-not at all), it will return `false` if the route requires any authentication.
+如果路由使用动态作用域, 作用域是根据 [`request.query`](#request.query),
+[`request.params`](#request.params) 构建的, [`request.payload`](#request.payload), 和
+[`request.auth.credentials`](#request.auth) 路由与请求路由之间可能匹配也可能不匹配. 如果使用未经过身份验证的请求调用此方法（尚未完成）, 如果路由需要任何身份验证，它将返回 `false`。
 
 ### <a name="request.setMethod()" /> `request.setMethod(method)`
 
@@ -4878,11 +4846,11 @@ server.ext('onRequest', onRequest);
 
 ### <a name="request.setUrl()" /> `request.setUrl(url, [stripTrailingSlash]`
 
-Changes the request URI before the router begins processing the request where:
-- `url` - the new request URI. `url` can be a string or an instance of
-  [`Url.URL`](https://nodejs.org/dist/latest-v10.x/docs/api/url.html#url_class_url) in which case
-  `url.href` is used.
-- `stripTrailingSlash` - if `true`, strip the trailing slash from the path. Defaults to `false`.
+在路由器开始处理请求之前更改请求URI:
+
+- `url` - 新的请求 URI. `url` 可以是字符串或
+  [`Url.URL`](https://nodejs.org/dist/latest-v10.x/docs/api/url.html#url_class_url) 的实例.
+- `stripTrailingSlash` - 如果为 `true`, 从路径中删除尾部斜杠. 默认为 `false`.
 
 ```js
 const Hapi = require('hapi');
@@ -4898,7 +4866,7 @@ const onRequest = function (request, h) {
 server.ext('onRequest', onRequest);
 ```
 
-Can only be called from an `'onRequest'` extension method.
+仅能通过 `'onRequest'` `扩展方法调用。
 
 ## 插件
 
@@ -4963,4 +4931,4 @@ const plugin = {
 
 本文档使用`Google 翻译`并由个人整理，并不具有专业性，如有异议，请以原文为主。
 
-目前进度 1/5
+目前进度 2/5
