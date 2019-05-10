@@ -3686,63 +3686,50 @@ the same. The following is the complete list of steps a request can go through:
 
 ### Lifecycle methods
 
-Lifecycle methods are the interface between the framework and the application. Many of the request
-lifecycle steps: [extensions](#server.ext()), [authentication](#authentication-scheme),
-[handlers](#route.options.handler), [pre-handler methods](#route.options.pre), and
-[`failAction` function values](#lifecycle-failAction) are lifecyle methods provided by the
-developer and executed by the framework.
+生命周期方法是框架和应用程序之间的接口。 许多请求生命周期步骤: [extensions](#server.ext()), [authentication](#authentication-scheme),
+[handlers](#route.options.handler), [pre-handler methods](#route.options.pre), 和
+[`failAction` function values](#lifecycle-failAction) 是由开发人员提供并由框架执行的生命周期方法。
 
-Each lifecycle method is a function with the signature `await function(request, h, [err])` where:
-- `request` - the [request object](#request).
-- `h` - the [response toolkit](#response-toolkit) the handler must call to set a response and
-  return control back to the framework.
-- `err` - an error object available only when the method is used as a
-  [`failAction` value](#lifecycle-failAction).
+每个生命周期方法都是一个带有签名 `await function(request, h, [err])` 函数，其中:
 
-Each lifecycle method must return a value or a promise that resolves into a value. If a lifecycle
-method returns without a value or resolves to an `undefined` value, an Internal Server Error (500)
-error response is sent.
+- `request` - [request object](#request).
+- `h` - [response toolkit](#response-toolkit) 处理程序必须调用以设置响应并将控制权返回给框架。.
+- `err` - 仅当该方法用作 [`failAction` value](#lifecycle-failAction)是才可用的错误对象。
 
-The 返回值 must be one of:
-- Plain value:
+每个生命周期方法都必须返回一个值或一个解析为值的promise。如果生命周期方法返回没有值或解析为 `undefined` 值， an Internal Server Error (500) 错误
+
+返回值必须是以下之一
+
+- 基本值:
     - `null`
     - string
     - number
     - boolean
-- `Buffer` object
-- `Error` object
-    - plain `Error`.
-    - a [`Boom`](https://github.com/hapijs/boom) object.
-- `Stream` object
-    - must be compatible with the "streams2" API and not be in `objectMode`.
-    - if the stream object has a `statusCode` property, that status code will be used as
-      the default response code based on the [`passThrough`](#response.settings.passThrough)
-      option.
-    - if the stream object has a `headers` property, the headers will be included in the response
-      based on the [`passThrough`](#response.settings.passThrough) option.
-    - if the stream object has a function property `setCompressor(compressor)` and the response
-      passes through a compressor, a reference to the compressor stream will be passed to the
-      response stream via this method.
-- any object or array
-    - must not include circular references.
-- a toolkit signal:
-    - [`h.abandon`](#h.abandon) - abort processing the request.
-    - [`h.close`](#h.close) - abort processing the request and call `end()` to ensure the response
-      is closed.
-    - [`h.continue`](#h.continue) - continue processing the request lifecycle without changing the
-      response.
-- a toolkit method response:
-    - [`h.response()`](#h.response()) - wraps a plain response in a [response object](#response-object).
-    - [`h.redirect()`](#h.redirect()) - wraps a plain response with a redirection directive.
-    - [`h.authenticated()`](#h.authenticated()) - indicate request authenticated successfully
+- `Buffer` 对象
+- `Error` 对象
+    - 基本的 `Error`.
+    - [`Boom`](https://github.com/hapijs/boom) 对象.
+- `Stream` 对象
+    - 必须与 "streams2" API兼容，而不是在 `objectMode` 。
+    - 如果流对象具有  `statusCode` 属性， 该状态代码将用作基于 [`passThrough`](#response.settings.passThrough) 选项的默认响应代码。
+    - 如果流对象具有 `headers` 属性，, 头部将根据 [`passThrough`](#response.settings.passThrough) 选项包含在响应中。
+    - 如果流对象具有函数属性 `setCompressor(compressor)` 并且响应通过压缩器，压缩器流的引用将通过此方法传递给响应流。
+- 任意对象或数组
+    - 不得包含循环引用。
+- 工具包签名：
+    - [`h.abandon`](#h.abandon) - 中止处理请求。
+    - [`h.close`](#h.close) -中止处理请求并调用 `end()` 以确保响应被关闭。 
+    - [`h.continue`](#h.continue) - 继续处理请求生命周期而不更改响应。
+- 工具包方法响应：
+    - [`h.response()`](#h.response()) - 通过 [response object](#response-object) 包装一个简单的响应.
+    - [`h.redirect()`](#h.redirect()) - 使用重定向指令包装一个简单的响应。
+    - [`h.authenticated()`](#h.authenticated()) - 表示请求已成功验证
       (auth scheme only).
-    - [`h.unauthenticated()`](#h.unauthenticated()) - indicate request failed to authenticate
+    - [`h.unauthenticated()`](#h.unauthenticated()) - 表示请求无法进行身份验证
       (auth scheme only).
-- a promise object that resolve to any of the above values
+- 一个 promise 对象，可以解析为上述任何值
 
-Any error thrown by a lifecycle method will be used as the reponse object. While errors and valid
-values can be returned, it is recommended to throw errors. Throwing non-error values will generate
-a Bad Implementation (500) error response.
+生命周期方法抛出的任何错误都将用作响应对象。 虽然可以返回错误和有效值，建议抛出错误。 抛出非错误值 Bad Implementation (500) 的错误响应。
 
 ```js
 const handler = function (request, h) {
@@ -3755,68 +3742,57 @@ const handler = function (request, h) {
 };
 ```
 
-If the route has a [`bind`](#route.options.bind) option or [`server.bind()`](#server.bind()) was
-called, the lifecycle method will be bound to the provided context via `this` as well as accessible
-via [`h.context`](#h.context).
+如果路由使用 [`bind`](#route.options.bind) 选项或者 [`server.bind()`](#server.bind()) 被调用, 生命周期方法将通过 `this` 绑定到提供的上下文，也可以通过 [`h.context`](#h.context) 访问。
 
 #### Lifecycle workflow
 
-The flow between each lifecyle step depends on the value returned by each lifecycle method as
-follows:
+每个生命周期步骤之间的流程取决于每个生命周期方法返回的值，如下所示:
 
 - an error:
-    - the lifecycle skips to the _**Response validation**_ step.
-    - if returned by the _**onRequest**_ step it skips to the _**onPreResponse**_ step.
-    - if returned by the _**Response validation**_ step it skips to the _**onPreResponse**_ step.
-    - if returned by the _**onPreResponse**_ step it skips to the _**Response transmission**_ step.
+    - 生命周期跳到 _**Response validation**_ 阶段.
+    - 如果被 _**onRequest**_ 阶段返回， 将跳到 _**onPreResponse**_ 阶段.
+    - 如果 _**Response validation**_ 阶段返回， 将跳到 _**onPreResponse**_ 阶段.
+    - 如果 _**onPreResponse**_ 阶段返回， 将跳到 _**Response transmission**_ 阶段.
 
-- an abort signal ([`h.abandon`](#h.abandon) or [`h.close`](#h.close)):
-    - skips to the _**Finalize request**_ step.
+- 一个终止信号 ([`h.abandon`](#h.abandon) 或 [`h.close`](#h.close)):
+    - 跳到 _**Finalize request**_ 阶段.
 
-- a [`h.continue`](#h.continue) signal:
-    - continues processing the request lifecycle without changing the request response.
-    - cannot be used by the [`authenticate()`](#authentication-scheme) scheme method.
+- 一个 [`h.continue`](#h.continue) 信号:
+    - 继续处理请求生命周期而不更改请求响应。
+    - 不能被 [`authenticate()`](#authentication-scheme) 方法使用
 
-- a [takeover response](#takeover-response):
-    - overrides the request response with the provided value and skips to the
-      _**Response validation**_ step.
-    - if returned by the _**Response validation**_ step it skips to the _**onPreResponse**_ step.
-    - if returned by the _**onPreResponse**_ step it skips to the _**Response transmission**_ step.
+- [takeover response](#takeover-response):
+    - 使用提供的值覆盖请求响应，并跳到
+      _**Response validation**_ 阶段。
+    - 如果被 _**Response validation**_ 阶段返回， 将跳到 _**onPreResponse**_ 阶段。
+    - 如果被 _**onPreResponse**_ 阶段返回，将跳到 _**Response transmission**_ 阶段。
 
-- any other response:
-    - overrides the request response with the provided value and continues processing the request
-      lifecycle.
-    - cannot be returned from any step prior to the _**Pre-handler methods**_ step.
+- 任何其他的响应:
+    - 使用提供的值覆盖请求响应，并继续处理请求生命周期。
+    - 无法从 _**Pre-handler methods** 阶段之前的任何步骤返回。
 
-The [`authenticate()`](#authentication-scheme) method has access to two additional 返回值s:
-    - [`h.authenticated()`](#h.authenticated()) - indicate request authenticated successfully.
-    - [`h.unauthenticated()`](#h.unauthenticated()) - indicate request failed to authenticate.
+[`authenticate()`](#authentication-scheme) 方法可以访问两个额外的返回值:
+    - [`h.authenticated()`](#h.authenticated()) - 表示请求已成功验证。
+    - [`h.unauthenticated()`](#h.unauthenticated()) - 表示请求验证失败。
 
-Note that these rules apply somewhat differently when used in a [pre-handler method](#route.options.pre).
+请注意，在 [pre-handler method](#route.options.pre) 中使用时，这些规则的应用有所不同。
 
 #### Takeover response
 
-A takeover response is a [`response object`](#response-object) on which [`response.takeover()`](#response.takever())
-was called to signal that the [lifecycle method](#lifecycle-methods) 返回值 should be set as
-the response and skip to immediately validate and trasmit the value, bypassing other lifecycle
-steps.
+接替响应 [`response object`](#response-object) 是 [`response.takeover()`](#response.takever()) 被调用签名 [lifecycle method](#lifecycle-methods) 的返回值。应设置为响应并跳过以立即验证和传输值， 绕过其他生命周期步骤。
 
-#### <a name="lifecycle-failAction" /> `failAction` configuration
+#### <a name="lifecycle-failAction" /> `failAction` 配置
 
-Various configuration options allows defining how errors are handled. For example, when invalid
-payload is received or malformed cookie, instead of returning an error, the framework can be
-configured to perform another action. When supported the `failAction` option supports the following
-values:
+各种配置选项允许定义错误的处理方式。 例如，当收到无效的有效负载或格式错误的 cookie 时，而不是返回错误，框架可以配置为执行另一个操作。 当支持 `failAction` 选项时， 支持以下值:
 
-- `'error'` - return the error object as the response.
-- `'log'` - report the error but continue processing the request.
-- `'ignore'` - take no action and continue processing the request.
+- `'error'` - 将错误对象作为响应返回。
+- `'log'` - 报告错误但继续处理请求。
+- `'ignore'` - 不采取任何行动并继续处理请求。
 
-- a [lifecycle method](#lifecycle-methods) with the signature `async function(request, h, err)`
-  where:
-    - `request` - the [request object](#request).
-    - `h` - the [response toolkit](#response-toolkit).
-    - `err` - the error object.
+- [lifecycle method](#lifecycle-methods) 带有签名函数 `async function(request, h, err)`:
+    - `request` - [request object](#request).
+    - `h` - [response toolkit](#response-toolkit).
+    - `err` - 错误对象。
 
 #### Errors
 
