@@ -3372,317 +3372,274 @@ following options:
 
 默认值: `{ parse: true, failAction: 'error' }`.
 
-HTTP state management (cookies) allows the server to store information on the client which is sent
-back to the server with every request (as defined in [RFC 6265](https://tools.ietf.org/html/rfc6265)).
-`state` supports the following options:
+HTTP状态管理（cookie）允许服务器在客户端上存储信息，每次请求都会将信息发送回服务器 (如 [RFC 6265](https://tools.ietf.org/html/rfc6265) 所定义).
+`state` 支持一下选项:
 
-- `parse` - determines if incoming 'Cookie' headers are parsed and stored in the
-  [`request.state`](#request.state) object.
+- `parse` - 确定是否解析传入的 'Cookie' header 并储存在
+  [`request.state`](#request.state) 对象中.
 
-- `failAction` - A [`failAction` value](#lifecycle-failAction) which determines how to handle
-  cookie parsing errors. 默认为 `'error'` (return a Bad Request (400) error response).
+- `failAction` - [`failAction` value](#lifecycle-failAction) 确定如何处理 cookie 解析错误。 默认为 `'error'` (返回 a Bad Request (400) 错误响应).
 
 ### <a name="route.options.tags" /> `route.options.tags`
 
 默认值: none.
 
-Route tags used for generating documentation (array of strings).
+用于生成文档的路径标记（字符串或数组）。
 
-This setting is not available when setting server route defaults using
-[`server.options.routes`](#server.options.routes).
+使用 [`server.options.routes`](#server.options.routes) 设置服务器路由默认值时，此设置不可用。
 
 ### <a name="route.options.timeout" /> `route.options.timeout`
 
 默认值: `{ server: false }`.
 
-Timeouts for processing durations.
+处理超时。
 
 #### <a name="route.options.timeout.server" /> `route.options.timeout.server`
 
 默认值: `false`.
 
-Response timeout in milliseconds. Sets the maximum time allowed for the server to respond to an
-incoming request before giving up and responding with a Service Unavailable (503) error response.
+响应超时（以毫秒为单位）。 设置服务器在放弃并回复 Service Unavailable (503)错误响应之前传入请求所允许的最长时间。
 
 #### <a name="route.options.timeout.socket" /> `route.options.timeout.socket`
 
-默认值: none (use node default of 2 minutes).
+默认值: none (使用 node 默认为 2 分钟).
 
-By default, node sockets automatically timeout after 2 minutes. Use this option to override this
-behavior. Set to `false` to disable socket timeouts.
+默认情况下，node socket 在 2 分钟后自动超时。 使用此选项可覆盖此行为。 设置为 `false` 禁用 socket 超时。
 
 ### <a name="route.options.validate" /> `route.options.validate`
 
 默认值: `{ headers: true, params: true, query: true, payload: true, failAction: 'error' }`.
 
-Request input validation rules for various request components.
+每个请求组件的请求输入验证。
 
 #### <a name="route.options.validate.errorFields" /> `route.options.validate.errorFields`
 
 默认值: none.
 
-An optional object with error fields copied into every validation error response.
+一个可选对象，其错误字段被复制到每个验证错误响应中。
 
 #### <a name="route.options.validate.failAction" /> `route.options.validate.failAction`
 
-默认值: `'error'` (return a Bad Request (400) error response).
+默认值: `'error'` (返回 Bad Request (400) 错误).
 
-A [`failAction` value](#lifecycle-failAction) which determines how to handle failed validations.
-When set to a function, the `err` argument includes the type of validation error under
-`err.output.payload.validation.source`.
+[`failAction` value](#lifecycle-failAction) 它确定如何处理失败的验证。
+当为函数时, `err` 参数包括 `err.output.payload.validation.source` 下的错误验证类型.
 
 #### <a name="route.options.validate.headers" /> `route.options.validate.headers`
 
-默认值: `true` (no validation).
+默认值: `true` (没有验证).
 
-Validation rules for incoming request headers:
+传入请求 header 的验证规则：
 
-- `true` - any headers allowed (no validation performed).
+- `true` - 允许任何 header（未执行验证）。
 
-- a [**joi**](https://github.com/hapijs/joi) validation object.
+- [**joi**](https://github.com/hapijs/joi) 验证对象。
 
-- a validation function using the signature `async function(value, options)` where:
+- 使用签名 `async function(value, options)` 的验证函数，其中：
 
-    - `value` - the [`request.headers`](#request.headers) object containing the request headers.
+    - `value` - [`request.headers`](#request.headers) 包含请求 header 对象。
     - `options` - [`options`](#route.options.validate.options).
-    - if a value is returned, the value is used as the new [`request.headers`](#request.headers)
-      value and the original value is stored in [`request.orig.headers`](#request.orig).
-      Otherwise, the headers are left unchanged. If an error is thrown, the error is handled
-      according to [`failAction`](#route.options.validate.failAction).
+    - 如果有返回值，该值用作新的 [`request.headers`](#request.headers) 值，原始值存储在 [`request.orig.headers`](#request.orig) 中。
+      否则，header 保持不变。 如果抛出错误，则根据 [`failAction`](#route.options.validate.failAction) 处理错误。
 
-Note that all header field names must be in lowercase to match the headers normalized by node.
+请注意，所有 header 字段名称必须为小写，以匹配按节点规范化的 header。
 
 #### <a name="route.options.validate.options" /> `route.options.validate.options`
 
 默认值: none.
 
-An options object passed to the [**joi**](https://github.com/hapijs/joi) rules or the custom
-validation methods. Used for setting global options such as `stripUnknown` or `abortEarly` (the
-complete list is available [here](https://github.com/hapijs/joi/blob/master/API.md#validatevalue-schema-options-callback)).
+传递给 [**joi**](https://github.com/hapijs/joi) 规则或自定义验证方法的选项对象。用于设置全局选项，例如 `stripUnknown` 或 `abortEarly` (可用的完整列表 [here](https://github.com/hapijs/joi/blob/master/API.md#validatevalue-schema-options-callback))
 
-If a custom validation function (see `headers`, `params`, `query`, or `payload` above) is defined
-then `options` can an arbitrary object that will be passed to this function as the second
-parameter.
+如果定义了自定义验证函数（参见上面的 `headers`, `params`, `query`, 或 `payload`），则 `options` 可以将任意对象作为第二个参数传递给该函数。
 
-The values of the other inputs (i.e. `headers`, `query`, `params`, `payload`, `state`, `app`, and `auth`)
-are added to the `options` object under the validation `context` (accessible in rules as
-`Joi.ref('$query.key')`).
+其他输入值 (i.e. `headers`, `query`, `params`, `payload`, `state`, `app`, and `auth`)
+被添加到验证 `context` 下的 `options` 对象中 (参考规则`Joi.ref('$query.key')`)。
 
-Note that validation is performed in order (i.e. headers, params, query, and payload) and if type
-casting is used (例如 converting a string to a number), the value of inputs not yet validated will
-reflect the raw, unvalidated and unmodified values.
+请注意，验证按顺序执行 (i.e. headers, params, query, and payload)， 并且如果使用类型转换 (例如 转换一个字符串为数字), 尚未验证的输入值将返回原始值，未经验证和未经修改的值。
 
-If the validation rules for `headers`, `params`, `query`, and `payload` are defined at both the
-server [`routes`](#server.options.routes) level and at the route level, the individual route
-settings override the routes defaults (the rules are not merged).
+如果在服务器  [`routes`](#server.options.routes) 级别和路由级别定义了 `headers`, `params`, `query`, 和 `payload` 的验证规则，单个路由设置会覆盖路由默认值（规则未合并）。
 
 #### <a name="route.options.validate.params" /> `route.options.validate.params`
 
 默认值: `true` (no validation).
 
-Validation rules for incoming request path parameters, after matching the path against the route,
-extracting any parameters, and storing them in [`request.params`](#request.params), where:
+传入请求路径参数的验证规则， 将路径与路径匹配后，提取任何参数， 并存储在 [`request.params`](#request.params)， 其中:
 
-- `true` - any path parameter value allowed (no validation performed).
+- `true` - 允许任何 path 参数 (没有进行验证).
 
-- a [**joi**](https://github.com/hapijs/joi) validation object.
+- 一个 [**joi**](https://github.com/hapijs/joi) 验证对象
 
-- a validation function using the signature `async function(value, options)` where:
+- 使用签名 `async function(value, options)` 的验证函数，其中：
 
     - `value` - the [`request.params`](#request.params) object containing the request path
       parameters.
     - `options` - [`options`](#route.options.validate.options).
-    - if a value is returned, the value is used as the new [`request.params`](#request.params)
-      value and the original value is stored in [`request.orig.params`](#request.orig). Otherwise,
-      the path parameters are left unchanged. If an error is thrown, the error is handled according
-      to [`failAction`](#route.options.validate.failAction).
+    - 如果返回一个值， 则该值用作新的 [`request.params`](#request.params)
+      值，原始值存储在 [`request.orig.params`](#request.orig). 否则，path 参数保持不变 如果抛出错误，则根据 [`failAction`](#route.options.validate.failAction) 处理错误 。
 
-Note that failing to match the validation rules to the route path parameters definition will cause
-all requests to fail.
+请注意，未将验证规则与路径路径参数定义匹配将导致所有请求失败。
 
 #### <a name="route.options.validate.payload" /> `route.options.validate.payload`
 
 默认值: `true` (no validation).
 
-Validation rules for incoming request payload (request body), where:
+传入请求 payload（request body）的验证规则，其中：
 
-- `true` - any payload allowed (no validation performed).
+- `true` - 允许任何 payload  (没有进行验证).
 
-- `false` - no payload allowed.
+- `false` - 不允许任意 payload 
 
-- a [**joi**](https://github.com/hapijs/joi) validation object.
-    - Note that empty payloads are represented by a `null` value. If a validation schema is
-      provided and empty payload are allowed, the schema must be explicitly defined by setting the
-      rule to a **joi** schema with `null` allowed (例如
+- 一个 [**joi**](https://github.com/hapijs/joi) 验证对象
+    - 请注意，空的 payload 由 `null`值表示。 如果提供了验证模式并且允许空 payload， 必须通过将规则设置 **joi** 格式允许为 `null` (例如
       `Joi.object({ /* keys here */ }).allow(null)`).
 
-- a validation function using the signature `async function(value, options)` where:
+- 使用签名 `async function(value, options)` 的验证函数，其中：
 
-    - `value` - the [`request.payload`](#request.payload) object containing the request payload.
+    - `value` - 包含请求 payload 的 [`request.payload`](#request.payload) 对象。
     - `options` - [`options`](#route.options.validate.options).
-    - if a value is returned, the value is used as the new [`request.payload`](#request.payload)
-      value and the original value is stored in [`request.orig.payload`](#request.orig). Otherwise,
-      the payload is left unchanged. If an error is thrown, the error is handled according to
-      [`failAction`](#route.options.validate.failAction).
+    - 如果返回一个值， 则该值用作新的 [`request.payload`](#request.payload)
+      值，原始值存储在 [`request.orig.payload`](#request.orig). 否则，payload 值保持不变 如果抛出错误，则根据 [`failAction`](#route.options.validate.failAction) 处理错误 。
 
-Note that validating large payloads and modifying them will cause memory duplication of the payload
-(since the original is kept), as well as the significant performance cost of validating large
-amounts of data.
+请注意，验证大型 payload 并修改它们将导致 payload 的内存重复（因为保留了 payload）, 以及验证大量数据的显着性能成本。
 
 #### <a name="route.options.validate.query" /> `route.options.validate.query`
 
 默认值: `true` (no validation).
 
-Validation rules for incoming request URI query component (the key-value part of the URI between
-'?' and '#'). The query is parsed into its individual key-value pairs, decoded, and stored in
-[`request.query`](#request.query) prior to validation. Where:
+传入请求 URI 查询组件的验证规则（'?' 和 '#' 之间的 URI 的键值部分）。查询被解析为其各自的键值对，解码，在验证之前存储在 [`request.query`](#request.query)中。其中：
 
-- `true` - any query parameter value allowed (no validation performed).
+- `true` - 允许的任何 query 参数值 (没有进行验证).
 
-- `false` - no query parameter value allowed.
+- `false` -不允许 query 参数值。
 
 - a [**joi**](https://github.com/hapijs/joi) validation object.
 
-- a validation function using the signature `async function(value, options)` where:
+- 使用签名 `async function(value, options)` 的验证函数，其中：
 
-    - `value` - the [`request.query`](#request.query) object containing the request query
-      parameters.
+    - `value` - 包含请求 query 参数的 [`request.query`](#request.query) 对象。
     - `options` - [`options`](#route.options.validate.options).
-    - if a value is returned, the value is used as the new [`request.query`](#request.query) value
-      and the original value is stored in [`request.orig.query`](#request.orig). Otherwise, the
-      query parameters are left unchanged. If an error is thrown, the error is handled according to
-      [`failAction`](#route.options.validate.failAction).
+    - 如果返回一个值， 则该值用作新的 [`request.query`](#request.query) 值，
+      原始值存储在 [`request.orig.query`](#request.orig)。 否则，query 参数保持不变。如果抛出错误，则根据 [`failAction`](#route.options.validate.failAction) 处理错误 。
+      .
 
-Note that changes to the query parameters will not be reflected in [`request.url`](#request.url).
+请注意，对查询参数的更改不会反映在 [`request.url`](#request.url) 中。
 
 #### <a name="route.options.validate.state" /> `route.options.validate.state`
 
-Default value: `true` (no validation).
+默认值: `true` (不验证).
 
 Validation rules for incoming cookies. The `cookie` header is parsed and decoded into the
 [`request.state`](#request.state) prior to validation. Where: 
 
-- `true` - any cookie value allowed (no validation performed).
+- `true` - 任何 cookie 值都允许 (没有进行验证)。
 
-- `false` - no cookies allowed.
+- `false` - 不允许使用 cookie。
 
-- a [**joi**](https://github.com/hapijs/joi) validation object.
+- [**joi**](https://github.com/hapijs/joi) 验证对象
 
-- a validation function using the signature `async function(value, options)` where:
+- 使用签名 `async function(value, options)` 的验证函数，其中：
 
     - `value` - the [`request.state`](#request.state) object containing all parsed cookie values.
     - `options` - [`options`](#route.options.validate.options).
-    - if a value is returned, the value is used as the new [`request.state`](#request.state) value
-      and the original value is stored in [`request.orig.state`](#request.orig). Otherwise, the
-      cookie values are left unchanged. If an error is thrown, the error is handled according to
-      [`failAction`](#route.options.validate.failAction).
+    - 如果返回一个值， 则该值用作新的 [`request.state`](#request.state) 值
+      原始值存储在 [`request.orig.state`](#request.orig). 否则，cookie 值保持不变。如果抛出错误，则根据 [`failAction`](#route.options.validate.failAction) 处理错误 。
 
 ## Request lifecycle
 
-Each incoming request passes through the request lifecycle. The specific steps vary based on the
-server and route configurations, but the order in which the applicable steps are executed is always
-the same. The following is the complete list of steps a request can go through:
+每个传入请求都会通过请求生命周期。 具体步骤因服务器和路由配置而异, 但执行适用步骤的顺序始终相同。 以下是请求可以执行的完整步骤列表：
 
 - _**onRequest**_
-    - always called when `onRequest` extensions exist.
-    - the request path and method can be modified via the [`request.setUrl()`](#request.setUrl())
-      and [`request.setMethod()`](#request.setMethod()) methods. Changes to the request path or
-      method will impact how the request is routed and can be used for rewrite rules.
-    - [`request.route`](#request.route) is unassigned.
-    - [`request.url`](#request.url) can be `null` if the incoming request path is invalid.
-    - [`request.path`](#request.path) can be an invalid path.
-    - JSONP configuration is ignored for any response returned from the extension point since no
-      route is matched yet and the JSONP configuration is unavailable.
+    - 通常当 `onRequest` 扩展存在时被调用。
+    - 请求路径和方法可以通过 [`request.setUrl()`](#request.setUrl())
+      和 [`request.setMethod()`](#request.setMethod()) 方法修改. 对请求路径或方法的更改将影响请求的路由方式，并可用于重写规则。
+    - [`request.route`](#request.route) 是未分配的。
+    - [`request.url`](#request.url) 如果传入的请求路径无效，可能是 `null`。
+    - [`request.path`](#request.path) 可能是无效的路由
+    - 从扩展点返回的任何响应都会忽略 JSONP 配置，因为尚未匹配任何路由且 JSONP 配置不可用。
 
 - _**Route lookup**_
-    - lookup based on `request.path` and `request.method`.
-    - skips to _**onPreResponse**_ if no route is found or if the path violates the HTTP
-      specification.
+    - 基于 `request.path` 和 `request.method` 的查找。
+    - 如果没有找到路由或路径违反 HTTP 规范， 跳到 _**onPreResponse**_。
 
 - _**JSONP processing**_
-    - based on the route [`jsonp`](#route.options.jsonp) option.
-    - parses JSONP parameter from [`request.query`](#request.query).
-    - skips to _**Response validation**_ on error.
+    - 基于路由的 [`jsonp`](#route.options.jsonp) 选项.
+    - 从 [`request.query`](#request.query) 解析 JSON 参数.
+    - 当错误时，跳到 _**Response validation**_ 。
 
 - _**Cookies processing**_
-    - based on the route [`state`](#route.options.state) option.
-    - error handling based on [`failAction`](#route.options.state.failAction).
+    - 基于路由的 [`state`](#route.options.state) 选项.
+    - 基于 [`failAction`](#route.options.state.failAction) 的错误处理。
 
 - _**onPreAuth**_
-    - called regardless if authentication is performed.
+    - 无论是否执行认证，都会调用。
 
 - _**Authentication**_
-    - based on the route [`auth`](#route.options.auth) option.
+    - 基于路由的 [`auth`](#route.options.auth) 选项.
 
 - _**Payload processing**_
-    - based on the route [`payload`](#route.options.payload) option.
-    - error handling based on [`failAction`](#route.options.payload.failAction).
+    - 基于路由的 [`payload`](#route.options.payload) 选项.
+    - 基于 [`failAction`](#route.options.payload.failAction) 的错误处理。
 
 - _**Payload authentication**_
-    - based on the route [`auth`](#route.options.auth) option.
+    - 基于路由的 [`auth`](#route.options.auth) 选项.
 
 - _**onCredentials**_
-    - called only if authentication is performed.
+    - 仅在执行身份验证时调用。
 
 - _**Authorization**_
-    - based on the route authentication [`access`](#route.options.auth.access) option.
+    - 基于路由的 authentication [`access`](#route.options.auth.access) 选项.
 
 - _**onPostAuth**_
-    - called regardless if authentication is performed.
+    - 无论是否执行认证，都会调用。
 
 - _**Headers validation**_
-    - based on the route [`validate.headers`](#route.options.validate.headers) option.
-    - error handling based on [`failAction`](#route.options.validate.failAction).
+    - 基于路由的 [`validate.headers`](#route.options.validate.headers) 选项.
+    - 基于 [`failAction`](#route.options.validate.failAction) 的错误处理。
 
 - _**Path parameters validation**_
-    - based on the route [`validate.params`](#route.options.validate.params) option.
-    - error handling based on [`failAction`](#route.options.validate.failAction).
+    - 基于路由的 [`validate.params`](#route.options.validate.params) 选项.
+    - 基于 [`failAction`](#route.options.validate.failAction) 的错误处理。
 
 - _**JSONP cleanup**_
-    - based on the route [`jsonp`](#route.options.jsonp) option.
-    - remove the JSONP parameter from [`request.query`](#request.query).
+    - 基于路由的 [`jsonp`](#route.options.jsonp) 选项.
+    - 从 [`request.query`](#request.query) 中删除 JSON 参数.
 
 - _**Query validation**_
-    - based on the route [`validate.query`](#route.options.validate.query) option.
-    - error handling based on [`failAction`](#route.options.validate.failAction).
+    - 基于路由的 [`validate.query`](#route.options.validate.query) 选项.
+    - 基于 [`failAction`](#route.options.validate.failAction) 的错误处理。
 
 - _**Payload validation**_
-    - based on the route [`validate.payload`](#route.options.validate.payload) option.
-    - error handling based on [`failAction`](#route.options.validate.failAction).
+    - 基于路由的 [`validate.payload`](#route.options.validate.payload) 选项.
+    - 基于 [`failAction`](#route.options.validate.failAction) 的错误处理。
 
 - _**State validation**_
-    - based on the route [`validate.state`](#route.options.validate.state) option.
-    - error handling based on [`failAction`](#route.options.validate.failAction).
+    - 基于路由的 [`validate.state`](#route.options.validate.state) 选项.
+    - 基于 [`failAction`](#route.options.validate.failAction) 的错误处理。
 
 - _**onPreHandler**_
 
 - _**Pre-handler methods**_
-    - based on the route [`pre`](#route.options.pre) option.
-    - error handling based on each pre-handler method's `failAction` setting.
+    - 基于路由 [`pre`](#route.options.pre) 选项.
+    - 基于每个预处理程序方法的 `failAction` 设置的错误处理。
 
 - _**Route handler**_
-    - executes the route [`handler`](#route.options.handler).
+    - 执行路由 [`handler`](#route.options.handler).
 
 - _**onPostHandler**_
-    - the response contained in [`request.response`](#request.response) may be modified (but not
-      assigned a new value). To return a different response type (for example, replace an error
-      with an HTML response), return a new response value.
+    - 可以修改包含在 [`request.response`](#request.response) 中的响应 (但是不能指定一个新值)。返回不同的响应类型 (例如, 用 HTML 响应替换错误), 返回一个新的响应值。
 
 - _**Response validation**_
-    - error handling based on [`failAction`](#route.options.response.failAction).
+    - 基于 [`failAction`](#route.options.response.failAction) 的错误处理。
 
 - _**onPreResponse**_
-    - always called, unless the request is aborted.
-    - the response contained in [`request.response`](#request.response) may be modified (but not
-      assigned a new value). To return a different response type (for example, replace an error
-      with an HTML response), return a new response value. Note that any errors generated will not
-      be passed back to _**onPreResponse**_ to prevent an infinite loop.
+    - 通常被调用, 触发请求终止。
+    - 可以修改包含在 [`request.response`](#request.response) 中的响应 (但是不能指定一个新值). 返回不同的响应类型 (例如, 用 HTML 响应替换错误), 返回一个新的响应值。 请注意，生成的任何错误都不会传递回 _**onPreResponse**_ 以防止无限循环。
 
 - _**Response transmission**_
-    - may emit a [`'request'` event](#server.events.request) on the `'error'` channel.
+    - 可能在 `'error'` 频道触发 [`'request'` event](#server.events.request) 。
 
 - _**Finalize request**_
-    - emits `'response'` event.
+    - 触发 `'response'` 事件.
 
 ### Lifecycle methods
 
