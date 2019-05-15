@@ -2742,7 +2742,7 @@ server.route({ method: 'GET', path: '/example', handler: () => 'ok' });
 const table = server.table();
 ```
 
-## 路由选项
+## Route options
 
 每个路由可进行定制，以改变请求生命周期的默认行为。
 
@@ -2830,28 +2830,23 @@ const table = server.table();
 
 默认值: `{ privacy: 'default', statuses: [200], otherwise: 'no-cache' }`.
 
-If the route method is 'GET', the route can be configured to include HTTP caching directives in the
-response. Caching can be customized using an object with the following options:
+如果路由方法是 'GET' ，则可以将路由配置为在响应中包含 HTTP 缓存指令。可以使用具有以下选项的对象自定义缓存：
 
-- `privacy` - determines the privacy flag included in client-side caching using the 'Cache-Control'
-  header. Values are:
+- `privacy` - 使用 'Cache-Control' header 确定客户端缓存中包含的隐私标志。 值为:
 
-    - `'default'` - no privacy flag.
-    - `'public'` - mark the response as suitable for public caching.
-    - `'private'` - mark the response as suitable only for private caching.
+    - `'default'` - 没有隐私标志。
+    - `'public'` - 将响应标记为适合公共缓存。
+    - `'private'` - 将响应标记为仅适用于私有缓存。
 
-- `expiresIn` - relative expiration expressed in the number of milliseconds since the
-  item was saved in the cache. Cannot be used together with `expiresAt`.
+- `expiresIn` - 毫秒数表示的自缓存以来相对到期时间。 不能与 `expiresAt` 一起使用。
 
-- `expiresAt` - time of day expressed in 24h notation using the 'HH:MM' format, at which
-  point all cache records for the route expire. Cannot be used together with `expiresIn`.
+- `expiresAt` - 使用 'HH:MM' 格式以 24 小时表示的时间， 此时路由的所有缓存记录都将过期。 不能与 `expiresIn` 一起使用。
 
-- `statuses` - an array of HTTP response status code numbers (例如 `200`) which are allowed to
-  include a valid caching directive.
+- `statuses` - HTTP 响应状态码数字的数组 (例如 `200`), 允许包含有效的缓存指令。
 
-- `otherwise` - a string with the value of the 'Cache-Control' header when caching is disabled.
+- `otherwise` - 禁用缓存时具有  'Cache-Control' header 头值的字符串。
 
-The default `Cache-Control: no-cache` header can be disabled by setting `cache` to `false`.
+通过将 `cache` 设置为 `false`，可以禁用默认的 `Cache-Control: no-cache` header。
 
 ### <a name="route.options.compression" /> `route.options.compression`
 
@@ -2861,34 +2856,25 @@ The default `Cache-Control: no-cache` header can be disabled by setting `cache` 
 
 默认值: `false` (无跨域头).
 
-The [Cross-Origin Resource Sharing](https://www.w3.org/TR/cors/) protocol allows browsers to make
-cross-origin API calls. CORS is required by web applications running inside a browser which are
-loaded from a different domain than the API server. To enable, set `cors` to `true`, or to an
-object with the following options:
+[Cross-Origin Resource Sharing](https://www.w3.org/TR/cors/) 协议允许浏览器进行跨域 API 调用。运行在浏览器中的 Web 应用程序需要 CORS，这些 Web 应用程序是从与 API 服务器不同的域加载的。要启用，请将 `cors` 设置为 `true`，或者将对象设置为具有以下选项：
 
-- `origin` - an array of allowed origin servers strings ('Access-Control-Allow-Origin'). The array
-  can contain any combination of fully qualified origins along with origin strings containing a
-  wildcard `'*'` character, or a single `'*'` origin string. If set to `'ignore'`, any incoming
-  Origin header is ignored (present or not) and the 'Access-Control-Allow-Origin' header is set to
-  `'*'`. 默认为 any origin `['*']`.
+- `origin` - 允许的源服务器字符串数组 ('Access-Control-Allow-Origin'). 该数组可以包含完全限定原点的任意组合以及包含通配符 `'*'` 字符的原始字符串，, 或单独的 `'*'` 原始字符串。 如果设置为 `'ignore'` ，则忽略任何传入的 Origin header (无论是否提供) 并且 'Access-Control-Allow-Origin' header 被设置为
+  `'*'`. 默认为 any origin `['*']`。
 
-- `maxAge` - number of seconds the browser should cache the CORS response
-  ('Access-Control-Max-Age'). The greater the value, the longer it will take before the browser
-  checks for changes in policy. 默认为 `86400` (one day).
+- `maxAge` - 浏览器应缓存 CORS 响应的秒数
+  ('Access-Control-Max-Age').值越大，浏览器检查策略更改之前所需的时间越长。 默认为 `86400` (one day).
 
-- `headers` - a strings array of allowed headers ('Access-Control-Allow-Headers'). 默认为
+- `headers` - 允许的 header 的字符串数组 ('Access-Control-Allow-Headers'). 默认为
   `['Accept', 'Authorization', 'Content-Type', 'If-None-Match']`.
 
-- `additionalHeaders` - a strings array of additional headers to `headers`. Use this to keep the
-  default headers in place.
+- `additionalHeaders` - 一个字符串数组的 additional headers 到 `headers`。 使用此选项可保留默认标头。
 
-- `exposedHeaders` - a strings array of exposed headers ('Access-Control-Expose-Headers').
+- `exposedHeaders` - 一个 expose header 的字符串数组 ('Access-Control-Expose-Headers').
   默认为 `['WWW-Authenticate', 'Server-Authorization']`.
 
-- `additionalExposedHeaders` - a strings array of additional headers to `exposedHeaders`. Use this
-  to keep the default headers in place.
+- `additionalExposedHeaders` - 一个字符串数组的额外 header 到 `exposedHeaders` 。 使用此选项可保留默认 header。
 
-- `credentials` - if `true`, allows user credentials to be sent
+- `credentials` - 如果是 `true`, 则允许发送用户凭证
   ('Access-Control-Allow-Credentials'). 默认为 `false`.
 
 ### <a name="route.options.description" /> `route.options.description`
@@ -2903,17 +2889,15 @@ object with the following options:
 
 默认值: none.
 
-Route-level [request extension points](#request-lifecycle) by setting the option to an object with
-a key for each of the desired extension points (`'onRequest'` is not allowed), and the value is the
-same as the [`server.ext(events)`](#server.ext()) `event` argument.
+路由级别 [request extension points](#request-lifecycle) 通过将选项设置为具有每个所需扩展点的键的对象 (`'onRequest'` 是不被允许的), 并且该值与 [`server.ext(events)`](#server.ext()) `event` 参数相同。
 
 ### <a name="route.options.files" /> `route.options.files`
 
 默认值: `{ relativeTo: '.' }`.
 
-Defines the behavior for accessing files:
+定义访问文件的行为：
 
-- `relativeTo` - determines the folder relative paths are resolved against.
+- `relativeTo` - 确定要解析的文件夹相对路径。
 
 ### <a name="route.options.handler" /> `route.options.handler`
 
@@ -3003,10 +2987,8 @@ const handler = function (request, h) {
 - multipart/form-data
 - text/*
 
-A string or an array of strings with the allowed mime types for the endpoint. Use this settings to
-limit the set of allowed mime types. Note that allowing additional mime types not listed above will
-not enable them to be parsed, and if [`parse`](#route.options.payload.parse) is `true`, the request
-will result in an error response.
+字符串或字符串数组，其中包含网络节点允许的 mime 类型。使用此设置可限制允许的 mime 类型集。请注意，允许上面未列出的其他 mime 类型将无法解析它们，如果 [`parse`](#route.options.payload.parse) 是 `true`，那么请求
+将导致错误响应。
 
 #### <a name="route.options.payload.compression" /> `route.options.payload.compression`
 
@@ -3045,9 +3027,9 @@ will result in an error response.
     - `output` - 与 [`output`](#route.options.payload.output) 选项相同，带有额外值的选项：
         - `annotated` - 使用以下键将每个多部分包装在对象中：
 
-            - `headers` - the part headers.
-            - `filename` - the part file name.
-            - `payload` - the processed part payload.
+            - `headers` - header 部分 .
+            - `filename` - file name 部分.
+            - `payload` - 处理过的 payload 部分。
 
 #### <a name="route.options.payload.output" /> `route.options.payload.output`
 
@@ -3055,26 +3037,20 @@ will result in an error response.
 
 处理的有效载荷格式。 该值必须是其中之一：
 
-- `'data'` - the incoming payload is read fully into memory. If [`parse`](#route.options.payload.parse)
-  is `true`, the payload is parsed (JSON, form-decoded, multipart) based on the 'Content-Type'
-  header. If [`parse`](#route.options.payload.parse) is `false`, a raw `Buffer` is returned.
+- `'data'` - 传入的 payload 完全读入内存。 如果 [`parse`](#route.options.payload.parse)
+  为 `true`, 基于 'Content-Type' header 解析 payload (JSON, form-decoded, multipart) . 如果 [`parse`](#route.options.payload.parse) is `false`, 会返回原始的 `Buffer` 。
 
-- `'stream'` - the incoming payload is made available via a `Stream.Readable` interface. If the
-  payload is 'multipart/form-data' and [`parse`](#route.options.payload.parse) is `true`, field
-  values are presented as text while files are provided as streams. File streams from a
-  'multipart/form-data' upload will also have a `hapi` property containing the `filename` and
-  `headers` properties. Note that payload streams for multipart payloads are a synthetic interface
-  created on top of the entire mutlipart content loaded into memory. To avoid loading large
-  multipart payloads into memory, set [`parse`](#route.options.payload.parse) to `false` and handle
-  the multipart payload in the handler using a streaming parser (例如 [**pez**](https://github.com/hapijs/pez)).
+- `'stream'` - 传入的有效负载通过 `Stream.Readable` 接口提供。 如果
+  payload 为 'multipart/form-data' 并且 [`parse`](#route.options.payload.parse) 为 `true`, 字段值以文本形式显示，而文件以流形式提供。来自 'multipart/form-data' 上传的文件流也将具有包含 `filename` 和 `headers` 属性的 `hapi` 属性。
+  请注意，多个 payload 的 plyaload 流是在加载到内存中的整个多内容之上创建的合成接口。为避免将大型多个 payload 加载到内存中，将 [`parse`](#route.options.payload.parse)  设置为 `false` 并使用流解析器处理处理程序中的多 payload (例如 [**pez**](https://github.com/hapijs/pez))。
 
-- `'file'` - the incoming payload is written to temporary file in the directory specified by the
-  [`uploads`](#route.options.payload.uploads) settings. If the payload is 'multipart/form-data' and
-  [`parse`](#route.options.payload.parse) is `true`, field values are presented as text while files
-  are saved to disk. Note that it is the sole responsibility of the application to clean up the
-  files generated by the framework. This can be done by keeping track of which files are used (例如
-  using the `request.app` object), and listening to the server `'response'` event to perform
-  cleanup.
+
+
+- `'file'` - 传入的有效负载被写入 [`uploads`](#route.options.payload.uploads) 设置指定的目录中的临时文件。
+    如果有效载荷是 'multipart/form-data' 并且 [`parse`](#route.options.payload.parse) 为 `true` 时，
+    文件保存到磁盘时，字段值设置为文本。
+    请注意，清除框架生成的文件是应用程序的唯一责任。这可以通过跟踪使用哪些文件来完成(例如
+    使用 `request.app` 对象), 并监听服务器 `'response'` 事件以执行清理。
 
 #### <a name="route.options.payload.override" /> `route.options.payload.override`
 
@@ -3088,87 +3064,71 @@ mime 类型字符串，覆盖收到的 'Content-Type' 值。
 
 确定传入的有效负载是否已处理或以原始方式显示。 可用值：
 
-- `true` - if the request 'Content-Type' matches the allowed mime types set by
-  [`allow`](#route.options.payload.allow) (for the whole payload as well as parts), the payload is
-  converted into an object when possible. If the format is unknown, a Bad Request (400) error
-  response is sent. Any known content encoding is decoded.
+- `true` - 如果请求  'Content-Type' 匹配 [`allow`](#route.options.payload.allow)  设置的允许 mime 类型（对于整个 payload 以及部分），尽可能将 payload 转换为对象。
+    如果格式未知，则发送 Bad Request (400) 错误响应。 任何已知的内容编码进行解码。
 
-- `false` - the raw payload is returned unmodified.
+- `false` - 原始 payload 未经修改就返回。
 
-- `'gunzip'` - the raw payload is returned unmodified after any known content encoding is decoded.
+- `'gunzip'` - 任何已知的内容编码都被解码，未经修改地返回原始 payload 。
 
 #### <a name="route.options.payload.protoAction" /> `route.options.payload.protoAction`
 
-Default value: `'error'`.
+默认值: `'error'`.
 
-Sets handling of incoming payload that may contain a prototype poisoning security attack. Available
-values:
+设置对可能包含原型中毒【Prototype Poisoning 】安全攻击的传入 payload 的处理。 可用值：
 
-- `'error'` - returns a `400` bad request error when the payload contains a prototype.
+- `'error'` - 当 payload 包含 prototype 时，返回 `400` bad request 错误。
 
-- `'remove'` - sanitizes the payload to remove the prototype.
+- `'remove'` - 清理 payload 移除 prototype。
 
-- `'ignore'` - disables the protection and allows the payload to pass as received. Use this option
-  only when you are sure that such incoming data cannot pose any risks to your application.
+- `'ignore'` - 禁用保护并允许 payload 按原样传递。 仅当您确定此类传入数据不会对您的应用程序造成任何风险时，才使用此选项。
 
 #### <a name="route.options.payload.timeout" /> `route.options.payload.timeout`
 
 默认值: to `10000` (10 seconds).
 
-Payload reception timeout in milliseconds. Sets the maximum time allowed for the client to transmit
-the request payload (body) before giving up and responding with a Request Timeout (408) error
-response.
+设置客户端在放弃和响应 Request Timeout (408) 错误响应之前传输请求 payload (body) 所允许的最长时间。
 
-Set to `false` to disable.
+设置为 `false` 以禁用。
 
 #### <a name="route.options.payload.uploads" /> `route.options.payload.uploads`
 
 默认值: `os.tmpdir()`.
 
-The directory used for writing file uploads.
+用于写入文件上传的目录。
 
 ### <a name="route.options.plugins" /> `route.options.plugins`
 
 默认值: `{}`.
 
-Plugin-specific configuration. `plugins` is an object where each key is a plugin name and the value
-is the plugin configuration.
+特定于插件的配置。 `plugins` 是一个对象，其中每个键都是一个插件名称和值
+是插件配置。
 
 ### <a name="route.options.pre" /> `route.options.pre`
 
 默认值: none.
 
-The `pre` option allows defining methods for performing actions before the handler is called. These
-methods allow breaking the handler logic into smaller, reusable components that can be shared
-across routes, as well as provide a cleaner error handling of prerequisite operations (例如 load
-required reference data from a database).
+`pre` 选项允许定义在调用处理程序之前执行操作的方法。 这些方法允许将处理程序逻辑分解为更小的，可以跨路由共享的可重用组件，以及提供先决条件操作的更清晰的错误处理(例如从数据库加载所需的参考数据).
 
-`pre` is assigned an ordered array of methods which are called serially in order. If the `pre`
-array contains another array of methods as one of its elements, those methods are called in
-parallel. Note that during parallel execution, if any of the methods error, return a
-[takeover response](#takeover-response), or abort signal, the other parallel methods will continue
-to execute but will be ignored once completed.
+`pre` 被赋予一个有序的方法数组，这些方法按顺序被串行调用。如果 `pre` 数组包含另一个方法数组作为其元素之一， 这些方法是并行调用的。
+请注意，在并行执行期间， 如果任何方法错误， 返回一个
+[takeover response](#takeover-response), 或终止信号, 其他并行方法将继续执行，但一旦完成将被忽略。
 
-`pre` can be assigned a mixed array of:
+`pre` 可以分配一个混合数组：
 
-- an array containing the elements listed below, which are executed in parallel.
+- 包含下面列出的元素的数组，它们是并行执行的。
 
-- an object with:
-    - `method` - a [lifecycle method](#lifecycle-methods).
-    - `assign` - key name used to assign the response of the method to in [`request.pre`](#request.pre)
-      and [`request.preResponses`](#request.preResponses).
-    - `failAction` - A [`failAction` value](#lifecycle-failAction) which determine what to do when
-      a pre-handler method throws an error. If `assign` is specified and the `failAction` setting
-      is not `'error'`, the error will be assigned.
+- 一个对象带有:
+    - `method` - [lifecycle method](#lifecycle-methods).
+    - `assign` - 用于在 [`request.pre`](#request.pre)
+      和 [`request.preResponses`](#request.preResponses中分配方法响应的键名。
+    - `failAction` - 一个 [`failAction` value](#lifecycle-failAction)，用于确定预处理程序方法抛出错误时要执行的操作。如果指定 `assign` 并且` failAction` 设置不是 `'error'`，那么错误将会被分配。
 
-- a method function - same as including an object with a single `method` key.
+- 方法函数 - 与包含单个 `method` 键的对象相同。
 
-Note that pre-handler methods do not behave the same way other [lifecycle methods](#lifecycle-methods)
-do when a value is returned. Instead of the 返回值 becoming the new response payload, the
-value is used to assign the corresponding [`request.pre`](#request.pre) and
-[`request.preResponses`](#request.preResponses) properties. Otherwise, the handling of errors,
-[takeover response](#takeover-response) response, or abort signal behave the same as any other
-[lifecycle methods](#lifecycle-methods).
+请注意，预处理程序方法的行为与返回值时其他 [lifecycle methods](#lifecycle-methods) 的行为方式不同。
+该值用于分配相应的 [`request.pre`](#request.pre) 和 [`request.preResponses`](#request.preResponses)（＃request.preResponses）属性，而不是该值成为新的响应 payload。
+否则，错误处理，takeover response](#takeover-response) 或中止信号的行为与任何其他 [lifecycle methods](#lifecycle-methods) 的行为相同。
 
 ```js
 const Hapi = require('hapi');
@@ -3211,162 +3171,139 @@ server.route({
 
 ### <a name="route.options.response" /> `route.options.response`
 
-Processing rules for the outgoing response.
+处理传出响应的规则。
 
 #### <a name="route.options.response.disconnectStatusCode" /> `route.options.response.disconnectStatusCode`
 
  Default value: `499`.
 
-The default HTTP status code used to set a response error when the request is closed or aborted
-before the response is fully transmitted. Value can be any integer greater or equal to `400`. The
-default value `499` is based on the non-standard nginx "CLIENT CLOSED REQUEST" error. The value is
-only used for logging as the request has already ended.
+默认 HTTP 状态代码，用于在完全传输响应之前关闭或中止请求时设置响应错误。值可以是大于或等于 `400` 的任何整数。
+默认值 `499` 基于非标准 nginx "CLIENT CLOSED REQUEST" 错误。该值仅用于请求已结束的日志记录。
 
 #### <a name="route.options.response.emptyStatusCode" /> `route.options.response.emptyStatusCode`
 
  默认值: `200`.
 
-The default HTTP status code when the payload is considered empty. Value can be `200` or `204`.
-Note that a `200` status code is converted to a `204` only at the time of response transmission
-(the response status code will remain `200` throughout the request lifecycle unless manually set).
+当有 payload 为空时的默认 HTTP 状态代码。值可以是 `200` 或 `204`。注意，仅在响应传输时将  `200` 状态代码转换为 `204`（除非手动设置，否则响应状态代码将在整个请求生命周期内保持为  `200` ）。
 
 #### <a name="route.options.response.failAction" /> `route.options.response.failAction`
 
-默认值: `'error'` (return an Internal Server Error (500) error response).
+默认值: `'error'` (返回一个 Internal Server Error (500) 错误响应).
 
-A [`failAction` value](#lifecycle-failAction) which defines what to do when a response fails
-payload validation.
+一个 [`failAction` value](#lifecycle-failAction)，它定义了响应失败有 payload 验证时要执行的操作。
 
 #### <a name="route.options.response.modify" /> `route.options.response.modify`
 
 默认值: `false`.
 
-If `true`, applies the validation rule changes to the response payload.
+如果为 `true` ，则将验证规则更改应用于响应有效内容。
 
 #### <a name="route.options.response.options" /> `route.options.response.options`
 
 默认值: none.
 
-[**joi**](https://github.com/hapijs/joi) options object pass to the validation function. Useful to
-set global options such as `stripUnknown` or `abortEarly` (the complete list is available
+[**joi**](https://github.com/hapijs/joi) 选项对象传递给验证函数.用于设置全局选项，例如 `stripUnknown` 或 `abortEarly` (完整的列表如下
 [here](https://github.com/hapijs/joi/blob/master/API.md#validatevalue-schema-options-callback)).
-If a custom validation function is defined via [`schema`](#route.options.response.schema) or
-[`status`](#route.options.response.status) then `options` can an arbitrary object that will be
-passed to this function as the second argument.
+如果通过 [`schema`](#route.options.response.schema) 或 [`status`](#route.options.response.status) 定义自定义验证函数，则 `options` 可以是任意对象 传递给这个函数作为第二个参数。
 
 #### <a name="route.options.response.ranges" /> `route.options.response.ranges`
 
 默认值: `true`.
 
-If `false`, payload [range](https://tools.ietf.org/html/rfc7233#section-3) support is disabled.
+如果为“false”，则禁用 payload [range](https://tools.ietf.org/html/rfc7233#section-3)支持。
 
 #### <a name="route.options.response.sample" /> `route.options.response.sample`
 
 默认值: `100` (all responses).
 
-The percent of response payloads validated (0 - 100). Set to `0` to disable all validation.
+验证响应有效负载的百分比 (0 - 100). 设置为 `0` 以禁用所有验证。
 
 #### <a name="route.options.response.schema" /> `route.options.response.schema`
 
 默认值: `true` (no validation).
 
-The default response payload validation rules (for all non-error responses) expressed as one of:
+默认响应 payload 验证规则（针对所有非错误响应）表示为以下之一：
 
-- `true` - any payload allowed (no validation).
+- `true` - 允许的任何 payload（无验证）。
 
-- `false` - no payload allowed.
+- `false` - 不允许 payload。
 
-- a [**joi**](https://github.com/hapijs/joi) validation object. The [`options`](#route.options.response.options)
-  along with the request context (`{ headers, params, query, payload, state, app, auth }`) are passed to
-  the validation function.
+- 一个 [**joi**](https://github.com/hapijs/joi) 验证对象. [`options`](#route.options.response.options) 以及请求上下文（ (`{ headers, params, query, payload, state, app, auth }`) 被传递给验证函数。
 
-- a validation function using the signature `async function(value, options)` where:
+- 使用签名 `async function(value, options)`  的验证函数，其中：
 
-    - `value` - the pending response payload.
-    - `options` - The [`options`](#route.options.response.options) along with the request context
+    - `value` - 挂起的响应 payload。
+    - `options` - The [`options`](#route.options.response.options) 以及请求上下文
       (`{ headers, params, query, payload, state, app, auth }`).
 
-    - if the function returns a value and [`modify`](#route.options.response.modify) is `true`,
-      the value is used as the new response. If the original response is an error, the return
-      value is used to override the original error `output.payload`. If an error is thrown, the
-      error is processed according to [`failAction`](#route.options.response.failAction).
+    - 如果函数返回一个值并且 [`modify`](#route.options.response.modify)  为`true`，该值用作新响应。
+        如果原始响应是错误的，返回值用于覆盖原始错误 `output.payload`。如果抛出错误，
+        根据 [`failAction`](#route.options.response.failAction) 处理错误。
 
 #### <a name="route.options.response.status" /> `route.options.response.status`
 
 默认值: none.
 
-Validation schemas for specific HTTP status codes. Responses (excluding errors) not matching the
-listed status codes are validated using the default [`schema`](#route.options.response.schema).
+特定 HTTP 状态代码的验证模式。 使用默认的 [`schema`](#route.options.response.schema) 验证与列出的状态代码不匹配的响应（不包括错误）。
 
-`status` is set to an object where each key is a 3 digit HTTP status code and the value has the
-same definition as [`schema`](#route.options.response.schema).
+`status` 设置为一个对象，其中每个键是一个 3 位 HTTP 状态代码，该值与 [`schema`](#route.options.response.schema). 具有相同的定义。
 
 ### <a name="route.options.rules" /> `route.options.rules`
 
 默认值: none.
 
-A custom rules object passed to each rules processor registered with [`server.rules()`](#server.rules()).
+自定义规则对象，传递给每个 [`server.rules()`](#server.rules())  注册的规则处理器。
 
 ### <a name="route.options.security" /> `route.options.security`
 
 默认值: `false` (security headers disabled).
 
-Sets common security headers. To enable, set `security` to `true` or to an object with the
-following options:
+设置公共安全头。 要启用，请将 `security` 设置为 `true` 或使用以下选项设置对象：
 
-- `hsts` - controls the 'Strict-Transport-Security' header, where:
+- `hsts` - 控制 'Strict-Transport-Security' header, 其中:
 
-    - `true` - the header will be set to `max-age=15768000`. This is the 默认值.
-    - a number - the maxAge parameter will be set to the provided value.
+    - `true` - header 将被设置为 `max-age=15768000`. 这是默认值.
+    - a number - maxAge 参数将设置为提供的值。
 
-    - an object with the following fields:
-        - `maxAge` - the max-age portion of the header, as a number. Default is `15768000`.
-        - `includeSubDomains` - a boolean specifying whether to add the `includeSubDomains` flag to
-          the header.
-        - `preload` - a boolean specifying whether to add the `'preload'` flag (used to submit
-          domains inclusion in Chrome's HTTP Strict Transport Security (HSTS) preload list) to the
-          header.
+    - 包含以下字段的对象：
+        - `maxAge` - max-age 部分, 作为数字. 默认为 `15768000`.
+        - `includeSubDomains` - 一个布尔值，指定是否将“ `includeSubDomains` 标志添加到 header 中。
+        - `preload` - 一个布尔值，指定是否添加 `'preload'`  标志 (用于提交域列入 Chrome's HTTP Strict Transport Security (HSTS) 预加载列表) 到 header
 
-- `xframe` - controls the 'X-Frame-Options' header, where:
+- `xframe` - 控制 'X-Frame-Options' header, 其中:
 
-    - `true` - the header will be set to `'DENY'`. This is the 默认值.
-    - `'deny'` - the headers will be set to `'DENY'`.
-    - `'sameorigin'` - the headers will be set to `'SAMEORIGIN'`.
+    - `true` - header 将被设置为 `'DENY'`. 这是默认值.
+    - `'deny'` - header 将被设置为 `'DENY'` 。
+    - `'sameorigin'` - header 将被设置为 `'SAMEORIGIN'`.
 
-    - an object for specifying the 'allow-from' rule, where:
-        - `rule` - one of:
+    - 指定 'allow-from' 规则的对象, 如下:
+        - `rule` - 其中之一:
             - `'deny'`
             - `'sameorigin'`
             - `'allow-from'`
-        - `source` - when `rule` is `'allow-from'` this is used to form the rest of the header,
-          otherwise this field is ignored. If `rule` is `'allow-from'` but `source` is unset, the
-          rule will be automatically changed to `'sameorigin'`.
+        - `source` - 当 `rule` 为 `'allow-from'` 这用于形成 header 的其余部分，否则该字段将被忽略。
+          如果 `rule` 为 `'allow-from'`，但 `source` 没有设置, 规则将自动设为 `'sameorigin'`.
 
-- `xss` - boolean that controls the 'X-XSS-PROTECTION' header for Internet Explorer. 默认为
-  `true` which sets the header to equal `'1; mode=block'`.
-    - Note: this setting can create a security vulnerability in versions of Internet Exploere below
-      8, as well as unpatched versions of IE8. See [here](https://hackademix.net/2009/11/21/ies-xss-filter-creates-xss-vulnerabilities/)
-      and [here](https://technet.microsoft.com/library/security/ms10-002) for more information. If
-      you actively support old versions of IE, it may be wise to explicitly set this flag to
-      `false`.
+- `xss` - boolean 控制 Internet Explorer 的 'X-XSS-PROTECTION' header . 默认为
+  `true` 与设置 header 为 `'1; mode=block'` 相同.
+    - 注意: 此设置可能会在 Internet Explorer 8 以下版本中创建安全漏洞, 以及 IE8 的未修补版本。 查看 [here](https://hackademix.net/2009/11/21/ies-xss-filter-creates-xss-vulnerabilities/)
+      和 [here](https://technet.microsoft.com/library/security/ms10-002) 获取更多信息。 如果您积极支持旧版本的IE， 明确将此标志设置为 `false`, 可能是明智之举。
 
-- `noOpen` - boolean controlling the 'X-Download-Options' header for Internet Explorer, preventing
-  downloads from executing in your context. 默认为 `true` setting the header to `'noopen'`.
+- `noOpen` - boolean 控制 Internet Explorer 的 'X-Download-Options' header,阻止从您的上下文执行。 默认为 `true` 设置 header 为 `'noopen'`.
 
-- `noSniff` - boolean controlling the 'X-Content-Type-Options' header. 默认为 `true` setting
-  the header to its only and default option, `'nosniff'`.
+- `noSniff` - boolean 控制 'X-Content-Type-Options' header. 默认为 `true` 设置 header 为唯一的默认选项, `'nosniff'`.
 
-- `referrer` - controls the ['Referrer-Policy'](https://www.w3.org/TR/referrer-policy/) header, which has the following possible values.
-    - `false` - the 'Referrer-Policy' header will not be sent to clients with responses. This is the 默认值.
-    - `''` - instructs clients that the Referrer-Policy will be [defined elsewhere](https://www.w3.org/TR/referrer-policy/#referrer-policy-empty-string), such as in a meta html tag.
-    - `'no-referrer'` - instructs clients to never include the referrer header when making requests.
-    - `'no-referrer-when-downgrade'` - instructs clients to never include the referrer when navigating from HTTPS to HTTP.
-    - `'same-origin'` - instructs clients to only include the referrer on the current site origin.
-    - `'origin'` - instructs clients to include the referrer but strip off path information so that the value is the current origin only.
-    - `'strict-origin'` - same as `'origin'` but instructs clients to omit the referrer header when going from HTTPS to HTTP.
-    - `'origin-when-cross-origin'` - instructs clients to include the full path in the referrer header for same-origin requests but only the origin components of the URL are included for cross origin requests.
-    - `'strict-origin-when-cross-origin'` - same as `'origin-when-cross-origin'` but the client is instructed to omit the referrer when going from HTTPS to HTTP.
-    - `'unsafe-url'` - instructs the client to always include the referrer with the full URL.
+- `referrer` - 控制 ['Referrer-Policy'](https://www.w3.org/TR/referrer-policy/) header, 它具有以下可能的值。
+    - `false` - 'Referrer-Policy' header 不会带着响应发送至客户端. 这是默认值.
+    - `''` - 指示客户端 Referrer-Policy 为 [defined elsewhere](https://www.w3.org/TR/referrer-policy/#referrer-policy-empty-string), 例如在 meta 标签中。
+    - `'no-referrer'` - 指示客户端在发出请求时从不包含 referrer header 。 
+    - `'no-referrer-when-downgrade'` - 指示客户端在从 HTTPS 导航到 HTTP 时从不包含 referrer。
+    - `'same-origin'` - 指示客户端仅在当前站点源上包含引用者。
+    - `'origin'` - 指示客户端包含引用者但删除路径信息，以便该值仅为当前源。
+    - `'strict-origin'` - 与  `'origin'` 相同，但指示客户端在从 HTTPS 转到 HTTP 时省略 referrer header。
+    - `'origin-when-cross-origin'` - 指示客户端在 referrer header 中包含同源请求的完整路径，但只包含 URL 的原始组件以用于跨源请求。
+    - `'strict-origin-when-cross-origin'` - 与 `'origin-when-cross-origin'` 相同，但是当从 HTTPS 转到 HTTP 时，客户端被指示省略引用者。
+    - `'unsafe-url'` - 指示客户端始终包含带有完整 URL 的引用者。
 
 ### <a name="route.options.state" /> `route.options.state`
 
