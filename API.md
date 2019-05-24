@@ -1871,51 +1871,41 @@ which only copies a reference to `value`.
 
 ### <a name="server.ext()" /> `server.ext(events)`
 
-Registers an extension function in one of the [request lifecycle](#request-lifecycle) extension
-points where:
+在 [request lifecycle](#request-lifecycle) 扩展中注册一个扩展函数，其中：
 
-- `events` - an object or array of objects with the following:
+- `events` - 具有以下内容的对象或对象数组：
 
-    - `type` - (required) the extension point event name. The available extension points include
-      the [request extension points](#request-lifecycle) as well as the following server extension
-      points:
+    - `type` - (必要) 扩展点事件名称。 可用的扩展点包括 [request extension points](#request-lifecycle) 以及以下服务器扩展点：
 
-        - `'onPreStart'` - called before the connection listeners are started.
-        - `'onPostStart'` - called after the connection listeners are started.
-        - `'onPreStop'` - called before the connection listeners are stopped.
-        - `'onPostStop'` - called after the connection listeners are stopped.
+        - `'onPreStart'` - 当连接监听器启动之前调用
+        - `'onPostStart'` - 当连接监听器启动之后调用
+        - `'onPreStop'` - 当连接监听器停止之前调用
+        - `'onPostStop'` - 当连接监听器停止之后调用
 
-    - `method` - (required) a function or an array of functions to be executed at a specified point
-      during request processing. The required extension function signature is:
+    - `method` - (必要的) 在请求处理期间在指定点执行的函数或函数数组。 所需的扩展功能签名是：
 
-        - server extension points: `async function(server)` where:
+        - server extension points: `async function(server)` 其中:
 
-            - `server` - the server object.
-            - `this` - the object provided via `options.bind` or the current active context set
-              with [`server.bind()`](#server.bind()).
+            - `server` - server 对象
+            - `this` - 通过 `options.bind` 提供的对象或 [`server.bind()`](#server.bind()) 设置的当前活动的上下文。
 
         - request extension points: a [lifecycle method](#lifecycle-methods).
 
-    - `options` - (可选) an object with the following:
+    - `options` - (可选) 具有以下内容的对象：
 
-        - `before` - a string or array of strings of plugin names this method must execute before
-          (on the same event). Otherwise, extension methods are executed in the order added.
+        - `before` -此方法之前必须执行的插件名称的字符串或数组（在同一事件上）。否则，扩展方法按添加的顺序执行。
 
-        - `after` - a string or array of strings of plugin names this method must execute after (on
-          the same event). Otherwise, extension methods are executed in the order added.
+        - `after` - 此方法必须在（在同一事件上）之后执行的插件名称字符串或字符串数组。 否则，扩展方法按添加的顺序执行。
 
-        - `bind` - a context object passed back to the provided method (via `this`) when called.
-           Ignored if the method is an arrow function.
+        - `bind` - 一个上下文对象在被调用时传递回提供的方法（通过 `this` ）。
+           如果方法是箭头函数，则忽略。
 
-        - `sandbox` - if set to `'plugin'` when adding a [request extension points](#request-lifecycle)
-          the extension is only added to routes defined by the current plugin. Not allowed when
-          configuring route-level extensions, or when adding server extensions. 默认为
-          `'server'` which applies to any route added to the server the extension is added to.
+        - `sandbox` - 如果在添加 [request extension points](#request-lifecycle) 时设置为“'plugin'”，则扩展仅添加到当前插件定义的路由中。 配置路由级扩展时不允许， 或添加服务器扩展时。 默认为
+          `'server'` 适用于添加到服务器的任何路由，添加扩展名。
 
-        - `timeout` - number of milliseconds to wait for the `method` to complete before returning
-          a timeout error. Defaults to no timeout.
+        - `timeout` - 返回超时错误之前等待 `method` 完成的毫秒数。 默认为无超时。
 
-Return value: none.
+返回值: none.
 
 ```js
 const Hapi = require('hapi');
@@ -1944,8 +1934,8 @@ async function example() {
 
 ### <a name="server.ext.args()" /> `server.ext(event, method, [options])`
 
-Registers a single extension event using the same properties as used in
-[`server.ext(events)`](#server.ext()), but passed as arguments.
+
+使用 [`server.ext(events)`](#server.ext()) 中使用的相同属性注册单个扩展事件，但作为参数传递。
 
 返回值: none.
 
@@ -1973,17 +1963,14 @@ async function example() {
 
 ### <a name="server.initialize()" /> `await server.initialize()`
 
-Initializes the server (starts the caches, finalizes plugin registration) but does not start
-listening on the connection port.
+初始化服务器（启动缓存，完成插件注册）但不侦听连接端口。
 
 返回值: none.
 
-Note that if the method fails and throws an error, the server is considered to be in an undefined
-state and should be shut down. In most cases it would be impossible to fully recover as the various
-plugins, caches, and other event listeners will get confused by repeated attempts to start the
-server or make assumptions about the healthy state of the environment. It is recommended to abort
-the process when the server fails to start properly. If you must try to resume after an error, call
-[`server.stop()`](#server.stop()) first to reset the server state.
+请注意，如果方法失败并抛出错误， 服务器被认为处于未定义状态，应该关闭。 
+在大多数情况下，不可能完全恢复各种插件，缓存，和其他事件监听器会因重复尝试启动服务器或对环境的健康状态做出假设而感到困惑。
+建议在服务器无法正常启动时中止该过程。 如果您在发生错误后必须尝试恢复， 
+首先调用 [`server.stop()`](#server.stop()) 重置服务器状态。
 
 ```js
 const Hapi = require('hapi');
@@ -1998,89 +1985,76 @@ async function example() {
 
 ### <a name="server.inject()" /> `await server.inject(options)`
 
-Injects a request into the server simulating an incoming HTTP request without making an actual
-socket connection. Injection is useful for testing purposes as well as for invoking routing logic
-internally without the overhead and limitations of the network stack.
+向服务器注入一个模拟传入HTTP请求的请求，而不进行实际的套接字连接。
+Injection 对于测试目标以及没有网络堆栈的开销和限制的内部调用路由逻辑是很有用的。
 
-The method utilizes the [**shot**](https://github.com/hapijs/shot) module for performing
-injections, with some additional options and response properties:
+该方法使用 [**shot**](https://github.com/hapijs/shot) 模块注入, 以及一些其他选项和响应属性：
 
-- `options` - can be assigned a string with the requested URI, or an object with:
+- `options` - 可以为请求的 URI 分配一个字符串, 或一个对象:
 
-    - `method` - (可选) the request HTTP method (例如 `'POST'`). 默认为 `'GET'`.
+    - `method` - (可选) 请求 HTTP 方法 (例如 `'POST'`). 默认为 `'GET'`.
 
-    - `url` - (required) the request URL. If the URI includes an authority
-      (例如 `'example.com:8080'`), it is used to automatically set an HTTP 'Host' header, unless
-      one was specified in `headers`.
+    - `url` - (必要的) 请求 URL. 如果URI包含权限
+      (例如 `'example.com:8080'`), 它用于自动设置HTTP 'HOST' 标头，除非在 `headers` 中指定了一个。
 
-    - `headers` - (可选) an object with optional request headers where each key is the header
-      name and the value is the header content. 默认为 no additions to the default **shot**
-      headers.
+    - `headers` - (可选) 带有可选请求 header 的对象，其中每个键是 header 名称，值是 header内容。 默认为 没有添加 **shot** headers.
 
-    - `payload` - (可选) an string, buffer or object containing the request payload. In case of
-      an object it will be converted to a string for you. 默认为 no payload. Note that payload
-      processing 默认为 `'application/json'` if no 'Content-Type' header provided.
+    - `payload` - (可选) 字符串, buffer 或 包含请求 payload 的对象. 如果是对象，它将被转换为字符串。 默认为 无 payload. 注意，如果没有提供 'Content-Type' header， payload
+      处理 默认为 `'application/json'` 。
 
-    - `auth` - (optional) an object containing parsed authentication credentials where:
+    - `auth` - (optional) 包含解析的身份验证凭据的对象，其中：
 
-        - `strategy` - (required) the authentication strategy name matching the provided
-          credentials.
+        - `strategy` - (必要) 与提供的验证身份验证策略匹配的名称。
 
-        - `credentials` - (required) a credentials object containing authentication information.
-          The `credentials` are used to bypass the default authentication strategies, and are
-          validated directly as if they were received via an authentication scheme.
+        - `credentials` - (required) 包含身份验证信息的凭据对象。
+          `credentials` 用于绕过默认的身份验证策略，
+          并直接验证，就好像它们是通过身份验证方案收到的一样。
 
-        - `artifacts` - (optional) an artifacts object containing authentication artifact
-          information. The `artifacts` are used to bypass the default authentication strategies,
-          and are validated directly as if they were received via an authentication scheme.
-          Defaults to no artifacts.
+        - `artifacts` - (optional) 包含身份验证 artifacts 信息的 artifacts 对象。`artifacts` 用于绕过默认的身份验证策略，
+          并直接验证，就好像它们是通过身份验证方案收到的一样。
+          默认没有 artifacts.
 
-    - `app` - (可选) sets the initial value of `request.app`, 默认为 `{}`.
+    - `app` - (可选) 设置 `request.app` 的初始值, 默认为 `{}`.
 
-    - `plugins` - (可选) sets the initial value of `request.plugins`, 默认为 `{}`.
+    - `plugins` - (可选) 设置 `request.plugins` 的初始值, 默认为 `{}`.
 
-    - `allowInternals` - (可选) allows access to routes with `config.isInternal` set to `true`.
+    - `allowInternals` - (可选) 设置`true`，允许访问 `config.isInternal` 的路由。
       默认为 `false`.
 
-    - `remoteAddress` - (可选) sets the remote address for the incoming connection.
+    - `remoteAddress` - (可选) 设置传入连接的远程地址。
 
-    - `simulate` - (可选) an object with options used to simulate client request stream
-      conditions for testing:
+    - `simulate` - (可选) 带有用于模拟客户端请求流条件以进行测试的选项的对象：
 
-        - `error` - if `true`, emits an `'error'` event after payload transmission (if any).
+        - `error` - 如果为 `true`, payload 传输后触发 `'error'` 事件 (if any).
           默认为 `false`.
 
-        - `close` - if `true`, emits a `'close'` event after payload transmission (if any).
+        - `close` - 如果为 `true`, payload 传输后触发 `'close'` 事件 (if any).
           默认为 `false`.
 
-        - `end` - if `false`, does not end the stream. 默认为 `true`.
+        - `end` - 如果为 `false`, 不会结束流。 默认为 `true`.
 
-        - `split` - indicates whether the request payload will be split into chunks. 默认为
-          `undefined`, meaning payload will not be chunked.
+        - `split` - 指示请求 payload 是否将拆分为块。 默认为
+          `undefined`, 意味着 payload 不会被分块。
 
-    - `validate` - (可选) if `false`, the `options` inputs are not validated. This is
-      recommended for run-time usage of `inject()` to make it perform faster where input validation
-      can be tested separately.
+    - `validate` - (可选) 如果为 `false`, `options` 输入未经过验证。 推荐在运行时使用 `inject()`，可以在单独测试输入验证情况下执行得更快。
 
-返回值: a response object with the following properties:
+返回值: 具有以下属性的响应对象：
 
 - `statusCode` - HTTP 状态码.
 
-- `headers` - an object containing the headers set.
+- `headers` - 包含 header 的对象。
 
-- `payload` - the response payload string.
+- `payload` - 响应 payload 字符串.
 
-- `rawPayload` - the raw response payload buffer.
+- `rawPayload` - 原始响应的 payload buffer
 
-- `raw` - an object with the injection request and response objects:
+- `raw` -具有注入请求和响应对象的对象：
 
-    - `req` - the simulated node request object.
-    - `res` - the simulated node response object.
+    - `req` - 模拟节点请求对象。
+    - `res` - 模拟节点响应对象。
 
-- `result` - the raw handler response (例如 when not a stream or a view) before it is
-    serialized for transmission. If not available, the value is set to `payload`. Useful for
-    inspection and reuse of the internal objects returned (instead of parsing the response
-    string).
+- `result` - 在序列化传输之前，原始处理程序响应 (例如 不是 stream 或视图时) 。
+    如果不可用，则将值设置为 `payload`。 用于检查和重用返回的内部对象 (而不是解析响应字符串).
 
 - `request` - the [request object](#request).
 
@@ -2175,30 +2149,23 @@ const route = server.match('get', '/');
 
 注册一个 [server method](#server.methods) 其中：
 
-- `name` - a unique method name used to invoke the method via [`server.methods[name]`](#server.method).
+- `name` - 用于通过 [`server.methods[name]`](#server.method) 调用方法的唯一方法名称。
 
-- `method` - the method function with a signature `async function(...args, [flags])` where:
-    - `...args` - the method function arguments (can be any number of arguments or none).
-    - `flags` - when caching is enabled, an object used to set optional method result flags. This
-      parameter is provided automatically and can only be accessed/modified within the method
-      function. It cannot be passed as an argument.
-        - `ttl` - `0` if result is valid but cannot be cached. Defaults to cache policy.
+- `method` - 方法函数带有签名 `async function(...args, [flags])` 其中：
+    - `...args` - 方法函数参数（可以是任意数量的参数或无）。
+    - `flags` - 启用缓存时，用于设置可选方法结果标志的对象。 此参数是自动提供的，只能在方法功能中访问/修改。 它不能作为参数传递。
+        - `ttl` - `0` 结果有效，但无法缓存。默认为缓存策略。
 
-- `options` - (可选) configuration object:
+- `options` - (可选) 配置对象：
 
-    - `bind` - a context object passed back to the method function (via `this`) when called.
-      默认为 active context (set via [`server.bind()`](#server.bind()) when the method is
-      registered. Ignored if the method is an arrow function.
+    - `bind` - 一个上下文对象在被调用时传递给方法函数（通过 `this` ）。
+      当方法已经注册，默认为 当前上下文 (通过 [`server.bind()`](#server.bind() 设置)。 如果方法是箭头函数，则忽略。
 
-    - `cache` - the same cache configuration used in [`server.cache()`](#server.cache()). The
-      `generateTimeout` option is required.
+    - `cache` - [`server.cache()`](#server.cache()) 中使用的缓存配置相同。
+      `generateTimeout` 选项是必需的。
 
-    - `generateKey` - a function used to generate a unique key (for caching) from the arguments
-      passed to the method function (the `flags` argument is not passed as input). The server
-      will automatically generate a unique key if the function's arguments are all of types
-      `'string'`, `'number'`, or `'boolean'`. However if the method uses other types of arguments,
-      a key generation function must be provided which takes the same arguments as the function and
-      returns a unique string (or `null` if no key can be generated).
+    - `generateKey` - 用于从传递给方法函数的参数生成唯一键（用于缓存）的函数（ `flags` 参数不作为输入传递）。 如果函数的参数都是 `'string'`, `'number'` 或 `'boolean'` 类型，服务器将自动生成一个唯一键。 但是，如果该方法使用其他类型的参数，
+      必须提供密钥生成函数，该函数采用与函数相同的参数并返回唯一字符串 (如果不能生成密钥，则为 `null`)。
 
 返回值: none.
 
