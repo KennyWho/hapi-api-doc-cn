@@ -383,25 +383,18 @@ options 控制服务器对象的行为。注意 options 对象是深拷贝的（
 
 服务器过载【excessive】处理的限制，其中：
 
-- `sampleInterval` - the frequency of sampling in milliseconds. When set to `0`, the other load
-  options are ignored. 默认为 `0` (no sampling).
+- `sampleInterval` - 采样频率，以毫秒为单位。 设置为 `0` 时，将忽略其他加载选项。 默认为 `0` (没有抽样).
 
-- `maxHeapUsedBytes` - maximum V8 heap size over which incoming requests are rejected with an HTTP
-  Server Timeout (503) response. 默认为 `0` (no limit).
+- `maxHeapUsedBytes` - 使用 HTTP  Server Timeout (503) 响应拒绝传入请求的最大 V8 堆大小。 默认为 `0` (no limit).
 
-- `maxRssBytes` - maximum process RSS size over which incoming requests are rejected with an HTTP
-  Server Timeout (503) response. 默认为 `0` (no limit).
+- `maxRssBytes` - 使用 HTTP  Server Timeout (503) 响应拒绝传入请求的最大进程 RSS 大小。 默认为 `0` (no limit).
 
-- `maxEventLoopDelay` - maximum event loop delay duration in milliseconds over which incoming
-  requests are rejected with an HTTP Server Timeout (503) response. 默认为 `0` (no limit).
+- `maxEventLoopDelay` - 使用 HTTP Server Timeout (503) 响应拒绝传入请求的最大事件循环延迟持续时间（以毫秒为单位）。 默认为 `0` (no limit).
 
-- `concurrent` - maximum number of requests to execute in parallel. This is useful to reduce
-  garbage collection costs on high load deployment where the actual handler computation load is
-  low. For example, a handler that mostly waits for upstream data will allow many incoming requests
-  to queue up all the way to the handler lifecycle step. This will trigger heavy garbage collection
-  load trying to sort out the many pending objects. Reducing the number of concurrent requests
-  being processed can help. There is no recommended value - you need to test what works best for
-  your specific deployment. 默认为 `0` (no queue).
+- `concurrent` - 并行执行的最大请求数。这对于在实际处理程序计算负载较低的高负载部署中减少垃圾收集成本很有用。
+  例如，主要等待上游数据的处理程序将允许许多传入请求一直排队到处理程序生命周期阶段。 
+  这将触发重垃圾收集负载，试图整理许多待处理对象。
+  减少正在处理的并发请求数可能会有所帮助。 这里没有建议的值 - 您需要测试哪种方法最适合您的特定部署。 默认为 `0` (no queue).
 
 #### <a name="server.options.mime" /> `server.options.mime`
 
@@ -723,46 +716,33 @@ server.events.on({ name: 'request', channels: 'error' }, (request, event, tags) 
 
 内部生成的事件 (由 `tags` 标识):
 
-- `accept-encoding` `error` - a request received contains an invalid Accept-Encoding header.
-- `auth` `unauthenticated` - no authentication scheme included with the request.
-- `auth` `unauthenticated` `response` `{strategy}` - the authentication strategy listed returned a
-  non-error response (例如 a redirect to a login page).
-- `auth` `unauthenticated` `error` `{strategy}` - the request failed to pass the listed
-  authentication strategy (invalid credentials).
-- `auth` `unauthenticated` `missing` `{strategy}` - the request failed to pass the listed
-  authentication strategy (no credentials found).
-- `auth` `unauthenticated` `try` `{strategy}` - the request failed to pass the listed
-  authentication strategy in `'try'` mode and will continue.
-- `auth` `scope` `error` - the request authenticated but failed to meet the scope requirements.
-- `auth` `entity` `user` `error` - the request authenticated but included an application entity
-  when a user entity was required.
-- `auth` `entity` `app` `error` - the request authenticated but included a user entity when an
-  application entity was required.
-- `handler` `error` - the route handler returned an error. Includes the execution duration and the
-  error message.
-- `pre` `error` - a pre method was executed and returned an error. Includes the execution duration,
-  assignment key, and error.
-- `internal` `error` - an HTTP 500 error response was assigned to the request.
-- `internal` `implementation` `error` - an incorrectly implemented [lifecycle method](#lifecycle-methods).
-- `request` `abort` `error` - the request aborted.
-- `request` `closed` `error` - the request closed prematurely.
-- `request` `error` - the request stream emitted an error. Includes the error.
-- `request` `server` `timeout` `error` - the request took too long to process by the server.
-  Includes the timeout configuration value and the duration.
-- `state` `error` - the request included an invalid cookie or cookies. Includes the cookies and
-  error details.
-- `state` `response` `error` - the response included an invalid cookie which prevented generating a
-  valid header. Includes the error.
-- `payload` `error` - failed processing the request payload. Includes the error.
-- `response` `error` - failed writing the response to the client. Includes the error.
-- `response` `error` `close` - failed writing the response to the client due to prematurely closed
-  connection.
-- `response` `error` `aborted` - failed writing the response to the client due to prematurely
-  aborted connection.
-- `response` `error` `cleanup` - failed freeing response resources.
-- `validation` `error` `{input}` - input (i.e. payload, query, params, headers) validation failed.
-  Includes the error.
-- `validation` `response` `error` - response validation failed. Includes the error message.
+- `accept-encoding` `error` - 收到的请求包含无效的 invalid Accept-Encoding header.
+- `auth` `unauthenticated` - 没有 authentication scheme 包含在请求中.
+- `auth` `unauthenticated` `response` `{strategy}` - 列出的身份验证策略返回了非错误响应 (例如 重定向到).
+- `auth` `unauthenticated` `error` `{strategy}` - 请求未能通过列出的身份验证策略（无效凭据）。
+- `auth` `unauthenticated` `missing` `{strategy}` - 请求未能通过列出的身份验证策略（未找到凭据）。
+- `auth` `unauthenticated` `try` `{strategy}` - 请求未能在 `try` 模式下通过列出的身份验证策略，并将继续。
+- `auth` `scope` `error` - 请求已通过身份验证但未能满足范围要求。
+- `auth` `entity` `user` `error` - 请求经过身份验证但在需要用户实体时包含应用程序实体。
+- `auth` `entity` `app` `error` - 请求经过身份验证但在需要应用程序实体时包含用户实体。
+- `handler` `error` - 路由处理程序返回错误。 包括执行持续时间和错误消息。
+- `pre` `error` - 执行 pre 方法并返回错误。 包括执行持续时间，分配键和错误。
+- `internal` `error` - 为请求分配了 HTTP 500 错误响应。
+- `internal` `implementation` `error` - 错误实现的 [lifecycle method](#lifecycle-methods).
+- `request` `abort` `error` - 请求中止。
+- `request` `closed` `error` - 请求提前结束。
+- `request` `error` - 请求流发出错误。 包括错误。
+- `request` `server` `timeout` `error` - 请求花了太长时间才能由服务器处理。 包括超时配置值和持续时间。
+- `state` `error` - 该请求包含无效的 cookie。 包括 cookie 和错误详细信息。
+- `state` `response` `error` - 响应包括无效的 cookie，阻止生成有效的 header。 包括错误。
+- `payload` `error` - 处理请求有效负载失败。 包括错误。
+- `response` `error` - 无法将响应写入客户端。 包含错误。
+- `response` `error` `close` - 由于过早关闭连接而无法将响应写入客户端。
+- `response` `error` `aborted` - 由于过早中止连接而无法将响应写入客户端。
+- `response` `error` `cleanup` - 无法释放响应资源。
+- `validation` `error` `{input}` - 输入 (例如 payload, query, params, headers) 验证失败。
+  包含错误。
+- `validation` `response` `error` - 响应认证失败. 包含错误信息。
 
 ##### <a name="server.events.response" /> `'response'` Event
 
@@ -2212,45 +2192,31 @@ async function example() {
 
 ### <a name="server.route()" /> `server.route(route)`
 
-Adds a route where:
+添加路由：
 
-- `route` - a route configuration object or an array of configuration objects where each object
-  contains:
+- `route` - 路由配置对象或配置对象数组，其中每个对象包含：
 
-    - `path` - (required) the absolute path used to match incoming requests (must begin with '/').
-      Incoming requests are compared to the configured paths based on the server's
-      [`router`](#server.options.router) configuration. The path can include named parameters
-      enclosed in `{}` which  will be matched against literal values in the request as described in
-      [Path parameters](#path-parameters).
+    - `path` - (必要) 用于匹配传入请求的绝对路径（必须以'/'开头）。
+      根据服务器的
+      [`router`](#server.options.router) 配置将传入请求与配置的路径进行比较。
+      该路径可以包括括在 `{}` 中的命名参数，它将与请求中的文字值进行匹配，如 [Path parameters](#path-parameters) 中所述。
 
-    - `method` - (required) the HTTP method. Typically one of 'GET', 'POST', 'PUT', 'PATCH',
-      'DELETE', or 'OPTIONS'. Any HTTP method is allowed, except for 'HEAD'. Use `'*'` to match
-      against any HTTP method (only when an exact match was not found, and any match with a
-      specific method will be given a higher priority over a wildcard match). Can be assigned an
-      array of methods which has the same result as adding the same route with different methods
-      manually.
+    - `method` - (必要) HTTP 方法. 通常是其中之一 'GET', 'POST', 'PUT', 'PATCH',
+      'DELETE', or 'OPTIONS'. 允许任何 非 'HEAD' 的 HTTP 方法。 使用 `'*'` 匹配任何 HTTP 方法 (仅当未找到完全匹配时，与特定方法的任何匹配将优先于通配符匹配). 可以分配一组方法，这些方法与手动添加具有不同方法的相同路径具有相同的结果。
 
-    - `vhost` - (可选) a domain string or an array of domain strings for limiting the route to
-      only requests with a matching host header field. Matching is done against the hostname part
-      of the header only (excluding the port). 默认为 all hosts.
+    - `vhost` - (可选) 域字符串或域字符串数组，用于将路由限制为仅具有匹配主机头字段的请求。 匹配仅针对 header 的主机名部分（不包括端口）。. 默认为 所有 hosts.
 
-    - `handler` - (required when [`handler`](#route.options.handler) is not set) the route
-      handler function called to generate the response after successful authentication and
-      validation.
+    - `handler` - (必要 当 [`handler`](#route.options.handler) 没有设置) 调用路由处理函数以在成功进行身份验证和验证后生成响应。
 
-    - `options` - additional [route options](#route-options). The `options` value can be an object
-      or a function that returns an object using the signature `function(server)` where `server` is
-      the server the route is being added to and `this` is bound to the current
-      [realm](#server.realm)'s `bind` option.
+    - `options` - 额外的 [route options](#route-options). 
+    `options` 值可以是使用签名 `function(server)` 返回对象的对象或函数，其中 `server` 是添加路由的服务器，`this`绑 定到当前 [realm](#server.realm) 的 `bind` 选项。
 
-    - `rules` - route custom rules object. The object is passed to each rules processor registered
-      with [`server.rules()`](#server.rules()). Cannot be used if
-      [`route.options.rules`](#route.options.rules) is defined.
+    - `rules` - route 自定义规则对象. 该对象被传递给使用 [`server.rules()`](#server.rules()) 注册的每个规则处理器。如果定义了
+      [`route.options.rules`](#route.options.rules)，则无法使用。
 
 返回值: none.
 
-Note that the `options` object is deeply cloned (with the exception of `bind` which is shallowly
-copied) and cannot contain any values that are unsafe to perform deep copy on.
+请注意，`options` 对象被深度克隆（除了浅层复制的 `bind`）并且不能包含任何不安全的值来执行深层复制。
 
 ```js
 const Hapi = require('hapi');
@@ -2282,18 +2248,14 @@ server.route([
 
 #### 路径参数
 
-Parameterized paths are processed by matching the named parameters to the content of the incoming
-request path at that path segment. For example, `'/book/{id}/cover'` will match `'/book/123/cover'` and
-`request.params.id` will be set to `'123'`. Each path segment (everything between the opening `'/'`
-and the closing `'/'` unless it is the end of the path) can only include one named parameter. A
-parameter can cover the entire segment (`'/{param}'`) or part of the segment (`'/file.{ext}'`).  A path
-parameter may only contain letters, numbers and underscores, 例如 `'/{file-name}'` is invalid
-and `'/{file_name}'` is valid.
+通过将命名参数与该路径段处的传入请求路径的内容进行匹配来处理参数化路径。
+例如， `'/book/{id}/cover'` 将匹配 `'/book/123/cover'` ，`request.params.id` 将被设置为 `'123'`。
+每个路径段（开头 `'/'` 和关闭 `'/'` 之间的所有内容，除非它是路径的末尾）只能包含一个命名参数。
+参数可以覆盖整个段(`'/{param}'`)或段的一部分(`'/file.{ext}'`)。
+路径参数可能只包含字母，数字和下划线，例如 `'/{file-name}'` 是无效的， `'/{file_name}'` 有效
 
-An optional `'?'` suffix following the parameter name indicates an optional parameter (only allowed
-if the parameter is at the ends of the path or only covers part of the segment as in
-`'/a{param?}/b'`). For example, the route `'/book/{id?}'` matches `'/book/'` with the value of
-`request.params.id` set to an empty string `''`.
+参数名后面的可选 `'?'` 后缀表示可选参数（仅当参数位于路径的末尾或仅覆盖段的一部分时才允许，如 `'/a{param?}/b'`）。
+例如，路由 `'/book/{id?}'` 匹配 `'/book/'`，其中 `request.params.id` 的值设置为空字符串 `''` 。
 
 ```js
 const Hapi = require('hapi');
@@ -2313,10 +2275,7 @@ server.route({
 });
 ```
 
-In addition to the optional `?` suffix, a parameter name can also specify the number of matching
-segments using the `*` suffix, followed by a number greater than 1. If the number of expected parts
-can be anything, then use `*` without a number (matching any number of segments can only be used in
-the last path segment).
+除了可选的 `?` 后缀之外，参数名称也可以使用 `*` 后缀指定匹配段的数量， 后跟一个大于 1 的数字。如果预期部分的数字可以是任何东西，然后使用没有数字的 `*`（匹配任意数量的段只能在最后一个路径段中使用）。
 
 ```js
 const Hapi = require('hapi');
@@ -2337,22 +2296,20 @@ server.route({
 
 #### Path matching order
 
-The router iterates through the routing table on each incoming request and executes the first (and
-only the first) matching route. Route matching is done based on the combination of the request path
-and the HTTP verb (例如 'GET, 'POST'). The query is excluded from the routing logic. Requests are
-matched in a deterministic order where the order in which routes are added does not matter.
+路由器在每个传入请求上遍历路由表，并执行第一个（也是唯一的）匹配路由。
+路由匹配是基于请求路径和 HTTP 方法的组合完成的（例如'GET，'POST'）。
+查询从路由逻辑中排除。
+请求以确定性顺序匹配，其中添加路由的顺序无关紧要。
 
-Routes are matched based on the specificity of the route which is evaluated at each segment of the
-incoming request path. Each request path is split into its segment (the parts separated by `'/'`).
-The segments are compared to the routing table one at a time and are matched against the most
-specific path until a match is found. If no match is found, the next match is tried.
+根据在传入请求路径的每个段上评估的路由的特异性来匹配路由。
+每个请求路径都被拆分为其段（由 `'/'` 分隔的部分）。
+这些段一次一个地与路由表进行比较，并与最具体的路径进行匹配，直到找到匹配为止。
+如果未找到匹配项，则尝试下一次匹配。
 
-When matching routes, string literals (no path parameter) have the highest priority, followed by
-mixed parameters (`'/a{p}b'`), parameters (`'/{p}'`), and then wildcard (`/{p*}`).
+匹配路由时，字符串文字（无路径参数）具有最高优先级，
+然后是混合参数(`'/a{p}b'`)，参数 (`'/{p}'`) ，最后是通配符(`/{p*}`)。
 
-Note that mixed parameters are slower to compare as they cannot be hashed and require an array
-iteration over all the regular expressions representing the various mixed parameter at each
-routing table node.
+请注意，混合参数比较慢，因为它们无法进行散列，并且需要对表示每个路由表节点上的各种混合参数的所有正则表达式进行数组迭代。
 
 #### Catch all route
 
@@ -4623,4 +4580,4 @@ const plugin = {
 
 本文档使用`Google 翻译`并由个人整理，并不具有专业性，如有异议，请以原文为主。
 
-目前进度 3/5
+目前进度 4/5
